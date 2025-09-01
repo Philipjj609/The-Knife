@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.collections.*?>
+<?import java.lang.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="theknife.controllers.RegistrazioneController"
+            styleClass="main-container">
+    
+    <!-- Header con logo -->
+    <top>
+        <HBox styleClass="navbar">
+            <HBox spacing="8" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                <Text text="The" styleClass="logo-text"/>
+                <Text text="Knife" styleClass="logo-text,logo-accent"/>
+            </HBox>
+        </HBox>
+    </top>
+    
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                   style="-fx-background-color: transparent;">
+            <StackPane alignment="CENTER">
+                <VBox alignment="CENTER" spacing="30" style="-fx-padding: 40; -fx-max-width: 600;">
+                    
+                    <!-- Card container -->
+                    <VBox spacing="25" styleClass="card" style="-fx-padding: 40;">
+                        
+                        <!-- Titolo sezione -->
+                        <VBox spacing="8" alignment="CENTER">
+                            <Text text="Registrazione Account" styleClass="subtitle"/>
+                            <Text text="Compila tutti i campi per creare il tuo account" styleClass="body-text"/>
+                        </VBox>
+                        
+                        <!-- Informazioni personali -->
+                        <VBox spacing="20">
+                            <Text text="Informazioni Personali" styleClass="heading"/>
+                            
+                            <HBox spacing="20">
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="Nome *" styleClass="body-text" style="-fx-font-weight: bold;"/>
+                                    <TextField fx:id="nomeField" promptText="Es. Mario" 
+                                              style="-fx-font-size: 16px; -fx-padding: 12 16;"/>
+                                </VBox>
+                                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                    <Label text="Cognome *" styleClass="body-text" style="-fx-font-weight: bold;"/>
+                                    <TextField fx:id="cognomeField" promptText="Es. Rossi" 
+                                              style="-fx-font-size: 16px; -fx-padding: 12 16;"/>
+                                </VBox>
+                            </HBox>
+                            
+                            <HBox spacing="15" alignment="CENTER_LEFT">
+                                <Label text="Data di Nascita:" styleClass="body-text" style="-fx-font-weight: bold; -fx-min-width: 140px;"/>
+                                <DatePicker fx:id="dataNascitaPicker" promptText="Seleziona data" 
+                                           style="-fx-font-size: 14px; -fx-padding: 8 12; -fx-pref-width: 180px; -fx-pref-height: 35px;"/>
+                            </HBox>
+                            
+                            <VBox spacing="8">
+                                <Label text="Domicilio *" styleClass="body-text" style="-fx-font-weight: bold;"/>
+                                <TextField fx:id="domicilioField" promptText="Es. Via Roma 123, Milano" 
+                                          style="-fx-font-size: 16px; -fx-padding: 12 16;"/>
+                            </VBox>
+                        </VBox>
+                        
+                        <!-- Separator -->
+                        <Separator/>
+                        
+                        <!-- Credenziali account -->
+                        <VBox spacing="20">
+                            <Text text="Credenziali Account" styleClass="heading"/>
+                            
+                            <VBox spacing="8">
+                                <Label text="Nome Utente *" styleClass="body-text" style="-fx-font-weight: bold;"/>
+                                <TextField fx:id="usernameField" promptText="Scegli un nome utente unico" 
+                                          style="-fx-font-size: 16px; -fx-padding: 12 16;"/>
+                                <Label text="Deve essere unico e contenere almeno 3 caratteri" styleClass="small-text"/>
+                            </VBox>
+                            
+                            <VBox spacing="8">
+                                <Label text="Password *" styleClass="body-text" style="-fx-font-weight: bold;"/>
+                                <PasswordField fx:id="passwordField" promptText="Crea una password sicura" 
+                                              style="-fx-font-size: 16px; -fx-padding: 12 16;"/>
+                                <Label text="Minimo 6 caratteri, consigliati numeri e caratteri speciali" styleClass="small-text"/>
+                            </VBox>
+                            
+                            <VBox spacing="8">
+                                <HBox spacing="15" alignment="CENTER_LEFT">
+                                    <Label text="Tipo di Account: *" styleClass="body-text" style="-fx-font-weight: bold; -fx-min-width: 140px;"/>
+                                    <ComboBox fx:id="ruoloComboBox" promptText="Seleziona tipo"
+                                             style="-fx-font-size: 14px; -fx-padding: 8 12; -fx-pref-width: 150px; -fx-pref-height: 35px;">
+                                        <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                                <String fx:value="Cliente"/>
+                                                <String fx:value="Ristoratore"/>
+                                            </FXCollections>
+                                        </items>
+                                    </ComboBox>
+                                </HBox>
+                                <VBox spacing="4" style="-fx-padding: 0 0 0 155;">
+                                    <Label text="• Cliente: Cerca ristoranti, lascia recensioni, gestisci preferiti" styleClass="small-text"/>
+                                    <Label text="• Ristoratore: Aggiungi i tuoi ristoranti, rispondi alle recensioni" styleClass="small-text"/>
+                                </VBox>
+                            </VBox>
+                        </VBox>
+                        
+                        <!-- Messaggio di errore -->
+                        <Label fx:id="errorLabel" styleClass="error" 
+                               style="-fx-font-size: 14px; -fx-padding: 12; -fx-background-color: #ffeaea; -fx-border-radius: 8;"
+                               visible="false" managed="false"/>
+                        
+                        <!-- Pulsanti -->
+                        <VBox spacing="12" alignment="CENTER">
+                            <Button text="🚀 Crea Account" onAction="#handleRegistrati" styleClass="button,primary"
+                                   style="-fx-font-size: 16px; -fx-padding: 16 30; -fx-pref-width: 250px; -fx-pref-height: 50px;"/>
+                            
+                            <Button text="↩️ Torna al Login" onAction="#handleAnnulla" styleClass="button"
+                                   style="-fx-font-size: 14px; -fx-padding: 12 30; -fx-pref-width: 250px; -fx-pref-height: 45px;"/>
+                        </VBox>
+                        
+                        <!-- Note privacy -->
+                        <VBox spacing="8" alignment="CENTER">
+                            <Text text="Creando un account accetti i nostri termini di servizio" 
+                                  styleClass="small-text" style="-fx-text-alignment: center;" textAlignment="CENTER"/>
+                            <Text text="I tuoi dati saranno utilizzati solo per migliorare la tua esperienza" 
+                                  styleClass="small-text" style="-fx-text-alignment: center;" textAlignment="CENTER"/>
+                        </VBox>
+                    </VBox>
+                </VBox>
+            </StackPane>
+        </ScrollPane>
+    </center>
+</BorderPane>

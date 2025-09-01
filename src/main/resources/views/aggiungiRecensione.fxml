@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="theknife.controllers.AggiungiRecensioneController"
+            style="-fx-background-color: #f8f9fa;">
+    
+    <center>
+        <VBox spacing="20" style="-fx-padding: 30; -fx-max-width: 450;">
+            
+            <Text fx:id="ristoranteLabel" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-alignment: center;"/>
+            
+            <VBox spacing="8">
+                <Label text="Valutazione (1-5 stelle):" style="-fx-font-weight: bold;"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <ToggleButton fx:id="star1" text="★" style="-fx-font-size: 20; -fx-background-color: transparent; -fx-border-color: transparent;"/>
+                    <ToggleButton fx:id="star2" text="★" style="-fx-font-size: 20; -fx-background-color: transparent; -fx-border-color: transparent;"/>
+                    <ToggleButton fx:id="star3" text="★" style="-fx-font-size: 20; -fx-background-color: transparent; -fx-border-color: transparent;"/>
+                    <ToggleButton fx:id="star4" text="★" style="-fx-font-size: 20; -fx-background-color: transparent; -fx-border-color: transparent;"/>
+                    <ToggleButton fx:id="star5" text="★" style="-fx-font-size: 20; -fx-background-color: transparent; -fx-border-color: transparent;"/>
+                </HBox>
+            </VBox>
+            
+            <VBox spacing="8">
+                <Label text="Titolo della recensione:" style="-fx-font-weight: bold;"/>
+                <TextField fx:id="titoloField" promptText="Es. Esperienza fantastica!" 
+                          style="-fx-padding: 10; -fx-border-radius: 5;"/>
+            </VBox>
+            
+            <VBox spacing="8">
+                <Label text="La tua recensione:" style="-fx-font-weight: bold;"/>
+                <TextArea fx:id="commentoArea" promptText="Descrivi la tua esperienza al ristorante..."
+                         prefRowCount="5" wrapText="true"
+                         style="-fx-padding: 10; -fx-border-radius: 5;"/>
+            </VBox>
+            
+            <HBox spacing="15" alignment="CENTER" style="-fx-padding: 10 0 0 0;">
+                <Button text="Pubblica Recensione" onAction="#handlePubblica"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 10 20; -fx-font-weight: bold;"/>
+                <Button text="Annulla" onAction="#handleAnnulla"
+                        style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-padding: 10 20;"/>
+            </HBox>
+            
+            <Label fx:id="errorLabel" style="-fx-text-fill: #e74c3c; -fx-font-weight: bold;" />
+            
+        </VBox>
+    </center>
+</BorderPane>

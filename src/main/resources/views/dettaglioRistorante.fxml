@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="theknife.controllers.DettaglioRistoranteController"
+            fitToWidth="true" styleClass="main-container">
+    
+    <VBox spacing="24" style="-fx-padding: 32;">
+        
+        <!-- Header del ristorante -->
+        <VBox spacing="20" styleClass="card" style="-fx-padding: 32;">
+            <HBox spacing="20" alignment="CENTER_LEFT">
+                <VBox HBox.hgrow="ALWAYS" spacing="8">
+                    <Text fx:id="nameLabel" styleClass="title"/>
+                    <Text fx:id="cuisineLabel" styleClass="body-text"/>
+                </VBox>
+                <VBox alignment="CENTER_RIGHT" spacing="8">
+                    <Text fx:id="starsLabel" styleClass="michelin-stars"/>
+                    <Text fx:id="priceLabel" styleClass="heading"/>
+                    <Text fx:id="mediaRecensioniLabel" style="-fx-font-size: 16px; -fx-fill: #f39c12;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+        
+        <!-- Informazioni di contatto -->
+        <VBox spacing="16" styleClass="card" style="-fx-padding: 32;">
+            <Text text="Informazioni di Contatto" styleClass="heading"/>
+            
+            <GridPane hgap="16" vgap="12">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="120" prefWidth="140"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                </columnConstraints>
+                
+                <Label text="Indirizzo:" styleClass="body-text" style="-fx-font-weight: bold;" 
+                       GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                <Text fx:id="addressLabel" styleClass="body-text" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                
+                <Label text="Località:" styleClass="body-text" style="-fx-font-weight: bold;" 
+                       GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                <Text fx:id="locationLabel" styleClass="body-text" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                
+                <Label text="Telefono:" styleClass="body-text" style="-fx-font-weight: bold;" 
+                       GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                <Text fx:id="phoneLabel" styleClass="body-text" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                
+                <Label text="Sito Web:" styleClass="body-text" style="-fx-font-weight: bold;" 
+                       GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                <Hyperlink fx:id="websiteLink" styleClass="text-accent" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+            </GridPane>
+        </VBox>
+        
+        <!-- Descrizione -->
+        <VBox spacing="16" styleClass="card" style="-fx-padding: 32;">
+            <Text text="Descrizione" styleClass="heading"/>
+            <TextArea fx:id="descriptionArea" editable="false" wrapText="true" prefRowCount="5"
+                      style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-font-size: 14px;"/>
+        </VBox>
+        
+        <!-- Premi e riconoscimenti -->
+        <VBox spacing="16" styleClass="card" style="-fx-padding: 32;">
+            <Text text="Premi e Riconoscimenti" styleClass="heading"/>
+            <HBox spacing="32">
+                <VBox spacing="8" fx:id="awardBox" style="-fx-padding: 20; -fx-background-color: #ffd700; -fx-border-radius: 12; -fx-alignment: center;">
+                    <Label text="🏆 Premio Michelin:" styleClass="body-text" style="-fx-font-weight: bold; -fx-text-fill: white;"/>
+                    <Text fx:id="awardLabel" styleClass="body-text" style="-fx-text-fill: white;"/>
+                </VBox>
+                <VBox spacing="8" fx:id="greenStarBox" style="-fx-padding: 20; -fx-background-color: #4caf50; -fx-border-radius: 12; -fx-alignment: center;">
+                    <Label text="🌟 Stella Verde:" styleClass="body-text" style="-fx-font-weight: bold; -fx-text-fill: white;"/>
+                    <Text fx:id="greenStarLabel" styleClass="body-text" style="-fx-text-fill: white;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+        
+        <!-- Servizi e facilities -->
+        <VBox spacing="16" styleClass="card" style="-fx-padding: 32;">
+            <Text text="Servizi Disponibili" styleClass="heading"/>
+            
+            <!-- Solo delivery e prenotazione online con Sì/No -->
+            <VBox spacing="8">
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="Disponibilità del servizio di delivery:" styleClass="body-text" style="-fx-font-weight: bold;"/>
+                    <Label fx:id="deliveryStatusLabel" text="No" styleClass="body-text"/>
+                </HBox>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="Disponibilità del servizio di prenotazione online:" styleClass="body-text" style="-fx-font-weight: bold;"/>
+                    <Label fx:id="prenotazioneOnlineStatusLabel" text="No" styleClass="body-text"/>
+                </HBox>
+            </VBox>
+            
+            <!-- Descrizione dettagliata dei servizi -->
+            <VBox spacing="8" style="-fx-padding: 16 0 0 0;">
+                <Label text="Dettagli Servizi e Strutture:" styleClass="body-text" style="-fx-font-weight: bold;"/>
+                <TextArea fx:id="facilitiesArea" editable="false" wrapText="true" prefRowCount="3"
+                          style="-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-radius: 8; -fx-font-size: 14px; -fx-padding: 12;"/>
+            </VBox>
+        </VBox>
+          <!-- Azioni utente -->
+        <HBox spacing="16" alignment="CENTER" style="-fx-padding: 16;">
+            <Button fx:id="aggiungiPreferiti" text="❤️ Aggiungi ai Preferiti" styleClass="button-primary" 
+                    prefWidth="200" prefHeight="40" onAction="#handleAggiungiPreferiti"/>
+            <Button fx:id="visualizzaMappa" text="🗺️ Visualizza Mappa" styleClass="button-secondary" 
+                    prefWidth="200" prefHeight="40" onAction="#handleVisualizzaMappa"/>
+            <Button fx:id="chiamaRistorante" text="📞 Chiama" styleClass="button-secondary" 
+                    prefWidth="150" prefHeight="40" onAction="#handleChiamaRistorante"/>
+        </HBox>
+        
+        <!-- Recensioni -->
+        <VBox spacing="16" styleClass="card" style="-fx-padding: 32;">
+            <HBox alignment="CENTER_LEFT" spacing="16">
+                <Text text="Recensioni" styleClass="heading"/>
+                <Button fx:id="aggiungiRecensione" text="➕ Aggiungi Recensione" styleClass="button-accent" onAction="#handleAggiungiRecensione"/>
+            </HBox>
+            
+            <ListView fx:id="recensioniListView" prefHeight="400" styleClass="review-list">
+                <placeholder>
+                    <Label text="Nessuna recensione disponibile" styleClass="body-text" style="-fx-text-fill: #999;"/>
+                </placeholder>
+            </ListView>
+        </VBox>
+        
+    </VBox>
+</ScrollPane>

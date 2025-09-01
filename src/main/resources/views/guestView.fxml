@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="theknife.controllers.GuestViewController"
+      styleClass="main-container">
+    
+    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+        <VBox spacing="24" style="-fx-padding: 0 24 24 24;">
+            
+            <!-- Hero Section -->
+            <VBox alignment="CENTER" spacing="12" style="-fx-padding: 40 0 20 0;">
+                <Text text="Scopri i migliori ristoranti" styleClass="title,text-center"/>
+                <Text text="Esplora una selezione curata di ristoranti stellati Michelin" 
+                      styleClass="body-text,text-center,text-muted"/>
+            </VBox>
+            
+            <!-- Search Section -->
+            <VBox styleClass="search-container" spacing="16">
+                <TextField fx:id="searchField" promptText="Cerca ristorante, cucina o località..." 
+                           styleClass="search-field" prefWidth="600"/>
+                
+                <!-- Filtri di ricerca avanzati -->
+                <VBox spacing="12">
+                    <!-- Prima riga di filtri -->
+                    <HBox spacing="12" alignment="CENTER">
+                        <ComboBox fx:id="cuisineComboBox" promptText="Tipo di cucina" prefWidth="150"/>
+                        <ComboBox fx:id="locationComboBox" promptText="Località" prefWidth="150"/>
+                        <ComboBox fx:id="priceRangeComboBox" promptText="Fascia di prezzo" prefWidth="120"/>
+                        <ComboBox fx:id="starsComboBox" promptText="Stelle Michelin" prefWidth="120"/>
+                    </HBox>
+                    
+                    <!-- Seconda riga di filtri -->
+                    <HBox spacing="12" alignment="CENTER">
+                        <CheckBox fx:id="deliveryCheckBox" text="Delivery disponibile"/>
+                        <CheckBox fx:id="onlineBookingCheckBox" text="Prenotazione online"/>
+                        <Button fx:id="searchButton" text="Cerca" styleClass="button,primary" onAction="#handleSearch"/>
+                        <Button fx:id="resetButton" text="Reset" styleClass="button,outline" onAction="#handleReset"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+            
+            <!-- Statistics -->
+            <HBox spacing="32" alignment="CENTER" styleClass="card" style="-fx-padding: 20;">
+                <VBox alignment="CENTER" spacing="4">
+                    <Text fx:id="totalRestaurantsLabel" text="0" styleClass="subtitle,text-accent"/>
+                    <Text text="Ristoranti" styleClass="small-text,text-muted"/>
+                </VBox>
+                <Separator orientation="VERTICAL" prefHeight="40"/>
+                <VBox alignment="CENTER" spacing="4">
+                    <Text fx:id="michelinStarsLabel" text="0" styleClass="subtitle" 
+                          style="-fx-text-fill: #ffd700;"/>
+                    <Text text="Stelle Michelin" styleClass="small-text,text-muted"/>
+                </VBox>
+                <Separator orientation="VERTICAL" prefHeight="40"/>
+                <VBox alignment="CENTER" spacing="4">
+                    <Text fx:id="greenStarsLabel" text="0" styleClass="subtitle" 
+                          style="-fx-text-fill: #5cb85c;"/>
+                    <Text text="Stelle Verdi" styleClass="small-text,text-muted"/>
+                </VBox>
+            </HBox>
+            
+            <!-- Restaurant List Section -->
+            <VBox spacing="16">
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <Text text="Ristoranti" styleClass="heading"/>
+                    <Button fx:id="detailsButton" text="Visualizza Dettagli" styleClass="button,primary" 
+                            onAction="#handleDetails" disable="true"/>
+                    <Button fx:id="mapButton" text="Mappa" styleClass="button,outline" 
+                            onAction="#handleMap" disable="true"/>
+                </HBox>
+                
+                <!-- Restaurant Grid with ScrollPane -->
+                <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" 
+                            prefHeight="600" maxHeight="600">
+                    <ListView fx:id="restaurantListView" styleClass="list-view" 
+                              prefHeight="600"/>
+                </ScrollPane>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+</VBox>

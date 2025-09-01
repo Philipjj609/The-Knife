@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="theknife.controllers.MapDialogController"
+      spacing="20" style="-fx-padding: 20; -fx-alignment: center;">
+    
+    <Text fx:id="titleLabel" text="Posizione Ristorante" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+    
+    <VBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Coordinate GPS:" style="-fx-font-weight: bold;"/>
+        
+        <HBox spacing="15" alignment="CENTER_LEFT">
+            <Label text="Latitudine:"/>
+            <TextField fx:id="latitudeField" editable="false" prefWidth="120"/>
+            <Button text="Copia" onAction="#copyLatitude" styleClass="button,outline"/>
+        </HBox>
+        
+        <HBox spacing="15" alignment="CENTER_LEFT">
+            <Label text="Longitudine:"/>
+            <TextField fx:id="longitudeField" editable="false" prefWidth="120"/>
+            <Button text="Copia" onAction="#copyLongitude" styleClass="button,outline"/>
+        </HBox>
+    </VBox>
+    
+    <VBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="URL Google Maps:" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="urlField" editable="false" prefWidth="400"/>
+        <HBox spacing="10" alignment="CENTER">
+            <Button text="Copia URL" onAction="#copyUrl" styleClass="button,outline"/>
+            <Button text="Apri in Browser" onAction="#openInBrowser" styleClass="button,primary"/>
+        </HBox>
+    </VBox>
+    
+    <Button text="Chiudi" onAction="#close" styleClass="button"/>
+    
+</VBox>

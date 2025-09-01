@@ -1,0 +1,14 @@
+id,usernameCliente,nomeRistorante,valutazione,titolo,commento,dataRecensione,rispostaId,usernameRistoratore,testoRisposta,dataRisposta
+rec001,Philip609,Osteria Francescana,5,"Esperienza incredibile","Un'esperienza culinaria straordinaria. Ogni piatto è un capolavoro di creatività e tecnica. Il servizio è impeccabile e l'atmosfera magica.",2024-12-01T19:30,,,,
+rec002,Philip609,Le Calandre,4,"Ottima cucina","Piatti molto raffinati e presentazione eccellente. Qualche piccola attesa ma ne è valsa la pena. Tornerò sicuramente.",2024-11-28T20:15,risp001,giulia.bianchi,"Grazie per la sua recensione! Siamo felici che abbia apprezzato la nostra cucina. Lavoreremo per migliorare i tempi di servizio.",2024-11-29T10:30
+rec003,Philip609,Piazza Duomo,5,"Semplicemente perfetto","Non ho parole per descrivere questa esperienza. Chef Uliassi ha superato ogni aspettativa. Servizio di altissimo livello.",2024-11-25T21:00,,,,
+rec004,Philip609,Dal Pescatore,3,"Buono ma costoso","Il cibo è indubbiamente di qualità ma i prezzi sono davvero elevati. L'ambiente è elegante ma un po' formale per i miei gusti.",2024-11-20T19:45,,,,
+REV_1749236240646_678,Philip609,Steirereck im Stadtpark,4,"FIschia","Tanta roba",2025-06-06T20:57:20.646505900,,,,
+REV_1749236497350_547,Philip609,Steirereck im Stadtpark,2,"w","w",2025-06-06T21:01:37.350051200,,,,
+REV_1749240481483_694,test,Sushiland,5,"TOP","TOP POSTO",2025-06-06T22:08:01.483541100,,,,
+REV_1749240551253_211,test,Sushiland,5,"te","tetete",2025-06-06T22:09:11.253549100,RESP_1756398179436_355,test,"nibhdjvsk bhijivc bjvcekl",2025-08-28T18:22:59.436357600
+REV_1749240556304_105,test,Sushiland,5,"tt","ttt",2025-06-06T22:09:16.304249800,RESP_1749649949195_881,test,"wewwwwwwwwwwwwwwwwwwwwwwwwwwwwww",2025-06-11T15:52:29.195138
+REV_1749240914704_560,Philip609,Sushiland,5,"te","tetete",2025-06-06T22:15:14.704333,RESP_1749245795640_957,test,"grazie mille tpo",2025-06-06T23:36:35.640320300
+REV_1749653438734_32,Philip609,Amador,5,"test","1233123123123",2025-06-11T16:50:38.734851300,,,,
+REV_1749657139078_880,Philip609,Jungsik New York,5,"tttt","tttttttttttttt",2025-06-11T17:52:19.078869900,,,,
+REV_1756398012543_326,Philip609,Steirereck im Stadtpark,5,"t","t",2025-08-28T18:20:12.543070100,,,,

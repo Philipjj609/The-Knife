@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane prefHeight="600.0" prefWidth="800.0" stylesheets="@StylingComponents.css"
+            xmlns="http://javafx.com/javafx/19"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.theknife.HelloController">
+
+    <!-- Header -->
+    <top>
+        <HBox alignment="CENTER_LEFT" style="-fx-background-color: #2E3B4E;" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+            </padding>
+            <children>
+                <Label style="-fx-text-fill: white;" text="THE KNIFE">
+                    <font>
+                        <Font name="System Bold" size="24.0" />
+                    </font>
+                </Label>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button styleClass="header-button" text="Home" />
+                <Button styleClass="header-button" text="Restaurants" />
+                <Button styleClass="header-button" text="Bookings" />
+                <Button styleClass="header-button" text="Profile" />
+            </children>
+        </HBox>
+    </top>
+
+    <!-- Main Content -->
+    <center>
+        <VBox alignment="TOP_CENTER" spacing="20.0" style="-fx-background-color: #f5f5f5;">
+            <padding>
+                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+            </padding>
+            <children>
+                <!-- Search Section -->
+                <VBox alignment="CENTER" spacing="15.0">
+                    <Text strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 28px;"
+                          text="Find your table for any occasion" />
+                    <HBox alignment="CENTER" spacing="10.0">
+                        <TextField promptText="Location or Restaurant" prefWidth="250.0" />
+                        <ComboBox promptText="Date" prefWidth="150.0" />
+                        <ComboBox promptText="Time" prefWidth="120.0" />
+                        <ComboBox promptText="Guests" prefWidth="100.0" />
+                        <Button defaultButton="true" styleClass="search-button" text="Search" />
+                    </HBox>
+                </VBox>
+
+                <!-- Featured Restaurants Section -->
+                <VBox spacing="15.0">
+                    <Label style="-fx-font-size: 20px;" text="Featured Restaurants" />
+                    <ScrollPane fitToWidth="true" pannable="true" prefViewportHeight="200.0" vbarPolicy="NEVER">
+                        <HBox spacing="15.0">
+                            <padding>
+                                <Insets bottom="10.0" left="5.0" right="5.0" top="5.0" />
+                            </padding>
+                            <children>
+                                <VBox styleClass="restaurant-card" prefWidth="200.0">
+                                    <Pane styleClass="restaurant-image" prefHeight="120.0" />
+                                    <Label text="Fine Dining Restaurant" style="-fx-font-weight: bold;" />
+                                    <Label text="Italian • $$$" />
+                                    <Label text="★★★★☆ 4.5" />
+                                    <Button styleClass="book-button" text="Book Now" />
+                                </VBox>
+                                <VBox styleClass="restaurant-card" prefWidth="200.0">
+                                    <Pane styleClass="restaurant-image" prefHeight="120.0" />
+                                    <Label text="Urban Bistro" style="-fx-font-weight: bold;" />
+                                    <Label text="French • $$$" />
+                                    <Label text="★★★★★ 4.8" />
+                                    <Button styleClass="book-button" text="Book Now" />
+                                </VBox>
+                                <VBox styleClass="restaurant-card" prefWidth="200.0">
+                                    <Pane styleClass="restaurant-image" prefHeight="120.0" />
+                                    <Label text="Seaside Grill" style="-fx-font-weight: bold;" />
+                                    <Label text="Seafood • $$" />
+                                    <Label text="★★★★☆ 4.3" />
+                                    <Button styleClass="book-button" text="Book Now" />
+                                </VBox>
+                                <VBox styleClass="restaurant-card" prefWidth="200.0">
+                                    <Pane styleClass="restaurant-image" prefHeight="120.0" />
+                                    <Label text="Asian Fusion" style="-fx-font-weight: bold;" />
+                                    <Label text="Asian • $$" />
+                                    <Label text="★★★★☆ 4.2" />
+                                    <Button styleClass="book-button" text="Book Now" />
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </ScrollPane>
+                </VBox>
+
+                <!-- Special Offers Section -->
+                <VBox spacing="15.0">
+                    <Label style="-fx-font-size: 20px;" text="Special Offers" />
+                    <HBox spacing="20.0" alignment="CENTER">
+                        <VBox styleClass="offer-card" alignment="CENTER" spacing="10.0">
+                            <Label text="Early Bird" style="-fx-font-weight: bold; -fx-font-size: 16px;" />
+                            <Label text="20% off before 6PM" />
+                        </VBox>
+                        <VBox styleClass="offer-card" alignment="CENTER" spacing="10.0">
+                            <Label text="Weekend Brunch" style="-fx-font-weight: bold; -fx-font-size: 16px;" />
+                            <Label text="Complimentary drink" />
+                        </VBox>
+                        <VBox styleClass="offer-card" alignment="CENTER" spacing="10.0">
+                            <Label text="Group Dining" style="-fx-font-weight: bold; -fx-font-size: 16px;" />
+                            <Label text="10% off for 6+ people" />
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </children>
+        </VBox>
+    </center>
+
+    <!-- Footer -->
+    <bottom>
+        <HBox alignment="CENTER" spacing="20.0" style="-fx-background-color: #2E3B4E; -fx-text-fill: white;">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Label style="-fx-text-fill: white;" text="© 2024 The Knife" />
+            <Label style="-fx-text-fill: white;" text="Terms" />
+            <Label style="-fx-text-fill: white;" text="Privacy" />
+            <Label style="-fx-text-fill: white;" text="Contact" />
+        </HBox>
+    </bottom>
+</BorderPane>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="theknife.controllers.DashboardRistoratoreController"
+            style="-fx-background-color: #f8f9fa;">
+    
+    <top>
+        <VBox spacing="15" style="-fx-padding: 20;">
+            <Text fx:id="benvenutoLabel" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-fill: #2c3e50;"/>
+            
+            <!-- Statistiche ristoratore -->
+            <HBox spacing="30" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 15; -fx-border-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);">
+                <VBox alignment="CENTER" spacing="5">
+                    <Text fx:id="numRistorantiLabel" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-fill: #3498db;"/>
+                    <Text text="Ristoranti Gestiti" style="-fx-font-size: 12; -fx-fill: #7f8c8d;"/>
+                </VBox>
+                <Separator orientation="VERTICAL"/>
+                <VBox alignment="CENTER" spacing="5">
+                    <Text fx:id="totalRecensioniLabel" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-fill: #f39c12;"/>
+                    <Text text="Recensioni Ricevute" style="-fx-font-size: 12; -fx-fill: #7f8c8d;"/>
+                </VBox>
+                <Separator orientation="VERTICAL"/>
+                <VBox alignment="CENTER" spacing="5">
+                    <Text fx:id="mediaGeneraleLabel" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-fill: #27ae60;"/>
+                    <Text text="Media Generale" style="-fx-font-size: 12; -fx-fill: #7f8c8d;"/>
+                </VBox>
+                <Separator orientation="VERTICAL"/>
+                <VBox alignment="CENTER" spacing="5">
+                    <Text fx:id="risposteDaInviareLabel" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-fill: #e74c3c;"/>
+                    <Text text="Risposte da Inviare" style="-fx-font-size: 12; -fx-fill: #7f8c8d;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+    
+    <center>
+        <TabPane fx:id="tabPane" style="-fx-tab-min-width: 140;">
+            
+            <!-- Tab Ristoranti -->
+            <Tab text="I Miei Ristoranti" closable="false">
+                <VBox spacing="15" style="-fx-padding: 20;">
+                    <HBox spacing="15" alignment="CENTER_LEFT">
+                        <Text text="I Tuoi Ristoranti" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                        <Button text="Aggiungi Ristorante" onAction="#handleAggiungiRistorante"
+                                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 15;"/>
+                    </HBox>
+                    
+                    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+                        <ListView fx:id="ristorantiListView" style="-fx-background-color: transparent;"/>
+                    </ScrollPane>
+                    
+                    <Label fx:id="nessunRistoranteLabel" text="Non hai ancora ristoranti assegnati. Contatta l'amministratore per associare un ristorante al tuo account."
+                           style="-fx-text-fill: #6c757d; -fx-font-style: italic; -fx-text-alignment: center;" visible="false"/>
+                </VBox>
+            </Tab>
+            
+            <!-- Tab Recensioni -->
+            <Tab text="Recensioni Ricevute" closable="false">
+                <VBox spacing="15" style="-fx-padding: 20;">
+                    <HBox spacing="15" alignment="CENTER_LEFT">
+                        <Text text="Recensioni per i Tuoi Ristoranti" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                        <ComboBox fx:id="filtroRistoranteCombo" promptText="Filtra per ristorante" 
+                                 onAction="#handleFiltroRistorante" prefWidth="200"/>
+                        <Button text="Mostra Tutte" onAction="#handleMostraTutte"
+                                style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 5 10;"/>
+                    </HBox>
+                    
+                    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+                        <ListView fx:id="recensioniListView" style="-fx-background-color: transparent;"/>
+                    </ScrollPane>
+                    
+                    <Label fx:id="nessueRecensioniRistoratoreLabel" text="Non ci sono ancora recensioni per i tuoi ristoranti."
+                           style="-fx-text-fill: #6c757d; -fx-font-style: italic; -fx-text-alignment: center;" visible="false"/>
+                </VBox>
+            </Tab>
+            
+        </TabPane>
+    </center>
+    
+</BorderPane>

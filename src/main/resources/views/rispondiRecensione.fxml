@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="theknife.controllers.RispondiRecensioneController"
+            styleClass="main-container">
+    
+    <!-- Header con logo -->
+    <top>
+        <HBox styleClass="navbar">
+            <HBox spacing="8" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                <Text text="The" styleClass="logo-text"/>
+                <Text text="Knife" styleClass="logo-text,logo-accent"/>
+            </HBox>
+        </HBox>
+    </top>
+    
+    <center>
+        <VBox alignment="CENTER" spacing="24" style="-fx-padding: 40;">
+            <VBox spacing="24" styleClass="card" style="-fx-padding: 40; -fx-max-width: 800; -fx-min-height: 700;">
+                
+                <VBox spacing="8" alignment="CENTER">
+                    <Text text="Rispondi alla Recensione" styleClass="subtitle"/>
+                    <Text text="Rispondi in modo professionale e cortese" styleClass="body-text"/>
+                </VBox>
+                
+                <!-- Recensione originale -->
+                <VBox spacing="12" styleClass="card" style="-fx-background-color: #f0f4f0; -fx-padding: 20;">
+                    <Text text="Recensione Originale:" styleClass="heading"/>
+                    <Label fx:id="recensioneInfoLabel" styleClass="body-text" style="-fx-font-weight: bold;"/>
+                    <Label fx:id="recensioneTitoloLabel" styleClass="body-text" style="-fx-font-weight: bold;"/>
+                    <Label fx:id="recensioneCommentoLabel" styleClass="body-text" wrapText="true" 
+                           style="-fx-max-width: 600;"/>
+                </VBox>
+                
+                <VBox spacing="12" VBox.vgrow="ALWAYS">
+                    <Label text="La tua risposta:" styleClass="heading"/>
+                    <TextArea fx:id="rispostaArea" promptText="Scrivi una risposta professionale e cortese..."
+                             prefRowCount="10" wrapText="true" VBox.vgrow="ALWAYS"
+                             style="-fx-font-size: 16px; -fx-padding: 16; -fx-min-height: 250;"/>
+                    <Label text="💡 Suggerimento: Ringrazia il cliente per il feedback e mostra come intendi migliorare il servizio."
+                           styleClass="small-text" style="-fx-font-style: italic; -fx-max-width: 720; -fx-wrap-text: true;"
+                           wrapText="true"/>
+                </VBox>
+                
+                <HBox spacing="16" alignment="CENTER" style="-fx-padding: 20 0 0 0;">
+                    <Button text="📤 Invia Risposta" onAction="#handleInviaRisposta"
+                            styleClass="button,primary" style="-fx-font-size: 16px; -fx-padding: 14 24; -fx-pref-width: 200;"/>
+                    <Button text="✕ Annulla" onAction="#handleAnnulla"
+                            styleClass="button" style="-fx-font-size: 16px; -fx-padding: 14 24; -fx-pref-width: 150;"/>
+                </HBox>
+                
+                <Label fx:id="errorLabel" styleClass="error" style="-fx-font-size: 14px;"/>
+                
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

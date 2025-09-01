@@ -1,0 +1,96 @@
+/* Base Styling */
+.root {
+    -fx-font-family: 'Segoe UI', Arial, sans-serif;
+    -fx-focus-color: #2E3B4E;
+    -fx-accent: #2E3B4E;
+}
+
+/* Header Buttons */
+.header-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-padding: 5 15;
+}
+
+.header-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Search Button */
+.search-button {
+    -fx-background-color: #FF5A5F;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+}
+
+.search-button:hover {
+    -fx-background-color: #E04B50;
+}
+
+/* Restaurant Cards */
+.restaurant-card {
+    -fx-background-color: white;
+    -fx-padding: 10;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+    -fx-spacing: 5;
+}
+
+.restaurant-image {
+    -fx-background-color: #DDD;
+    -fx-background-radius: 5 5 0 0;
+}
+
+.book-button {
+    -fx-background-color: #2E3B4E;
+    -fx-text-fill: white;
+    -fx-padding: 5 0;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+    -fx-margin-top: 5;
+    -fx-pref-width: 180;
+}
+
+.book-button:hover {
+    -fx-background-color: #3D5066;
+}
+
+/* Offer Cards */
+.offer-card {
+    -fx-background-color: #2E3B4E;
+    -fx-text-fill: white;
+    -fx-background-radius: 5;
+    -fx-padding: 15 25;
+    -fx-min-width: 200;
+}
+
+.offer-card .label {
+    -fx-text-fill: white;
+}
+
+/* Scroll Pane */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0.0;
+}
+
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #DDD;
+    -fx-background-radius: 5.0;
+}

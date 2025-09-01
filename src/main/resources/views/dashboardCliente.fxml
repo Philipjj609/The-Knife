@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="theknife.controllers.DashboardClienteController"
+            style="-fx-background-color: #f8f9fa;">
+    
+    <top>
+        <VBox spacing="15" style="-fx-padding: 20;">
+            <Text fx:id="benvenutoLabel" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-fill: #2c3e50;"/>
+            
+            <!-- Statistiche utente -->
+            <HBox spacing="30" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 15; -fx-border-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);">
+                <VBox alignment="CENTER" spacing="5">
+                    <Text fx:id="numRecensioniLabel" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-fill: #3498db;"/>
+                    <Text text="Recensioni Scritte" style="-fx-font-size: 12; -fx-fill: #7f8c8d;"/>
+                </VBox>
+                <Separator orientation="VERTICAL"/>
+                <VBox alignment="CENTER" spacing="5">
+                    <Text fx:id="mediaValutazioniLabel" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-fill: #f39c12;"/>
+                    <Text text="Media Valutazioni" style="-fx-font-size: 12; -fx-fill: #7f8c8d;"/>
+                </VBox>
+                <Separator orientation="VERTICAL"/>
+                <VBox alignment="CENTER" spacing="5">
+                    <Text fx:id="preferitiLabel" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-fill: #e74c3c;"/>
+                    <Text text="Ristoranti Preferiti" style="-fx-font-size: 12; -fx-fill: #7f8c8d;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </top>
+    
+    <center>
+        <TabPane style="-fx-tab-min-width: 120;">
+            
+            <!-- Tab Recensioni -->
+            <Tab text="Le Mie Recensioni" closable="false">
+                <VBox spacing="15" style="-fx-padding: 20;">
+                    <HBox spacing="15" alignment="CENTER_LEFT">
+                        <Text text="Le Tue Recensioni" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                        <Button text="Esplora Ristoranti" onAction="#handleEsploraRistoranti"
+                                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 15;"/>
+                    </HBox>
+                    
+                    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+                        <ListView fx:id="recensioniListView" style="-fx-background-color: transparent;"/>
+                    </ScrollPane>
+                    
+                    <Label fx:id="nessueRecensioniLabel" text="Non hai ancora scritto recensioni. Esplora i ristoranti e condividi la tua esperienza!"
+                           style="-fx-text-fill: #6c757d; -fx-font-style: italic; -fx-text-alignment: center;" visible="false"/>
+                </VBox>
+            </Tab>
+            
+            <!-- Tab Preferiti -->
+            <Tab text="Ristoranti Preferiti" closable="false">
+                <VBox spacing="15" style="-fx-padding: 20;">
+                    <Text text="I Tuoi Ristoranti Preferiti" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
+                    
+                    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
+                        <ListView fx:id="preferitiListView" style="-fx-background-color: transparent;"/>
+                    </ScrollPane>
+                    
+                    <Label fx:id="nessunPreferitoLabel" text="Non hai ancora aggiunto ristoranti ai preferiti."
+                           style="-fx-text-fill: #6c757d; -fx-font-style: italic; -fx-text-alignment: center;" visible="false"/>
+                </VBox>
+            </Tab>
+            
+        </TabPane>
+    </center>
+    
+</BorderPane>
