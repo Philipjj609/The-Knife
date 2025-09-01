@@ -69,12 +69,13 @@ Da IDE
 Esegui la classe Main nel package theknife
 
 Da terminale
-bash
+```bash
 mvn clean javafx:run
 Come JAR eseguibile
 bash
 mvn clean package
 java -jar target/theknife-1.0.jar
+```
 📊 Funzionalità Tecniche
 Architettura MVC (Model-View-Controller)
 
