@@ -2,6 +2,9 @@ package theknife.utils;
 
 import java.io.*;
 import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import theknife.models.Ristorante;
 import theknife.models.Utente;
 import theknife.services.RistorantiManager;
@@ -30,7 +33,7 @@ public class FileManager {
     public static List<Ristorante> caricaRistorantiDaCSV(String filePath) {
         List<Ristorante> ristoranti = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader br = getBufferedReader(filePath)) {
             String line;
             boolean firstLine = true;
 
@@ -110,9 +113,9 @@ public class FileManager {
      */
     public static List<Utente> caricaUtenti() {
         List<Utente> utenti = new ArrayList<>();
-        String filePath = "src/main/resources/data/utenti.csv";
+        String filePath = "data/utenti.csv";
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader br = getBufferedReader(filePath)) {
             String line;
 
             while ((line = br.readLine()) != null) {
@@ -151,7 +154,9 @@ public class FileManager {
      * @since 1.0
      */
     public static void salvaUtente(Utente utente) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter("src/main/resources/data/utenti.csv", true))) {
+        String resourcePath = "data/michelin_my_maps.csv";
+
+        try (PrintWriter pw = getPrintWriterForWrite(resourcePath, true)) {
             pw.printf("%s,%s,%s,%s,%s,%s,%s%n",
                     escapeValue(utente.getNome()),
                     escapeValue(utente.getCognome()),
@@ -255,9 +260,9 @@ public class FileManager {
      * Aggiunge un nuovo ristorante al file CSV
      */
     public static boolean aggiungiRistoranteAlCSV(Ristorante ristorante) {
-        String filePath = "src/main/resources/data/michelin_my_maps.csv";
+        String resourcePath = "src/main/resources/data/michelin_my_maps.csv";
 
-        try (PrintWriter pw = new PrintWriter(new FileWriter(filePath, true))) {
+        try (PrintWriter pw = getPrintWriterForWrite(resourcePath, true)) {
             StringBuilder sb = new StringBuilder();
 
             // Formato aggiornato con le nuove colonne:
@@ -301,9 +306,9 @@ public class FileManager {
             return false;
         }
 
-        String filePath = "src/main/resources/data/michelin_my_maps.csv";
+        String resourcePath = "src/main/resources/data/michelin_my_maps.csv";
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader br = getBufferedReader(resourcePath)) {
             String line;
             boolean firstLine = true;
 
@@ -327,5 +332,50 @@ public class FileManager {
         }
 
         return false;
+    }
+
+    // Added helpers to support classpath reading and external writing when running as jar
+    private static BufferedReader getBufferedReader(String filePath) throws IOException {
+        // Try opening as a regular file first
+        File f = new File(filePath);
+        if (f.exists()) {
+            return new BufferedReader(new FileReader(f));
+        }
+
+        // If path looks like a project resource, strip the prefix
+        String resourcePath = filePath;
+        String prefix = "src/main/resources/";
+        if (resourcePath.startsWith(prefix)) {
+            resourcePath = resourcePath.substring(prefix.length());
+        }
+
+        InputStream is = FileManager.class.getClassLoader().getResourceAsStream(resourcePath);
+        if (is != null) {
+            return new BufferedReader(new InputStreamReader(is));
+        }
+
+        // Try also without leading slash
+        is = FileManager.class.getResourceAsStream("/" + resourcePath);
+        if (is != null) {
+            return new BufferedReader(new InputStreamReader(is));
+        }
+
+        throw new FileNotFoundException(filePath + " (Impossibile trovare il percorso specificato o la risorsa nel classpath)");
+    }
+
+    private static PrintWriter getPrintWriterForWrite(String resourcePath, boolean append) throws IOException {
+        File f = new File(resourcePath);
+        if (f.exists() && f.canWrite()) {
+            return new PrintWriter(new FileWriter(f, append));
+        }
+
+        // Fallback: crea/usa cartella 'data' nella working directory per permettere scrittura quando si esegue il jar
+        Path dataDir = Paths.get("data");
+        if (!Files.exists(dataDir)) {
+            Files.createDirectories(dataDir);
+        }
+        String filename = new File(resourcePath).getName();
+        Path out = dataDir.resolve(filename);
+        return new PrintWriter(new FileWriter(out.toFile(), append));
     }
 }
