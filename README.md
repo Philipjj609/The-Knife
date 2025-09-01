@@ -36,7 +36,7 @@ Assicurati di avere Java 17 e JavaFX configurati
 Esegui la classe Main per avviare l'applicazione
 
 🏗️ Struttura del Progetto
-text
+```text
 the-knife/
 ├── src/
 │   ├── main/
@@ -57,7 +57,7 @@ the-knife/
 └── pom.xml                          # Configurazione Maven
 📋 Requisiti di Sistema
 Java Runtime Environment (JRE) 17 o superiore
-
+```
 4 GB di RAM minimo
 
 200 MB di spazio libero su disco
