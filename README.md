@@ -28,6 +28,7 @@ The Knife è un'applicazione desktop sviluppata in Java con JavaFX per la gestio
 1. Clona il repository:
 ```bash
 git clone https://github.com/tuoutente/the-knife.git
+```
 Importa il progetto nel tuo IDE preferito
 
 Assicurati di avere Java 17 e JavaFX configurati
