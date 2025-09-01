@@ -71,8 +71,9 @@ Esegui la classe Main nel package theknife
 Da terminale
 ```bash
 mvn clean javafx:run
+```
 Come JAR eseguibile
-bash
+```bash
 mvn clean package
 java -jar target/theknife-1.0.jar
 ```
