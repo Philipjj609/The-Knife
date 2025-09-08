@@ -75,7 +75,7 @@ mvn clean javafx:run
 Come JAR eseguibile
 ```bash
 mvn clean package
-java -jar target/theknife-1.0.jar
+java -jar TheKnife.jar
 ```
 📊 Funzionalità Tecniche
 Architettura MVC (Model-View-Controller)
