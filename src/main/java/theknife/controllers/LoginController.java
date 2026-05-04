@@ -21,6 +21,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -64,7 +65,7 @@ public class LoginController {
     @FXML
     private void handleLogin() {
         Utente utente = AuthManager.autenticaUtente(
-                usernameField.getText(),
+                usernameField.getText().trim(),
                 passwordField.getText());
 
         if (utente != null) {
@@ -102,7 +103,11 @@ public class LoginController {
             stage.setMinHeight(750);
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Errore");
+            alert.setHeaderText(null);
+            alert.setContentText("Impossibile aprire la finestra di registrazione.");
+            alert.showAndWait();
         }
     }
 }

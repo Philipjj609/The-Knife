@@ -3,6 +3,7 @@ package theknife.services;
 import theknife.models.Recensione;
 import theknife.models.Risposta;
 import theknife.models.Ristorante;
+import theknife.utils.FileManager;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -54,8 +55,8 @@ public class RecensioniManager {
                     recensione.setUsernameCliente(parts[1]);
                     recensione.setNomeRistorante(parts[2]);
                     recensione.setValutazione(Integer.parseInt(parts[3]));
-                    recensione.setTitolo(parts[4].replace("\"", ""));
-                    recensione.setCommento(parts[5].replace("\"", ""));
+                    recensione.setTitolo(FileManager.cleanValue(parts[4]));
+                    recensione.setCommento(FileManager.cleanValue(parts[5]));
                     recensione.setDataRecensione(LocalDateTime.parse(parts[6]));
 
                     // Carica risposta se presente
@@ -63,7 +64,7 @@ public class RecensioniManager {
                         Risposta risposta = new Risposta();
                         risposta.setId(parts[7]);
                         risposta.setUsernameRistoratore(parts[8]);
-                        risposta.setTesto(parts[9].replace("\"", ""));
+                        risposta.setTesto(FileManager.cleanValue(parts[9]));
                         if (parts.length >= 11) {
                             risposta.setDataRisposta(LocalDateTime.parse(parts[10]));
                         }
@@ -74,7 +75,7 @@ public class RecensioniManager {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Errore nel caricamento delle recensioni: " + e.getMessage());
         }
     }
 
@@ -97,14 +98,14 @@ public class RecensioniManager {
                 sb.append(r.getUsernameCliente()).append(",");
                 sb.append(r.getNomeRistorante()).append(",");
                 sb.append(r.getValutazione()).append(",");
-                sb.append("\"").append(r.getTitolo()).append("\",");
-                sb.append("\"").append(r.getCommento()).append("\",");
+                sb.append(FileManager.escapeValue(r.getTitolo())).append(",");
+                sb.append(FileManager.escapeValue(r.getCommento())).append(",");
                 sb.append(r.getDataRecensione()).append(",");
 
                 if (r.getRisposta() != null) {
                     sb.append(r.getRisposta().getId()).append(",");
                     sb.append(r.getRisposta().getUsernameRistoratore()).append(",");
-                    sb.append("\"").append(r.getRisposta().getTesto()).append("\",");
+                    sb.append(FileManager.escapeValue(r.getRisposta().getTesto())).append(",");
                     sb.append(r.getRisposta().getDataRisposta());
                 } else {
                     sb.append(",,,");
@@ -113,7 +114,7 @@ public class RecensioniManager {
                 writer.println(sb.toString());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Errore nel salvataggio delle recensioni: " + e.getMessage());
         }
     }
 

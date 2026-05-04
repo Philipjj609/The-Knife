@@ -1,7 +1,6 @@
 package theknife.utils;
 
-import java.io.*;
-import java.util.*;
+import java.util.List;
 
 /*
  * @author Philip Jon Ji Ciuca
@@ -10,23 +9,41 @@ import java.util.*;
  * @version: 1.0
  * */
 
-import java.util.List;
-
 import org.mindrot.jbcrypt.BCrypt;
 import theknife.models.Utente;
-import theknife.utils.FileManager;
 
 /**
  * Utility per l'autenticazione degli utenti.
  * <p>
- * Fornisce metodi per verificare l'esistenza di username e per autenticare
- * un utente confrontando la password fornita con l'hash salvato.
+ * Mantiene una cache in memoria degli utenti caricata al primo accesso.
+ * Chiamare {@link #invalidateCache()} dopo ogni scrittura su utenti.csv
+ * per garantire che i dati siano aggiornati.
  * </p>
  *
  * @author Philip Jon Ji Ciuca
  * @version 1.0
  */
 public class AuthManager {
+
+    private static List<Utente> cachedUtenti = null;
+
+    private static List<Utente> getUtenti() {
+        if (cachedUtenti == null) {
+            cachedUtenti = FileManager.caricaUtenti();
+        }
+        return cachedUtenti;
+    }
+
+    /**
+     * Invalida la cache degli utenti. Deve essere chiamato dopo ogni salvataggio
+     * di un nuovo utente tramite {@link FileManager#salvaUtente(Utente)}.
+     *
+     * @since 1.0
+     */
+    public static void invalidateCache() {
+        cachedUtenti = null;
+    }
+
     /**
      * Verifica se uno username esiste già nel sistema.
      *
@@ -35,8 +52,7 @@ public class AuthManager {
      * @since 1.0
      */
     public static boolean usernameEsistente(String username) {
-        List<Utente> utenti = FileManager.caricaUtenti();
-        return utenti.stream().anyMatch(u -> u.getUsername().equalsIgnoreCase(username));
+        return getUtenti().stream().anyMatch(u -> u.getUsername().equalsIgnoreCase(username));
     }
 
     /**
@@ -48,13 +64,9 @@ public class AuthManager {
      * @since 1.0
      */
     public static Utente autenticaUtente(String username, String password) {
-        List<Utente> utenti = FileManager.caricaUtenti();
-
-        for (Utente u : utenti) {
-            boolean usernameMatch = u.getUsername().equalsIgnoreCase(username);
-            if (usernameMatch) {
-                boolean passwordMatch = BCrypt.checkpw(password, u.getPasswordHash());
-                if (passwordMatch) {
+        for (Utente u : getUtenti()) {
+            if (u.getUsername().equalsIgnoreCase(username)) {
+                if (BCrypt.checkpw(password, u.getPasswordHash())) {
                     return u;
                 }
             }

@@ -2,6 +2,7 @@ package theknife.models;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 /**
  * Rappresenta una recensione lasciata da un cliente per un ristorante.
@@ -59,7 +60,7 @@ public class Recensione {
      * @since 1.0
      */
     private String generateId() {
-        return "REV_" + System.currentTimeMillis() + "_" + (int) (Math.random() * 1000);
+        return "REV_" + UUID.randomUUID().toString();
     }
 
     // Getters and Setters

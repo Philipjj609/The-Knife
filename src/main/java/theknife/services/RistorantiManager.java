@@ -2,6 +2,7 @@ package theknife.services;
 
 import theknife.models.Ristorante;
 import theknife.Main;
+import theknife.utils.FileManager;
 
 import java.io.*;
 import java.util.*;
@@ -41,16 +42,15 @@ public class RistorantiManager {
             String line;
             br.readLine(); // Skip header
             while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
+                String[] parts = FileManager.parseCSVLine(line);
                 if (parts.length >= 2) {
-                    String username = parts[0];
-                    String nomeRistorante = parts[1];
-
+                    String username = FileManager.cleanValue(parts[0]);
+                    String nomeRistorante = FileManager.cleanValue(parts[1]);
                     proprietari.computeIfAbsent(username, k -> new HashSet<>()).add(nomeRistorante);
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Errore nel caricamento dei proprietari: " + e.getMessage());
         }
     }
 
@@ -68,11 +68,11 @@ public class RistorantiManager {
             for (Map.Entry<String, Set<String>> entry : proprietari.entrySet()) {
                 String username = entry.getKey();
                 for (String nomeRistorante : entry.getValue()) {
-                    writer.println(username + "," + nomeRistorante);
+                    writer.println(FileManager.escapeValue(username) + "," + FileManager.escapeValue(nomeRistorante));
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Errore nel salvataggio dei proprietari: " + e.getMessage());
         }
     }
 
