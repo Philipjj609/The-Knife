@@ -63,7 +63,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         // Carica dati iniziali
-        ristoranti = FileManager.caricaRistorantiDaCSV("src/main/resources/data/michelin_my_maps.csv");
+        ristoranti = FileManager.caricaRistorantiDaCSV("data/michelin_my_maps.csv");
 
         // Carica la schermata principale
         Parent root = FXMLLoader.load(getClass().getResource("/views/home.fxml"));

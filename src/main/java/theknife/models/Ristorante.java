@@ -31,12 +31,6 @@ public class Ristorante {
     private boolean deliveryAvailable;
     private boolean onlineBookingAvailable;
 
-    // Campi aggiuntivi per compatibilità
-    private String deliveryDisponibile;
-    private String prenotazioneOnlineDisponibile;
-    private String city;
-    private String priceRange;
-
     // Campo per il proprietario del ristorante
     private String proprietario;
 
@@ -120,9 +114,6 @@ public class Ristorante {
         // Converte i valori "Sì"/"No" in boolean
         this.deliveryAvailable = "Sì".equalsIgnoreCase(deliveryAvailable) || "Si".equalsIgnoreCase(deliveryAvailable);
         this.onlineBookingAvailable = "Sì".equalsIgnoreCase(onlineBookingAvailable) || "Si".equalsIgnoreCase(onlineBookingAvailable);
-
-        this.deliveryDisponibile = deliveryAvailable;
-        this.prenotazioneOnlineDisponibile = onlineBookingAvailable;
     }
 
     /**
@@ -316,15 +307,6 @@ public class Ristorante {
         this.onlineBookingAvailable = onlineBookingAvailable;
     }
 
-    // Metodi di utilità per compatibilità
-    public boolean hasDelivery() {
-        return deliveryAvailable;
-    }
-
-    public boolean hasOnlineBooking() {
-        return onlineBookingAvailable;
-    }
-
     // Metodo per verificare la fascia di prezzo
     public boolean matchesPriceRange(String priceRange) {
         if (priceRange == null || priceRange.isEmpty() || price == null) {
@@ -350,41 +332,4 @@ public class Ristorante {
         return getStars() >= minStars;
     }
 
-    public boolean offersDelivery() {
-        return deliveryDisponibile != null && deliveryDisponibile.equalsIgnoreCase("Si");
-    }
-
-    public boolean offersOnlineBooking() {
-        return prenotazioneOnlineDisponibile != null && prenotazioneOnlineDisponibile.equalsIgnoreCase("Si");
-    }
-
-    public String getIndirizzo() {
-        return address;
-    }
-
-    public String getCitta() {
-        return city;
-    }
-
-    public String getTipoCucina() {
-        return cuisine;
-    }
-
-    public String getFasciaPrezzo() {
-        return priceRange;
-    }
-
-    public double getMediaRecensioni() {
-        // Calcola la media delle recensioni se disponibile
-        // Per ora ritorna un valore di default basato sulle stelle Michelin
-        return getStars() > 0 ? 4.0 + (getStars() * 0.5) : 3.5;
-    }
-
-    public boolean isDeliveryDisponibile() {
-        return offersDelivery();
-    }
-
-    public boolean isPrenotazioneOnlineDisponibile() {
-        return offersOnlineBooking();
-    }
 }

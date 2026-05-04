@@ -26,6 +26,9 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.time.format.DateTimeFormatter;
 
 public class RegistrazioneController {
+
+    private static final int MIN_USERNAME_LENGTH = 3;
+    private static final int MIN_PASSWORD_LENGTH = 6;
     /** Campo input per il nome dell'utente (FXML). */
     @FXML
     private TextField nomeField;
@@ -64,55 +67,27 @@ public class RegistrazioneController {
      */
     @FXML
     private void handleRegistrati() {
-        // Validazione campi obbligatori
-        if (nomeField.getText().trim().isEmpty()) {
-            showError("❌ Il nome è obbligatorio!");
-            return;
-        }
-
-        if (cognomeField.getText().trim().isEmpty()) {
-            showError("❌ Il cognome è obbligatorio!");
-            return;
-        }
-
-        if (usernameField.getText().trim().isEmpty()) {
-            showError("❌ Il nome utente è obbligatorio!");
-            return;
-        }
-
-        if (usernameField.getText().trim().length() < 3) {
-            showError("❌ Il nome utente deve contenere almeno 3 caratteri!");
-            return;
-        }
-
-        if (passwordField.getText().isEmpty()) {
-            showError("❌ La password è obbligatoria!");
-            return;
-        }
-
-        if (passwordField.getText().length() < 6) {
-            showError("❌ La password deve contenere almeno 6 caratteri!");
-            return;
-        }
-
-        if (domicilioField.getText().trim().isEmpty()) {
-            showError("❌ Il domicilio è obbligatorio!");
-            return;
-        }
+        if (!requireNonEmpty(nomeField.getText(), "Il nome è obbligatorio!")) return;
+        if (!requireNonEmpty(cognomeField.getText(), "Il cognome è obbligatorio!")) return;
+        if (!requireNonEmpty(usernameField.getText(), "Il nome utente è obbligatorio!")) return;
+        if (!requireMinLength(usernameField.getText().trim(), MIN_USERNAME_LENGTH,
+                "Il nome utente deve contenere almeno " + MIN_USERNAME_LENGTH + " caratteri!")) return;
+        if (!requireNonEmpty(passwordField.getText(), "La password è obbligatoria!")) return;
+        if (!requireMinLength(passwordField.getText(), MIN_PASSWORD_LENGTH,
+                "La password deve contenere almeno " + MIN_PASSWORD_LENGTH + " caratteri!")) return;
+        if (!requireNonEmpty(domicilioField.getText(), "Il domicilio è obbligatorio!")) return;
 
         if (ruoloComboBox.getValue() == null) {
-            showError("❌ Seleziona il tipo di account!");
+            showError("Seleziona il tipo di account!");
             return;
         }
 
-        // Controlla se l'username esiste già
         if (AuthManager.usernameEsistente(usernameField.getText().trim())) {
-            showError("❌ Nome utente già in uso! Scegline un altro.");
+            showError("Nome utente già in uso. Scegline un altro.");
             return;
         }
 
         try {
-            // Crea utente
             String dataNascita = dataNascitaPicker.getValue() != null
                     ? dataNascitaPicker.getValue().format(DateTimeFormatter.ISO_DATE)
                     : "";
@@ -126,8 +101,8 @@ public class RegistrazioneController {
                     domicilioField.getText().trim(),
                     ruoloComboBox.getValue());
 
-            // Salva utente
             FileManager.salvaUtente(nuovoUtente);
+            AuthManager.invalidateCache();
 
             // Mostra successo e chiudi
             Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
@@ -202,6 +177,22 @@ public class RegistrazioneController {
         passwordField.textProperty().addListener((observable, oldValue, newValue) -> hideError());
         domicilioField.textProperty().addListener((observable, oldValue, newValue) -> hideError());
         ruoloComboBox.valueProperty().addListener((observable, oldValue, newValue) -> hideError());
+    }
+
+    private boolean requireNonEmpty(String value, String errorMsg) {
+        if (value == null || value.trim().isEmpty()) {
+            showError(errorMsg);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean requireMinLength(String value, int min, String errorMsg) {
+        if (value.length() < min) {
+            showError(errorMsg);
+            return false;
+        }
+        return true;
     }
 
     /**

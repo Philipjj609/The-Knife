@@ -154,7 +154,7 @@ public class FileManager {
      * @since 1.0
      */
     public static void salvaUtente(Utente utente) {
-        String resourcePath = "data/michelin_my_maps.csv";
+        String resourcePath = "data/utenti.csv";
 
         try (PrintWriter pw = getPrintWriterForWrite(resourcePath, true)) {
             pw.printf("%s,%s,%s,%s,%s,%s,%s%n",
@@ -183,7 +183,7 @@ public class FileManager {
      * @return Array di String contenente i campi letti dalla riga.
      * @since 1.0
      */
-    private static String[] parseCSVLine(String line) {
+    public static String[] parseCSVLine(String line) {
         List<String> result = new ArrayList<>();
         boolean inQuotes = false;
         StringBuilder currentField = new StringBuilder();
@@ -212,7 +212,7 @@ public class FileManager {
      * @return String pulita e senza virgolette esterne; stringa vuota se il valore è null.
      * @since 1.0
      */
-    private static String cleanValue(String value) {
+    public static String cleanValue(String value) {
         if (value == null)
             return "";
         return value.trim().replaceAll("^\"|\"$", "");
@@ -229,7 +229,7 @@ public class FileManager {
      * @return Valore pronto per il CSV; stringa vuota se il valore è null.
      * @since 1.0
      */
-    private static String escapeValue(String value) {
+    public static String escapeValue(String value) {
         if (value == null)
             return "";
         if (value.contains(",") || value.contains("\"") || value.contains("\n")) {

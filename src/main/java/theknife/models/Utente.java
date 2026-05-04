@@ -1,5 +1,7 @@
 package theknife.models;
 
+import theknife.models.Role;
+
 /*
  * @author Philip Jon Ji Ciuca
  * @numero_matricola 761446
@@ -93,19 +95,6 @@ public class Utente {
      * @return Hash della password.
      * @since 1.0
      */
-    public String getPassword() {
-        return passwordHash;
-    }
-
-    public void setPassword(String password) {
-        this.passwordHash = password;
-    }
-
-    /**
-     * Restituisce l'hash della password dell'utente.
-     * @return Hash della password.
-     * @since 1.0
-     */
     public String getPasswordHash() {
         return passwordHash;
     }
@@ -141,7 +130,7 @@ public class Utente {
     }
 
     /**
-     * Restituisce il ruolo dell'utente.
+     * Restituisce il ruolo dell'utente come stringa (usata per CSV).
      * @return Ruolo dell'utente, ad esempio "Cliente" o "Ristoratore".
      * @since 1.0
      */
@@ -151,6 +140,15 @@ public class Utente {
 
     public void setRuolo(String ruolo) {
         this.ruolo = ruolo;
+    }
+
+    /**
+     * Restituisce il ruolo dell'utente come enum tipizzato.
+     * @return Valore {@link Role} corrispondente, oppure null se non riconosciuto.
+     * @since 1.0
+     */
+    public Role getRuoloEnum() {
+        return Role.fromString(ruolo);
     }
 
     @Override

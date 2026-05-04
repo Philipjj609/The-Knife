@@ -23,10 +23,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import theknife.models.Role;
 import theknife.models.Utente;
 
 import java.io.IOException;
@@ -144,7 +146,7 @@ public class HomeController implements Initializable {
             loginStage.showAndWait(); // Attende la chiusura della finestra
 
         } catch (IOException e) {
-            e.printStackTrace();
+            showError("Impossibile aprire la finestra di login.");
         }
     }
 
@@ -181,8 +183,6 @@ public class HomeController implements Initializable {
             menuStage.showAndWait();
 
         } catch (IOException e) {
-            e.printStackTrace();
-            // Se il file non esiste, facciamo logout diretto per ora
             handleLogout();
         }
     }
@@ -208,18 +208,18 @@ public class HomeController implements Initializable {
      */
     private void loadDashboard() {
         try {
-            String viewPath = utenteLoggato.getRuolo().equals("Cliente")
+            Role ruolo = utenteLoggato.getRuoloEnum();
+            String viewPath = (ruolo == Role.CLIENTE)
                     ? "/views/dashboardCliente.fxml"
                     : "/views/dashboardRistoratore.fxml";
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource(viewPath));
             Parent dashboard = loader.load();
 
-            // Passa l'utente corrente al controller della dashboard
-            if (utenteLoggato.getRuolo().equals("Cliente")) {
+            if (ruolo == Role.CLIENTE) {
                 DashboardClienteController controller = loader.getController();
                 controller.setCurrentUser(utenteLoggato);
-            } else if (utenteLoggato.getRuolo().equals("Ristoratore")) {
+            } else if (ruolo == Role.RISTORATORE) {
                 DashboardRistoratoreController controller = loader.getController();
                 controller.setCurrentUser(utenteLoggato);
             }
@@ -227,8 +227,7 @@ public class HomeController implements Initializable {
             contentPane.getChildren().setAll(dashboard);
 
         } catch (IOException e) {
-            e.printStackTrace();
-            // Fallback alla vista guest se la dashboard non si carica
+            showError("Impossibile caricare la dashboard.");
             loadGuestContent();
         }
     }
@@ -244,7 +243,15 @@ public class HomeController implements Initializable {
             Parent guestView = loader.load();
             contentPane.getChildren().setAll(guestView);
         } catch (IOException e) {
-            e.printStackTrace();
+            showError("Impossibile caricare la vista principale.");
         }
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Errore");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
