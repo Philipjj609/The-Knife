@@ -1,100 +1,85 @@
-# The Knife - Applicazione per la Gestione di Ristoranti
+# The Knife - Laboratorio B
 
-The Knife è un'applicazione desktop sviluppata in Java con JavaFX per la gestione e consultazione di informazioni su ristoranti ispirati alla guida Michelin.
+Applicazione JavaFX client-server per consultare e gestire ristoranti, recensioni e preferiti.
 
-## 🚀 Funzionalità
+La Parte B separa la vecchia applicazione monolitica in tre moduli Maven:
 
-- **Esplorazione ristoranti**: Interfaccia intuitiva per scoprire ristoranti con filtri avanzati
-- **Sistema di recensioni**: Valutazioni e commenti per ogni ristorante
-- **Gestione preferiti**: Salva i tuoi ristoranti preferiti
-- **Dashboard personalizzate**: Diverse funzionalità per clienti e ristoratori
-- **Mappe integrate**: Visualizzazione posizione ristoranti con integrazione Google Maps
+- `theknife-common`: modelli condivisi e protocollo di rete serializzabile.
+- `theknife-server`: server TCP multi-thread, DAO JDBC e persistenza PostgreSQL.
+- `theknife-client`: GUI JavaFX che comunica solo con il server tramite `ClientTK`.
 
-## 👥 Tipologie di Utenti
+## Funzionalita
 
-- **Ospiti**: Esplorazione ristoranti senza registrazione
-- **Clienti registrati**: Recensioni, preferiti e funzionalità personali
-- **Ristoratori registrati**: Gestione ristoranti e risposte alle recensioni
+- Avvio client con connessione a un server configurabile.
+- Schermata iniziale obbligatoria con scelta tra accesso e ingresso ospite.
+- Ospite: ricerca, filtri, dettaglio ristorante, recensioni e mappa.
+- Cliente: recensioni, preferiti e dashboard personale.
+- Ristoratore: inserimento ristoranti, dashboard dei propri locali e risposta alle recensioni.
+- Password hashate con BCrypt lato server.
+- Accessi alle operazioni personali controllati dal server sulla sessione autenticata.
 
-## 🛠️ Tecnologie Utilizzate
+## Requisiti
 
-- **Java 17**: Linguaggio di programmazione principale
-- **JavaFX**: Framework per l'interfaccia grafica
-- **JBCrypt**: Libreria per la crittografia delle password
-- **CSV**: Persistenza dati attraverso file strutturati
+- JDK 17 o superiore.
+- Maven 3.9 o superiore.
+- PostgreSQL 17 o compatibile.
 
-## 📦 Installazione
+## Database
 
-1. Clona il repository:
-```bash
-git clone https://github.com/tuoutente/the-knife.git
+Creare il database e applicare lo schema:
+
+```powershell
+createdb -U postgres theknife
+psql -U postgres -d theknife -f database/schema.sql
 ```
-Importa il progetto nel tuo IDE preferito
 
-Assicurati di avere Java 17 e JavaFX configurati
+Per popolare il catalogo Michelin dal CSV:
 
-Esegui la classe Main per avviare l'applicazione
+```powershell
+powershell -ExecutionPolicy Bypass -File database/setup_database.ps1 -CsvPath "C:\Users\phili\Downloads\michelin_my_maps.csv"
+```
 
-🏗️ Struttura del Progetto
+Lo script crea il database se manca, applica `database/schema.sql` e importa il CSV normalizzando cucine e servizi nelle rispettive tabelle.
+
+La configurazione predefinita del server e in:
+
 ```text
-the-knife/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── theknife/
-│   │   │       ├── controllers/      # Controller JavaFX
-│   │   │       ├── models/           # Modelli dati
-│   │   │       ├── services/         # Gestione business logic
-│   │   │       ├── utils/            # Utility e helpers
-│   │   │       ├── Main.java         # Classe principale
-│   │   │       └── esegui.java       # Entry point alternativo
-│   │   └── resources/
-│   │       ├── data/                 # File CSV per persistenza
-│   │       ├── images/               # Immagini e icone
-│   │       ├── styles/               # Fogli di stile CSS
-│   │       └── views/                # File FXML per le viste
-├── target/                           # Cartella output build
-└── pom.xml                          # Configurazione Maven
-📋 Requisiti di Sistema
-Java Runtime Environment (JRE) 17 o superiore
+theknife-server/src/main/resources/db.properties
 ```
-4 GB di RAM minimo
 
-200 MB di spazio libero su disco
+Si possono anche usare variabili d'ambiente, che hanno precedenza sul file:
 
-Sistema operativo: Windows 10/11, macOS 10.14+, o Linux
+- `THEKNIFE_DB_URL`
+- `THEKNIFE_DB_USER`
+- `THEKNIFE_DB_PASSWORD`
 
-🚦 Esecuzione
-Da IDE
-Esegui la classe Main nel package theknife
+## Build
 
-Da terminale
-```bash
-mvn clean javafx:run
-```
-Come JAR eseguibile
-```bash
+```powershell
 mvn clean package
-java -jar TheKnife.jar
 ```
-📊 Funzionalità Tecniche
-Architettura MVC (Model-View-Controller)
 
-Persistenza dati con file CSV
+## Esecuzione
 
-Autenticazione sicura con hash BCrypt
+Avviare prima il server:
 
-Interfaccia responsive con JavaFX
+```powershell
+java -jar theknife-server/target/theknife-server-1.0.0-shaded.jar
+```
 
-Gestione errori e validazione input
+Poi avviare il client:
 
-🤝 Contribuire
-Le pull request sono benvenute. Per cambiamenti importanti, apri prima una issue per discutere cosa vorresti cambiare.
+```powershell
+mvn -pl theknife-client javafx:run
+```
 
-📄 Licenza
-Questo progetto è concesso in licenza con la Licenza MIT. Vedi il file LICENSE per maggiori dettagli.
+All'avvio il client chiede host e porta del server. I valori predefiniti sono:
 
-📞 Supporto
-Per problemi o domande, apri una issue sulla repository GitHub o contatta [il tuo indirizzo email].
+- host: `localhost`
+- porta: `9090`
 
-The Knife - Scopri, recensisci, condividi l'esperienza culinaria
+## Note Architetturali
+
+Il client non accede direttamente al database e non legge file CSV. Tutte le operazioni applicative passano dal server tramite richieste `Richiesta` e risposte `Esito`.
+
+Il server usa DAO stateless e un connection pool HikariCP; ogni client connesso viene gestito da un thread del pool.

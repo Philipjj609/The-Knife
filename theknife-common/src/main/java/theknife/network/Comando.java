@@ -1,0 +1,33 @@
+package theknife.network;
+
+public enum Comando {
+
+    // Autenticazione e utenti
+    LOGIN,
+    REGISTRA_UTENTE,
+    USERNAME_ESISTE,
+
+    // Ristoranti
+    CERCA_RISTORANTI,
+    GET_RISTORANTE,
+    AGGIUNGI_RISTORANTE,
+    GET_RISTORANTI_PROPRIETARIO,
+
+    // Recensioni
+    GET_RECENSIONI_RISTORANTE,
+    GET_RECENSIONI_CLIENTE,
+    GET_RECENSIONI_RISTORATORI,
+    AGGIUNGI_RECENSIONE,
+    MODIFICA_RECENSIONE,
+    ELIMINA_RECENSIONE,
+    GET_MEDIA_VALUTAZIONI,
+
+    // Risposte alle recensioni
+    RISPONDI_RECENSIONE,
+
+    // Preferiti
+    GET_PREFERITI,
+    AGGIUNGI_PREFERITO,
+    RIMUOVI_PREFERITO,
+    IS_PREFERITO
+}
