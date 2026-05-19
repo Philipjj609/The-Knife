@@ -39,5 +39,3 @@ build/
 # Project exclude paths
 /out/
 
-# Cartella DB esterna (PostgreSQL setup, non fa parte del progetto)
-/dbtk/
