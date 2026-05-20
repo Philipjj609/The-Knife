@@ -20,13 +20,9 @@ import java.util.ResourceBundle;
  * Mostra coordinate, URL Google Maps e fornisce comandi per copiare
  * e aprire la posizione nel browser.
  *
- * @author Philip Jon Ji Ciuca, 761446, Sede CO
- * @author Samuele Secchi, 761031, Sede CO
- * @author Flavio Marin, 759910, Sede CO
- * @author Davide Caccia, 760742, Sede CO
+ * @author Philip Jon Ji Ciuca
  * @version 1.0
  */
-
 public class MapDialogController implements Initializable {
     @FXML
     private Text titleLabel;

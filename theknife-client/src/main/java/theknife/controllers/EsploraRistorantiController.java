@@ -4,13 +4,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import theknife.Main;
 import theknife.models.FiltriRicerca;
 import theknife.models.Ristorante;
@@ -25,18 +24,13 @@ import java.util.ResourceBundle;
  * Controller per la vista di esplorazione dei ristoranti.
  * Usa ClientTK per la ricerca con filtri lato server.
  *
- * @author Philip Jon Ji Ciuca, 761446, Sede CO
- * @author Samuele Secchi, 761031, Sede CO
- * @author Flavio Marin, 759910, Sede CO
- * @author Davide Caccia, 760742, Sede CO
+ * @author Philip Jon Ji Ciuca
  * @version 2.0
  */
-
 public class EsploraRistorantiController implements Initializable {
 
     @FXML private TextField searchField;
     @FXML private ComboBox<String> cuisineComboBox;
-    @FXML private ComboBox<String> serviceComboBox;
     @FXML private ComboBox<String> locationComboBox;
     @FXML private ComboBox<String> priceRangeComboBox;
     @FXML private ComboBox<String> starsComboBox;
@@ -65,7 +59,6 @@ public class EsploraRistorantiController implements Initializable {
 
         // Filtro cucina: testo libero (LIKE sul server)
         cuisineComboBox.setEditable(true);
-        serviceComboBox.setEditable(true);
 
         // Filtro località: testo libero (LIKE sul server)
         locationComboBox.setEditable(true);
@@ -100,17 +93,8 @@ public class EsploraRistorantiController implements Initializable {
                     setText(null);
                     setGraphic(null);
                 } else {
-                    String stars = "";
-                    if (r.getStarCount() > 0) stars += "⭐";
-                    if (r.isGreenStar()) stars += "🌟";
-
-                    String text = String.format("%s%s - %s\n%s | %s",
-                            stars.isEmpty() ? "" : stars + " ",
-                            r.getNome(),
-                            String.join(", ", r.getCucine()),
-                            r.getCitta(),
-                            r.getPrezzoStringa());
-                    setText(text);
+                    setText(null);
+                    setGraphic(createRestaurantCard(r));
                 }
             }
         });
@@ -122,6 +106,59 @@ public class EsploraRistorantiController implements Initializable {
                     aggiungiPreferitiButton.setDisable(!hasSelection);
                     mapButton.setDisable(!hasSelection);
                 });
+
+        restaurantListView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                Ristorante selected = restaurantListView.getSelectionModel().getSelectedItem();
+                if (selected != null) openRestaurantDetails(selected);
+            }
+        });
+    }
+
+    private VBox createRestaurantCard(Ristorante ristorante) {
+        VBox card = new VBox(10);
+        card.getStyleClass().add("restaurant-card");
+
+        HBox header = new HBox(12);
+        header.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        Text name = new Text(ristorante.getNome());
+        name.getStyleClass().add("restaurant-name");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+
+        Label price = new Label(ristorante.getPrezzoStringa());
+        price.getStyleClass().addAll("badge", "price-badge");
+
+        header.getChildren().addAll(name, spacer, price);
+
+        Text cuisine = new Text(String.join(", ", ristorante.getCucine()));
+        cuisine.getStyleClass().add("restaurant-info");
+
+        Text location = new Text(ristorante.getCitta()
+                + (ristorante.getNazione() != null ? ", " + ristorante.getNazione() : ""));
+        location.getStyleClass().add("restaurant-info");
+
+        HBox badges = new HBox(8);
+        if (ristorante.getStarCount() > 0) {
+            Label michelin = new Label("★".repeat(ristorante.getStarCount()) + " Michelin");
+            michelin.getStyleClass().addAll("badge", "michelin-badge");
+            badges.getChildren().add(michelin);
+        }
+        if (ristorante.isGreenStar()) {
+            Label green = new Label("Green Star");
+            green.getStyleClass().addAll("badge", "success");
+            badges.getChildren().add(green);
+        }
+        if (ristorante.isPrenotazioneOnline()) {
+            Label booking = new Label("Prenotazione online");
+            booking.getStyleClass().addAll("badge", "info");
+            badges.getChildren().add(booking);
+        }
+
+        card.getChildren().addAll(header, cuisine, location, badges);
+        return card;
     }
 
     @FXML
@@ -131,14 +168,8 @@ public class EsploraRistorantiController implements Initializable {
         String searchText = searchField.getText() != null ? searchField.getText().trim() : "";
         if (!searchText.isEmpty()) builder.nome(searchText);
 
-        String cucina = comboText(cuisineComboBox);
-        if (!cucina.isEmpty()) builder.cucina(cucina);
-
-        String servizio = comboText(serviceComboBox);
-        if (!servizio.isEmpty()) builder.servizio(servizio);
-
-        String citta = comboText(locationComboBox);
-        if (!citta.isEmpty()) builder.citta(citta);
+        if (cuisineComboBox.getValue() != null) builder.cucina(cuisineComboBox.getValue());
+        if (locationComboBox.getValue() != null) builder.citta(locationComboBox.getValue());
 
         if (priceRangeComboBox.getValue() != null) {
             int livello = priceRangeComboBox.getValue().length(); // €=1, €€=2, etc.
@@ -178,9 +209,8 @@ public class EsploraRistorantiController implements Initializable {
     @FXML
     private void handleReset() {
         searchField.clear();
-        clearCombo(cuisineComboBox);
-        clearCombo(serviceComboBox);
-        clearCombo(locationComboBox);
+        cuisineComboBox.setValue(null);
+        locationComboBox.setValue(null);
         priceRangeComboBox.setValue(null);
         starsComboBox.setValue(null);
         deliveryCheckBox.setSelected(false);
@@ -208,18 +238,10 @@ public class EsploraRistorantiController implements Initializable {
 
     private void openRestaurantDetails(Ristorante restaurant) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/dettaglioRistorante.fxml"));
-            Parent root = loader.load();
-
-            DettaglioRistoranteController controller = loader.getController();
-            controller.setRistorante(restaurant);
-            if (currentUser != null) controller.setCurrentUser(currentUser.getUsername());
-
-            Stage stage = new Stage();
-            stage.setTitle("Dettaglio Ristorante - " + restaurant.getNome());
-            Main.setApplicationIcon(stage);
-            stage.setScene(new Scene(root, 900, 700));
-            stage.show();
+            AppNavigator.show("/views/dettaglioRistorante.fxml", (DettaglioRistoranteController controller) -> {
+                controller.setRistorante(restaurant);
+                if (currentUser != null) controller.setCurrentUser(currentUser.getUsername());
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -248,17 +270,8 @@ public class EsploraRistorantiController implements Initializable {
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/mapDialog.fxml"));
-            Parent root = loader.load();
-
-            MapDialogController controller = loader.getController();
-            controller.setRestaurant(restaurant);
-
-            Stage stage = new Stage();
-            stage.setTitle("Posizione - " + restaurant.getNome());
-            stage.setScene(new Scene(root, 500, 300));
-            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            stage.show();
+            AppNavigator.show("/views/mapDialog.fxml", (MapDialogController controller) ->
+                    controller.setRestaurant(restaurant));
         } catch (IOException e) {
             String mapUrl = String.format("https://www.google.com/maps?q=%f,%f",
                     restaurant.getLatitudine(), restaurant.getLongitudine());
@@ -268,7 +281,7 @@ public class EsploraRistorantiController implements Initializable {
 
     @FXML
     private void tornaDashboard() {
-        ((Stage) searchField.getScene().getWindow()).close();
+        AppNavigator.goBackOrClose(searchField);
     }
 
     private void updateStatistics() {
@@ -293,17 +306,5 @@ public class EsploraRistorantiController implements Initializable {
     public void refreshView() {
         restaurantListView.refresh();
         updateStatistics();
-    }
-
-    private String comboText(ComboBox<String> comboBox) {
-        String text = comboBox.isEditable() && comboBox.getEditor() != null
-                ? comboBox.getEditor().getText()
-                : comboBox.getValue();
-        return text != null ? text.trim() : "";
-    }
-
-    private void clearCombo(ComboBox<String> comboBox) {
-        comboBox.setValue(null);
-        if (comboBox.getEditor() != null) comboBox.getEditor().clear();
     }
 }

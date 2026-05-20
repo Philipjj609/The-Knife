@@ -29,7 +29,6 @@ import java.util.ResourceBundle;
  * @author Davide Caccia, 760742, Sede CO
  * @version 2.0
  */
-
 public class DashboardClienteController implements Initializable {
 
     @FXML private Text benvenutoLabel;

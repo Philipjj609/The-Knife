@@ -5,15 +5,11 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import theknife.Main;
 import theknife.models.Recensione;
 import theknife.models.Ristorante;
@@ -36,7 +32,6 @@ import java.util.ResourceBundle;
  * @author Davide Caccia, 760742, Sede CO
  * @version 2.0
  */
-
 public class DettaglioRistoranteController implements Initializable {
 
     @FXML private Text nameLabel;
@@ -137,7 +132,7 @@ public class DettaglioRistoranteController implements Initializable {
         Text stelle = new Text(recensione.getStelle());
         stelle.setStyle("-fx-font-size: 16; -fx-fill: #f39c12;");
 
-        Text utente = new Text("di " + recensione.getAutoreDisplayName());
+        Text utente = new Text("di " + recensione.getUsernameCliente());
         utente.setStyle("-fx-font-size: 12; -fx-fill: #6c757d;");
 
         Text data = new Text(recensione.getDataRecensioneFormatted());
@@ -190,7 +185,7 @@ public class DettaglioRistoranteController implements Initializable {
     }
 
     @FXML private void handleClose() {
-        ((Stage) nameLabel.getScene().getWindow()).close();
+        AppNavigator.goBackOrClose(nameLabel);
     }
 
     private void openWebsite(ActionEvent event) {
@@ -217,24 +212,15 @@ public class DettaglioRistoranteController implements Initializable {
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/aggiungiRecensione.fxml"));
-            Parent root = loader.load();
-            AggiungiRecensioneController controller = loader.getController();
-            controller.setRistorante(ristorante);
-            controller.setCurrentUser(currentUser);
-            controller.setParentController(this);
+            AppNavigator.show("/views/aggiungiRecensione.fxml", (AggiungiRecensioneController controller) -> {
+                controller.setRistorante(ristorante);
+                controller.setCurrentUser(currentUser);
+                controller.setParentController(this);
 
-            if (dashboardClienteParentController != null) {
-                controller.setParentController(dashboardClienteParentController);
-            }
-
-            Stage stage = new Stage();
-            stage.setTitle("Lascia una Recensione - " + ristorante.getNome());
-            Main.setApplicationIcon(stage);
-            stage.setScene(new Scene(root, 500, 400));
-            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            stage.showAndWait();
-            loadRecensioni();
+                if (dashboardClienteParentController != null) {
+                    controller.setParentController(dashboardClienteParentController);
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -272,9 +258,12 @@ public class DettaglioRistoranteController implements Initializable {
     @FXML
     private void handleVisualizzaMappa() {
         if (ristorante != null && (ristorante.getLatitudine() != 0.0 || ristorante.getLongitudine() != 0.0)) {
-            String mapUrl = String.format(java.util.Locale.US, "https://www.google.com/maps?q=%.6f,%.6f",
-                    ristorante.getLatitudine(), ristorante.getLongitudine());
-            openUrl(mapUrl);
+            try {
+                AppNavigator.show("/views/mapDialog.fxml", (MapDialogController controller) ->
+                        controller.setRestaurant(ristorante));
+            } catch (IOException e) {
+                showAlert("Errore", "Impossibile caricare la mappa", e.getMessage());
+            }
         } else {
             showAlert("Informazione", "Posizione non disponibile",
                     "Le coordinate GPS per questo ristorante non sono disponibili.");

@@ -17,13 +17,9 @@ import java.util.Optional;
  * Controller per la finestra di login.
  * Gestisce l'autenticazione dell'utente tramite ClientTK.
  *
- * @author Philip Jon Ji Ciuca, 761446, Sede CO
- * @author Samuele Secchi, 761031, Sede CO
- * @author Flavio Marin, 759910, Sede CO
- * @author Davide Caccia, 760742, Sede CO
+ * @author Philip Jon Ji Ciuca
  * @version 2.0
  */
-
 public class LoginController {
 
     @FXML private TextField usernameField;

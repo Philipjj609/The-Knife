@@ -1,18 +1,13 @@
 package theknife.controllers;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import theknife.Main;
 import theknife.models.Recensione;
 import theknife.models.Ristorante;
@@ -34,7 +29,6 @@ import java.util.stream.Collectors;
  * @author Davide Caccia, 760742, Sede CO
  * @version 2.0
  */
-
 public class DashboardRistoratoreController implements Initializable {
 
     @FXML private Text benvenutoLabel;
@@ -187,6 +181,11 @@ public class DashboardRistoratoreController implements Initializable {
 
         buttonsBox.getChildren().addAll(visualizzaBtn, recensioniBtn);
         card.getChildren().addAll(header, localita, telefono, stelleBox, buttonsBox);
+        card.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                apriDettaglioRistorante(ristorante);
+            }
+        });
         return card;
     }
 
@@ -204,7 +203,7 @@ public class DashboardRistoratoreController implements Initializable {
         Text stelle = new Text(recensione.getStelle());
         stelle.setStyle("-fx-font-size: 14; -fx-fill: #f39c12;");
 
-        Text cliente = new Text("di " + recensione.getAutoreDisplayName());
+        Text cliente = new Text("di " + recensione.getUsernameCliente());
         cliente.setStyle("-fx-font-size: 12; -fx-fill: #6c757d;");
 
         Text data = new Text(recensione.getDataRecensioneFormatted());
@@ -248,21 +247,10 @@ public class DashboardRistoratoreController implements Initializable {
     @FXML
     private void handleAggiungiRistorante() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/aggiungiRistorante.fxml"));
-            Parent root = loader.load();
-
-            AggiungiRistoranteController controller = loader.getController();
-            controller.setCurrentUser(currentUser);
-            controller.setParentController(this);
-
-            Stage stage = new Stage();
-            stage.setTitle("Aggiungi Nuovo Ristorante");
-            stage.setScene(new Scene(root, 800, 900));
-            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            stage.initOwner(ristorantiListView.getScene().getWindow());
-            stage.setResizable(false);
-            Main.setApplicationIcon(stage);
-            stage.showAndWait();
+            AppNavigator.show("/views/aggiungiRistorante.fxml", (AggiungiRistoranteController controller) -> {
+                controller.setCurrentUser(currentUser);
+                controller.setParentController(this);
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -287,18 +275,10 @@ public class DashboardRistoratoreController implements Initializable {
 
     private void apriDettaglioRistorante(Ristorante ristorante) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/dettaglioRistorante.fxml"));
-            Parent root = loader.load();
-
-            DettaglioRistoranteController controller = loader.getController();
-            controller.setRistorante(ristorante);
-            controller.setCurrentUser(currentUser.getUsername());
-
-            Stage stage = new Stage();
-            stage.setTitle("Dettaglio Ristorante - " + ristorante.getNome());
-            Main.setApplicationIcon(stage);
-            stage.setScene(new Scene(root, 900, 700));
-            stage.show();
+            AppNavigator.show("/views/dettaglioRistorante.fxml", (DettaglioRistoranteController controller) -> {
+                controller.setRistorante(ristorante);
+                controller.setCurrentUser(currentUser.getUsername());
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -306,22 +286,11 @@ public class DashboardRistoratoreController implements Initializable {
 
     private void apriFinstraRisposta(Recensione recensione) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/rispondiRecensione.fxml"));
-            Parent root = loader.load();
-
-            RispondiRecensioneController controller = loader.getController();
-            controller.setRecensione(recensione);
-            controller.setCurrentUser(currentUser.getUsername());
-            controller.setParentController(this);
-
-            Stage stage = new Stage();
-            stage.setTitle("Rispondi alla Recensione");
-            Main.setApplicationIcon(stage);
-            stage.setScene(new Scene(root, 850, 800));
-            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            stage.showAndWait();
-
-            loadUserData();
+            AppNavigator.show("/views/rispondiRecensione.fxml", (RispondiRecensioneController controller) -> {
+                controller.setRecensione(recensione);
+                controller.setCurrentUser(currentUser.getUsername());
+                controller.setParentController(this);
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }

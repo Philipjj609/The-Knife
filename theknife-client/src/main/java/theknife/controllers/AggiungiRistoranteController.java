@@ -5,7 +5,6 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 import theknife.Main;
 import theknife.models.Ristorante;
 import theknife.models.Utente;
@@ -25,7 +24,6 @@ import java.util.ResourceBundle;
  * @author Davide Caccia, 760742, Sede CO
  * @version 2.0
  */
-
 public class AggiungiRistoranteController implements Initializable {
 
     @FXML private TextField nomeField;
@@ -90,10 +88,7 @@ public class AggiungiRistoranteController implements Initializable {
 
             List<String> servizi = new ArrayList<>();
             if (!serviziArea.getText().trim().isEmpty()) {
-                for (String servizio : serviziArea.getText().split(",")) {
-                    String pulito = servizio.trim();
-                    if (!pulito.isEmpty()) servizi.add(pulito);
-                }
+                servizi.add(serviziArea.getText().trim());
             }
 
             Ristorante nuovo = new Ristorante(
@@ -129,8 +124,8 @@ public class AggiungiRistoranteController implements Initializable {
                 if (parentController != null) parentController.refreshData();
 
                 new Thread(() -> {
-                    try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
-                    javafx.application.Platform.runLater(this::handleAnnulla);
+                    try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                    javafx.application.Platform.runLater(() -> AppNavigator.goBackOrClose(nomeField));
                 }).start();
             });
 
@@ -166,5 +161,5 @@ public class AggiungiRistoranteController implements Initializable {
     private void clearMessages() { errorLabel.setText(""); successLabel.setText(""); }
 
     @FXML
-    private void handleAnnulla() { ((Stage) nomeField.getScene().getWindow()).close(); }
+    private void handleAnnulla() { AppNavigator.goBackOrClose(nomeField); }
 }
