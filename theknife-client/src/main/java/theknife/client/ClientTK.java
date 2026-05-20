@@ -78,9 +78,18 @@ public class ClientTK implements Closeable {
         return richiediDato(new Richiesta(Comando.GET_SERVIZI, Map.of()));
     }
 
+    public List<String> getCucine() {
+        return richiediDato(new Richiesta(Comando.GET_CUCINE, Map.of()));
+    }
+
+    public List<String> getLocalita() {
+        return richiediDato(new Richiesta(Comando.GET_LOCALITA, Map.of()));
+    }
+
     public List<Ristorante> cercaRistoranti(FiltriRicerca filtri) {
+        FiltriRicerca safeFiltri = (filtri != null) ? filtri : FiltriRicerca.builder().build();
         return richiediDato(new Richiesta(Comando.CERCA_RISTORANTI,
-                Map.of("filtri", filtri)));
+                Map.of("filtri", safeFiltri)));
     }
 
     public Optional<Ristorante> getRistorante(long id) {

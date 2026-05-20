@@ -271,6 +271,34 @@ public class RistoranteDAOImpl implements RistoranteDAO {
     }
 
     @Override
+    public List<String> findAllCucine() {
+        String sql = "SELECT nome FROM cucine ORDER BY nome";
+        try (Connection conn = ConnectionPool.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<String> list = new ArrayList<>();
+            while (rs.next()) list.add(rs.getString("nome"));
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore findAllCucine", e);
+        }
+    }
+
+    @Override
+    public List<String> findAllLocalita() {
+        String sql = "SELECT DISTINCT citta FROM ristoranti WHERE citta IS NOT NULL ORDER BY citta";
+        try (Connection conn = ConnectionPool.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<String> list = new ArrayList<>();
+            while (rs.next()) list.add(rs.getString("citta"));
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore findAllLocalita", e);
+        }
+    }
+
+    @Override
     public boolean existsByNomeAndIndirizzo(String nome, String indirizzo) {
         String sql = "SELECT 1 FROM ristoranti WHERE LOWER(nome) = LOWER(?) AND LOWER(indirizzo) = LOWER(?)";
         try (Connection conn = ConnectionPool.getConnection();

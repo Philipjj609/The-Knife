@@ -11,20 +11,21 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import theknife.Main;
-import theknife.models.FiltriRicerca;
 import theknife.models.Ristorante;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.Predicate;
 
 /**
  * Controller per la vista guest (ospite non autenticato).
- * Usa ClientTK per la ricerca dei ristoranti lato server.
+ * Carica tutti i ristoranti una volta sola e filtra in locale.
  *
  * @author Philip Jon Ji Ciuca
- * @version 2.0
+ * @version 3.0
  */
 public class GuestViewController implements Initializable {
 
@@ -44,8 +45,10 @@ public class GuestViewController implements Initializable {
     @FXML private Text totalRestaurantsLabel;
     @FXML private Text michelinStarsLabel;
     @FXML private Text greenStarsLabel;
+    @FXML private Label loadingLabel;
 
     private ObservableList<Ristorante> filteredRestaurants;
+    private List<Ristorante> allRestaurants = new ArrayList<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -53,24 +56,59 @@ public class GuestViewController implements Initializable {
         restaurantListView.setItems(filteredRestaurants);
         setupUI();
 
+        priceRangeComboBox.setItems(FXCollections.observableArrayList("€", "€€", "€€€", "€€€€"));
         starsComboBox.setItems(FXCollections.observableArrayList(
                 "1 Stella Michelin", "2 Stelle Michelin", "3 Stelle Michelin",
                 "Bib Gourmand", "Selezionato Michelin"));
 
-        Task<List<String>> serviziTask = new Task<>() {
+        cuisineComboBox.setEditable(true);
+        locationComboBox.setEditable(true);
+
+        loadingLabel.setText("Caricamento ristoranti...");
+        loadingLabel.setVisible(true);
+        searchButton.setDisable(true);
+        resetButton.setDisable(true);
+
+        Task<Void> initTask = new Task<>() {
             @Override
-            protected List<String> call() {
-                return Main.getClient().getServizi();
+            protected Void call() {
+                allRestaurants = Main.getClient().cercaRistoranti(null);
+
+                List<String> servizi  = Main.getClient().getServizi();
+                List<String> cucine   = Main.getClient().getCucine();
+                List<String> localita = Main.getClient().getLocalita();
+
+                javafx.application.Platform.runLater(() -> {
+                    serviceComboBox.setItems(FXCollections.observableArrayList(servizi));
+                    cuisineComboBox.setItems(FXCollections.observableArrayList(cucine));
+                    locationComboBox.setItems(FXCollections.observableArrayList(localita));
+                    cuisineComboBox.setEditable(true);
+                    locationComboBox.setEditable(true);
+                });
+                return null;
             }
         };
-        serviziTask.setOnSucceeded(e ->
-                serviceComboBox.setItems(FXCollections.observableArrayList(serviziTask.getValue())));
-        serviziTask.setOnFailed(e ->
-                System.err.println("[GuestView] Errore caricamento servizi: " +
-                        serviziTask.getException().getMessage()));
-        new Thread(serviziTask).start();
 
-        handleSearch(); // carica tutti i ristoranti inizialmente
+        initTask.setOnSucceeded(e -> {
+            loadingLabel.setVisible(false);
+            searchButton.setDisable(false);
+            resetButton.setDisable(false);
+            filteredRestaurants.setAll(allRestaurants);
+            updateStatistics();
+        });
+
+        initTask.setOnFailed(e -> {
+            loadingLabel.setText("Errore caricamento ristoranti");
+            Throwable ex = initTask.getException();
+            if (ex == null) {
+                System.err.println("[GuestView] Task fallito senza eccezione");
+            } else {
+                System.err.println("[GuestView] Errore: " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
+                ex.printStackTrace(System.err);
+            }
+        });
+
+        new Thread(initTask).start();
     }
 
     private void setupUI() {
@@ -149,48 +187,9 @@ public class GuestViewController implements Initializable {
 
     @FXML
     private void handleSearch() {
-        FiltriRicerca.Builder builder = FiltriRicerca.builder();
-
-        String searchText = searchField.getText() != null ? searchField.getText().trim() : "";
-        if (!searchText.isEmpty()) builder.nome(searchText);
-
-        if (cuisineComboBox.getValue() != null) builder.cucina(cuisineComboBox.getValue());
-        if (locationComboBox.getValue() != null) builder.citta(locationComboBox.getValue());
-
-        if (priceRangeComboBox.getValue() != null) {
-            builder.prezzoLivello(priceRangeComboBox.getValue().length());
-        }
-
-        if (starsComboBox.getValue() != null) {
-            switch (starsComboBox.getValue()) {
-                case "1 Stella Michelin"    -> builder.riconoscimento("1 Star");
-                case "2 Stelle Michelin"    -> builder.riconoscimento("2 Stars");
-                case "3 Stelle Michelin"    -> builder.riconoscimento("3 Stars");
-                case "Bib Gourmand"         -> builder.riconoscimento("Bib Gourmand");
-                case "Selezionato Michelin" -> builder.riconoscimento("Selected Restaurants");
-            }
-        }
-
-        if (serviceComboBox.getValue() != null) builder.servizio(serviceComboBox.getValue());
-
-        builder.soloDelivery(deliveryCheckBox.isSelected());
-        builder.soloPrenotazione(onlineBookingCheckBox.isSelected());
-
-        FiltriRicerca filtri = builder.build();
-
-        Task<List<Ristorante>> task = new Task<>() {
-            @Override
-            protected List<Ristorante> call() {
-                return Main.getClient().cercaRistoranti(filtri);
-            }
-        };
-
-        task.setOnSucceeded(e -> {
-            filteredRestaurants.setAll(task.getValue());
-            updateStatistics();
-        });
-
-        new Thread(task).start();
+        Predicate<Ristorante> predicate = buildPredicate();
+        filteredRestaurants.setAll(allRestaurants.stream().filter(predicate).toList());
+        updateStatistics();
     }
 
     @FXML
@@ -203,7 +202,46 @@ public class GuestViewController implements Initializable {
         serviceComboBox.setValue(null);
         deliveryCheckBox.setSelected(false);
         onlineBookingCheckBox.setSelected(false);
-        handleSearch();
+        filteredRestaurants.setAll(allRestaurants);
+        updateStatistics();
+    }
+
+    @FXML
+    private void handleAggiorna() {
+        loadingLabel.setText("Aggiornamento ristoranti...");
+        loadingLabel.setVisible(true);
+        searchButton.setDisable(true);
+        resetButton.setDisable(true);
+
+        Task<List<Ristorante>> aggiornaTask = new Task<>() {
+            @Override
+            protected List<Ristorante> call() {
+                return Main.getClient().cercaRistoranti(null);
+            }
+        };
+
+        aggiornaTask.setOnSucceeded(e -> {
+            allRestaurants = aggiornaTask.getValue();
+            loadingLabel.setVisible(false);
+            searchButton.setDisable(false);
+            resetButton.setDisable(false);
+            handleSearch();
+        });
+
+        aggiornaTask.setOnFailed(e -> {
+            loadingLabel.setText("Errore aggiornamento");
+            searchButton.setDisable(false);
+            resetButton.setDisable(false);
+            Throwable ex = aggiornaTask.getException();
+            if (ex == null) {
+                System.err.println("[GuestView] Aggiorna: task fallito senza eccezione");
+            } else {
+                System.err.println("[GuestView] Aggiorna: " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
+                ex.printStackTrace(System.err);
+            }
+        });
+
+        new Thread(aggiornaTask).start();
     }
 
     @FXML
@@ -216,6 +254,63 @@ public class GuestViewController implements Initializable {
     private void handleMap() {
         Ristorante sel = restaurantListView.getSelectionModel().getSelectedItem();
         if (sel != null) showOnMap(sel);
+    }
+
+    private Predicate<Ristorante> buildPredicate() {
+        Predicate<Ristorante> p = r -> true;
+
+        String searchText = searchField.getText() != null ? searchField.getText().trim() : "";
+        if (!searchText.isEmpty()) {
+            String lower = searchText.toLowerCase();
+            p = p.and(r ->
+                r.getNome().toLowerCase().contains(lower)
+                || r.getCitta().toLowerCase().contains(lower)
+                || r.getCucine().stream().anyMatch(c -> c.toLowerCase().contains(lower))
+            );
+        }
+
+        String cucina = cuisineComboBox.getValue();
+        if (cucina != null && !cucina.isBlank()) {
+            String lower = cucina.toLowerCase();
+            p = p.and(r -> r.getCucine().stream().anyMatch(c -> c.toLowerCase().contains(lower)));
+        }
+
+        String citta = locationComboBox.getValue();
+        if (citta != null && !citta.isBlank()) {
+            String lower = citta.toLowerCase();
+            p = p.and(r -> r.getCitta() != null && r.getCitta().toLowerCase().contains(lower));
+        }
+
+        if (priceRangeComboBox.getValue() != null) {
+            int livello = priceRangeComboBox.getValue().length();
+            p = p.and(r -> r.getPrezzoLivello() == livello);
+        }
+
+        if (starsComboBox.getValue() != null) {
+            String riconoscimento = switch (starsComboBox.getValue()) {
+                case "1 Stella Michelin"    -> "1 Star";
+                case "2 Stelle Michelin"    -> "2 Stars";
+                case "3 Stelle Michelin"    -> "3 Stars";
+                case "Bib Gourmand"         -> "Bib Gourmand";
+                case "Selezionato Michelin" -> "Selected Restaurants";
+                default -> null;
+            };
+            if (riconoscimento != null) {
+                final String r2 = riconoscimento;
+                p = p.and(r -> r2.equals(r.getRiconoscimento()));
+            }
+        }
+
+        String servizio = serviceComboBox.getValue();
+        if (servizio != null && !servizio.isBlank()) {
+            String lower = servizio.toLowerCase();
+            p = p.and(r -> r.getServizi().stream().anyMatch(s -> s.toLowerCase().contains(lower)));
+        }
+
+        if (deliveryCheckBox.isSelected())       p = p.and(Ristorante::isDelivery);
+        if (onlineBookingCheckBox.isSelected())  p = p.and(Ristorante::isPrenotazioneOnline);
+
+        return p;
     }
 
     private void openRestaurantDetails(Ristorante restaurant) {

@@ -144,6 +144,10 @@ public class GestoreClient implements Runnable {
                 }
                 case GET_SERVIZI ->
                     Esito.ok(ristoranteDAO.findAllServizi());
+                case GET_CUCINE ->
+                    Esito.ok(ristoranteDAO.findAllCucine());
+                case GET_LOCALITA ->
+                    Esito.ok(ristoranteDAO.findAllLocalita());
 
                 case GET_RISTORANTI_PROPRIETARIO -> {
                     long proprietarioId = r.get("proprietarioId");

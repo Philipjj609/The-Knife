@@ -106,8 +106,15 @@ public class DashboardClienteController implements Initializable {
                 nessunPreferitoLabel.setVisible(preferiti.isEmpty());
             }
         };
-        task.setOnFailed(e -> System.err.println("[Dashboard] Errore imprevisto: " +
-                task.getException().getMessage()));
+        task.setOnFailed(e -> {
+            Throwable ex = task.getException();
+            if (ex == null) {
+                System.err.println("[Dashboard] Task fallito senza eccezione");
+            } else {
+                System.err.println("[Dashboard] Errore: " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
+                ex.printStackTrace(System.err);
+            }
+        });
         new Thread(task).start();
     }
 

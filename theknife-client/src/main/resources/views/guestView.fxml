@@ -41,7 +41,10 @@
                         <CheckBox fx:id="onlineBookingCheckBox" text="Prenotazione online"/>
                         <Button fx:id="searchButton" text="Cerca" styleClass="button,primary" onAction="#handleSearch"/>
                         <Button fx:id="resetButton" text="Reset" styleClass="button,outline" onAction="#handleReset"/>
+                        <Button text="↻ Aggiorna" styleClass="button,outline" onAction="#handleAggiorna"/>
                     </HBox>
+                    <Label fx:id="loadingLabel" text="Caricamento ristoranti..." visible="false"
+                           style="-fx-text-fill: #888; -fx-font-size: 13px;"/>
                 </VBox>
             </VBox>
             

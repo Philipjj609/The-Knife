@@ -31,4 +31,8 @@ public interface RistoranteDAO {
     boolean existsByNomeAndIndirizzo(String nome, String indirizzo);
 
     List<String> findAllServizi();
+
+    List<String> findAllCucine();
+
+    List<String> findAllLocalita();
 }
