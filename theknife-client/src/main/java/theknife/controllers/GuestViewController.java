@@ -4,13 +4,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import theknife.Main;
 import theknife.models.FiltriRicerca;
 import theknife.models.Ristorante;
@@ -67,17 +66,8 @@ public class GuestViewController implements Initializable {
                 if (empty || r == null) {
                     setText(null); setGraphic(null);
                 } else {
-                    String stars = "";
-                    if (r.getStarCount() > 0) stars += "⭐";
-                    if (r.isGreenStar()) stars += "🌟";
-
-                    String text = String.format("%s%s - %s\n%s | %s",
-                            stars.isEmpty() ? "" : stars + " ",
-                            r.getNome(),
-                            String.join(", ", r.getCucine()),
-                            r.getCitta(),
-                            r.getPrezzoStringa());
-                    setText(text);
+                    setText(null);
+                    setGraphic(createRestaurantCard(r));
                 }
             }
         });
@@ -87,6 +77,59 @@ public class GuestViewController implements Initializable {
             detailsButton.setDisable(!sel);
             mapButton.setDisable(!sel);
         });
+
+        restaurantListView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                Ristorante selected = restaurantListView.getSelectionModel().getSelectedItem();
+                if (selected != null) openRestaurantDetails(selected);
+            }
+        });
+    }
+
+    private VBox createRestaurantCard(Ristorante ristorante) {
+        VBox card = new VBox(10);
+        card.getStyleClass().add("restaurant-card");
+
+        HBox header = new HBox(12);
+        header.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+
+        Text name = new Text(ristorante.getNome());
+        name.getStyleClass().add("restaurant-name");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+
+        Label price = new Label(ristorante.getPrezzoStringa());
+        price.getStyleClass().addAll("badge", "price-badge");
+
+        header.getChildren().addAll(name, spacer, price);
+
+        Text cuisine = new Text(String.join(", ", ristorante.getCucine()));
+        cuisine.getStyleClass().add("restaurant-info");
+
+        Text location = new Text(ristorante.getCitta()
+                + (ristorante.getNazione() != null ? ", " + ristorante.getNazione() : ""));
+        location.getStyleClass().add("restaurant-info");
+
+        HBox badges = new HBox(8);
+        if (ristorante.getStarCount() > 0) {
+            Label michelin = new Label("★".repeat(ristorante.getStarCount()) + " Michelin");
+            michelin.getStyleClass().addAll("badge", "michelin-badge");
+            badges.getChildren().add(michelin);
+        }
+        if (ristorante.isGreenStar()) {
+            Label green = new Label("Green Star");
+            green.getStyleClass().addAll("badge", "success");
+            badges.getChildren().add(green);
+        }
+        if (ristorante.isPrenotazioneOnline()) {
+            Label booking = new Label("Prenotazione online");
+            booking.getStyleClass().addAll("badge", "info");
+            badges.getChildren().add(booking);
+        }
+
+        card.getChildren().addAll(header, cuisine, location, badges);
+        return card;
     }
 
     @FXML
@@ -157,18 +200,10 @@ public class GuestViewController implements Initializable {
 
     private void openRestaurantDetails(Ristorante restaurant) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/dettaglioRistorante.fxml"));
-            Parent root = loader.load();
-
-            DettaglioRistoranteController controller = loader.getController();
-            controller.setRistorante(restaurant);
-            controller.setCurrentUser(null);
-
-            Stage stage = new Stage();
-            stage.setTitle("Dettaglio Ristorante - " + restaurant.getNome());
-            Main.setApplicationIcon(stage);
-            stage.setScene(new Scene(root, 900, 700));
-            stage.show();
+            AppNavigator.show("/views/dettaglioRistorante.fxml", (DettaglioRistoranteController controller) -> {
+                controller.setRistorante(restaurant);
+                controller.setCurrentUser(null);
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -182,17 +217,8 @@ public class GuestViewController implements Initializable {
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/mapDialog.fxml"));
-            Parent root = loader.load();
-
-            MapDialogController controller = loader.getController();
-            controller.setRestaurant(restaurant);
-
-            Stage stage = new Stage();
-            stage.setTitle("Posizione - " + restaurant.getNome());
-            stage.setScene(new Scene(root, 500, 300));
-            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            stage.show();
+            AppNavigator.show("/views/mapDialog.fxml", (MapDialogController controller) ->
+                    controller.setRestaurant(restaurant));
         } catch (IOException e) {
             showAlert("Info", "Apri mappa", String.format("Coordinate: %f, %f",
                     restaurant.getLatitudine(), restaurant.getLongitudine()));

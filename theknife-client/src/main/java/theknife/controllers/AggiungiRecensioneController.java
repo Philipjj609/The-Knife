@@ -5,7 +5,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import theknife.Main;
 import theknife.models.Recensione;
 import theknife.models.Ristorante;
@@ -14,6 +13,16 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller per la finestra di inserimento e modifica di una recensione.
+ *
+ * Gestisce la valutazione a stelle e l'invio dei dati al server.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class AggiungiRecensioneController implements Initializable {
 
     @FXML private Text ristoranteLabel;
@@ -43,15 +52,15 @@ public class AggiungiRecensioneController implements Initializable {
             final int rating = i + 1;
             ToggleButton star = stars.get(i);
 
-            star.setOnAction(_e -> { selectedRating = rating; updateStarDisplay(); });
+            star.setOnAction(event -> { selectedRating = rating; updateStarDisplay(); });
 
-            star.setOnMouseEntered(_e -> {
+            star.setOnMouseEntered(event -> {
                 for (int j = 0; j < rating; j++)
                     stars.get(j).setStyle("-fx-font-size: 20; -fx-text-fill: #f39c12; -fx-background-color: transparent; -fx-border-color: transparent;");
                 for (int j = rating; j < stars.size(); j++)
                     stars.get(j).setStyle("-fx-font-size: 20; -fx-text-fill: #bdc3c7; -fx-background-color: transparent; -fx-border-color: transparent;");
             });
-            star.setOnMouseExited(_e -> updateStarDisplay());
+            star.setOnMouseExited(event -> updateStarDisplay());
         }
     }
 
@@ -102,7 +111,7 @@ public class AggiungiRecensioneController implements Initializable {
             };
             task.setOnSucceeded(e -> {
                 notificaParent();
-                ((Stage) titoloField.getScene().getWindow()).close();
+                AppNavigator.goBackOrClose(titoloField);
             });
             task.setOnFailed(e -> errorLabel.setText("Errore nel modificare la recensione: " + task.getException().getMessage()));
             new Thread(task).start();
@@ -122,7 +131,7 @@ public class AggiungiRecensioneController implements Initializable {
             };
             task.setOnSucceeded(e -> {
                 notificaParent();
-                ((Stage) titoloField.getScene().getWindow()).close();
+                AppNavigator.goBackOrClose(titoloField);
             });
             task.setOnFailed(e -> errorLabel.setText("Errore nel salvare la recensione: " + task.getException().getMessage()));
             new Thread(task).start();
@@ -137,6 +146,6 @@ public class AggiungiRecensioneController implements Initializable {
 
     @FXML
     private void handleAnnulla() {
-        ((Stage) titoloField.getScene().getWindow()).close();
+        AppNavigator.goBackOrClose(titoloField);
     }
 }

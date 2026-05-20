@@ -6,18 +6,18 @@
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="theknife.controllers.HomeController"
             styleClass="main-container">
-    
+
     <!-- Modern Navbar -->
     <top>
         <HBox styleClass="navbar">
             <!-- Logo -->
             <HBox spacing="8" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
                 <Text text="The" styleClass="logo-text"/>
-                <Text text="Knife" styleClass="logo-text,logo-accent"/>
+                <Text text="Knife" styleClass="logo-text logo-accent"/>
             </HBox>
-            
+
             <!-- Login Button -->
-            <Button fx:id="loginButton" text="Accedi" styleClass="navbar-button,primary" 
+            <Button fx:id="loginButton" text="Accedi" styleClass="navbar-button primary"
                     onAction="#handleLogin"/>
         </HBox>
     </top>

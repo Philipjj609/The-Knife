@@ -6,7 +6,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import theknife.models.Ristorante;
 
 import java.awt.Desktop;
@@ -137,8 +136,7 @@ public class MapDialogController implements Initializable {
      */
     @FXML
     private void close() {
-        Stage stage = (Stage) titleLabel.getScene().getWindow();
-        stage.close();
+        AppNavigator.goBackOrClose(titleLabel);
     }
 
     /**

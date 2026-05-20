@@ -9,6 +9,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Implementazione JDBC dell'interfaccia PreferitiDAO.
+ *
+ * Gestisce la persistenza nel database delle preferenze sui ristoranti.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class PreferitiDAOImpl implements PreferitiDAO {
 
     @Override
@@ -20,7 +30,7 @@ public class PreferitiDAOImpl implements PreferitiDAO {
             ps.setLong(2, ristoranteId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Errore add preferito: " + username + "/" + ristoranteId, e);
+            throw new RuntimeException(messaggioErrorePreferito(e, "aggiungere"), e);
         }
     }
 
@@ -33,7 +43,7 @@ public class PreferitiDAOImpl implements PreferitiDAO {
             ps.setLong(2, ristoranteId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Errore remove preferito: " + username + "/" + ristoranteId, e);
+            throw new RuntimeException(messaggioErrorePreferito(e, "rimuovere"), e);
         }
     }
 
@@ -115,5 +125,12 @@ public class PreferitiDAOImpl implements PreferitiDAO {
     private List<String> arrayToList(Array sqlArray) throws SQLException {
         if (sqlArray == null) return new ArrayList<>();
         return new ArrayList<>(Arrays.asList((String[]) sqlArray.getArray()));
+    }
+
+    private String messaggioErrorePreferito(SQLException e, String azione) {
+        if ("23503".equals(e.getSQLState())) {
+            return "Impossibile " + azione + " il preferito: utente o ristorante non valido";
+        }
+        return "Errore durante l'operazione sui preferiti";
     }
 }

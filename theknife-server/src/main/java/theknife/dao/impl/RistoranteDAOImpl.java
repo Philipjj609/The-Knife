@@ -11,6 +11,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementazione JDBC dell'interfaccia RistoranteDAO.
+ *
+ * Gestisce l'inserimento, il filtraggio e il caricamento dei dettagli dei ristoranti.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class RistoranteDAOImpl implements RistoranteDAO {
 
     // Query base: JOIN per cucine e servizi, aggregati in array PostgreSQL.
@@ -72,29 +82,73 @@ public class RistoranteDAOImpl implements RistoranteDAO {
 
     @Override
     public List<Ristorante> search(FiltriRicerca filtri) {
+        if (filtri == null) return findAll();
+
         StringBuilder sql = new StringBuilder(SELECT_BASE).append("WHERE 1=1");
         List<Object> params = new ArrayList<>();
 
         if (isNotBlank(filtri.getNome())) {
-            sql.append(" AND LOWER(r.nome) LIKE LOWER(?)");
-            params.add("%" + filtri.getNome().trim() + "%");
+            // Ricerca libera: il campo UI promette ristorante, cucina o localita.
+            // Gli EXISTS interrogano le tabelle ponte senza alterare gli array aggregati
+            // costruiti dalla SELECT principale.
+            sql.append("""
+                 AND (
+                     r.nome ILIKE ?
+                     OR r.citta ILIKE ?
+                     OR r.nazione ILIKE ?
+                     OR EXISTS (
+                         SELECT 1
+                         FROM ristoranti_cucine rc_search
+                         JOIN cucine c_search ON c_search.id = rc_search.cucina_id
+                         WHERE rc_search.ristorante_id = r.id
+                           AND c_search.nome ILIKE ?
+                     )
+                     OR EXISTS (
+                         SELECT 1
+                         FROM ristoranti_servizi rs_search
+                         JOIN servizi s_search ON s_search.id = rs_search.servizio_id
+                         WHERE rs_search.ristorante_id = r.id
+                           AND s_search.nome ILIKE ?
+                     )
+                 )""");
+            String term = like(filtri.getNome());
+            params.add(term);
+            params.add(term);
+            params.add(term);
+            params.add(term);
+            params.add(term);
         }
         if (isNotBlank(filtri.getCitta())) {
-            sql.append(" AND LOWER(r.citta) LIKE LOWER(?)");
-            params.add("%" + filtri.getCitta().trim() + "%");
+            sql.append(" AND r.citta ILIKE ?");
+            params.add(like(filtri.getCitta()));
         }
         if (isNotBlank(filtri.getNazione())) {
-            sql.append(" AND LOWER(r.nazione) LIKE LOWER(?)");
-            params.add("%" + filtri.getNazione().trim() + "%");
+            sql.append(" AND r.nazione ILIKE ?");
+            params.add(like(filtri.getNazione()));
         }
         if (isNotBlank(filtri.getCucina())) {
-            // Subquery: esclude ristoranti che non hanno quella cucina
+            // Filtro N:M su cucina: passa solo i ristoranti collegati alla cucina richiesta.
             sql.append("""
-                 AND r.id IN (
-                     SELECT rc2.ristorante_id FROM ristoranti_cucine rc2
-                     JOIN cucine c2 ON c2.id = rc2.cucina_id
-                     WHERE LOWER(c2.nome) LIKE LOWER(?))""");
-            params.add("%" + filtri.getCucina().trim() + "%");
+                 AND EXISTS (
+                     SELECT 1
+                     FROM ristoranti_cucine rc_filter
+                     JOIN cucine c_filter ON c_filter.id = rc_filter.cucina_id
+                     WHERE rc_filter.ristorante_id = r.id
+                       AND c_filter.nome ILIKE ?
+                 )""");
+            params.add(like(filtri.getCucina()));
+        }
+        if (isNotBlank(filtri.getServizio())) {
+            // Filtro N:M su servizio/facility: usa la tabella ponte corretta.
+            sql.append("""
+                 AND EXISTS (
+                     SELECT 1
+                     FROM ristoranti_servizi rs_filter
+                     JOIN servizi s_filter ON s_filter.id = rs_filter.servizio_id
+                     WHERE rs_filter.ristorante_id = r.id
+                       AND s_filter.nome ILIKE ?
+                 )""");
+            params.add(like(filtri.getServizio()));
         }
         if (filtri.getPrezzoLivello() != null) {
             sql.append(" AND r.prezzo_livello = ?");
@@ -275,5 +329,9 @@ public class RistoranteDAOImpl implements RistoranteDAO {
 
     private boolean isNotBlank(String s) {
         return s != null && !s.isBlank();
+    }
+
+    private String like(String value) {
+        return "%" + value.trim() + "%";
     }
 }

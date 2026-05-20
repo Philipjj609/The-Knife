@@ -3,7 +3,6 @@ package theknife.controllers;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
 import theknife.models.Utente;
 
 import java.net.URL;
@@ -75,7 +74,10 @@ public class UserMenuController implements Initializable {
         if (homeController != null) {
             homeController.handleLogout();
         }
-        // Chiudi la finestra del menu
-        ((Stage) usernameLabel.getScene().getWindow()).close();
+    }
+
+    @FXML
+    private void handleBack() {
+        AppNavigator.goBackOrClose(usernameLabel);
     }
 }

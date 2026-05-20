@@ -3,7 +3,6 @@ package theknife.controllers;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 import theknife.Main;
 import theknife.models.Utente;
 
@@ -89,7 +88,7 @@ public class RegistrazioneController {
             successAlert.setContentText("Benvenuto in The Knife, " + nuovoUtente.getNome()
                     + "!\nOra puoi effettuare il login con le tue credenziali.");
             successAlert.showAndWait();
-            ((Stage) nomeField.getScene().getWindow()).close();
+            AppNavigator.goBackOrClose(nomeField);
         });
 
         task.setOnFailed(e -> showError(task.getException().getMessage()));
@@ -97,7 +96,7 @@ public class RegistrazioneController {
         new Thread(task).start();
     }
 
-    @FXML private void handleAnnulla() { ((Stage) nomeField.getScene().getWindow()).close(); }
+    @FXML private void handleAnnulla() { AppNavigator.goBackOrClose(nomeField); }
     @FXML private void handleMouseEntered() {}
     @FXML private void handleMouseExited() {}
 

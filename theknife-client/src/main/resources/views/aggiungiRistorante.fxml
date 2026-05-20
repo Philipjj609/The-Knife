@@ -8,54 +8,54 @@
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="theknife.controllers.AggiungiRistoranteController"
             style="-fx-background-color: #f8f9fa;">
-    
+
     <center>
         <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
             <HBox alignment="CENTER" style="-fx-padding: 30;">
                 <VBox spacing="20" style="-fx-max-width: 600; -fx-min-width: 600;">
-                    
+
                     <Text text="Aggiungi il Tuo Ristorante" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-fill: #2c3e50; -fx-text-alignment: center;"/>
-                    <Label text="Compila tutti i campi per aggiungere il tuo ristorante al sistema" 
+                    <Label text="Compila tutti i campi per aggiungere il tuo ristorante al sistema"
                           style="-fx-font-size: 14; -fx-text-fill: #6c757d; -fx-alignment: center;"/>
-                    
+
                     <!-- Informazioni Base -->
                     <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);">
                         <Text text="Informazioni Base" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-fill: #2c3e50;"/>
-                        
+
                         <VBox spacing="8">
                             <Label text="Nome del Ristorante *" style="-fx-font-weight: bold;"/>
-                            <TextField fx:id="nomeField" promptText="Es. Ristorante da Mario" 
+                            <TextField fx:id="nomeField" promptText="Es. Ristorante da Mario"
                                       style="-fx-padding: 12; -fx-border-radius: 5; -fx-font-size: 14;"/>
                         </VBox>
-                        
+
                         <VBox spacing="8">
                             <Label text="Tipo di Cucina *" style="-fx-font-weight: bold;"/>
-                            <ComboBox fx:id="cucinaCombo" promptText="Seleziona tipo di cucina" 
+                            <ComboBox fx:id="cucinaCombo" promptText="Seleziona tipo di cucina"
                                      style="-fx-pref-width: 100%; -fx-padding: 8;"/>
                         </VBox>
-                        
+
                         <VBox spacing="8">
                             <Label text="Fascia di Prezzo *" style="-fx-font-weight: bold;"/>
                             <ComboBox fx:id="prezzoCombo" promptText="Seleziona fascia di prezzo"/>
                         </VBox>
                     </VBox>
-                    
+
                     <!-- Posizione -->
                     <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);">
                         <Text text="Posizione" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-fill: #2c3e50;"/>
-                        
+
                         <VBox spacing="8">
                             <Label text="Indirizzo Completo *" style="-fx-font-weight: bold;"/>
                             <TextField fx:id="indirizzoField" promptText="Via, numero civico, CAP, città, provincia"
                                       style="-fx-padding: 12; -fx-border-radius: 5; -fx-font-size: 14;"/>
                         </VBox>
-                        
+
                         <VBox spacing="8">
                             <Label text="Località/Città *" style="-fx-font-weight: bold;"/>
                             <TextField fx:id="localitaField" promptText="Es. Milano, Italia"
                                       style="-fx-padding: 12; -fx-border-radius: 5; -fx-font-size: 14;"/>
                         </VBox>
-                        
+
                         <HBox spacing="15">
                             <VBox spacing="8" HBox.hgrow="ALWAYS">
                                 <Label text="Latitudine" style="-fx-font-weight: bold;"/>
@@ -68,32 +68,32 @@
                                           style="-fx-padding: 12; -fx-border-radius: 5; -fx-font-size: 14;"/>
                             </VBox>
                         </HBox>
-                        
+
                         <Label text="Suggerimento: Puoi trovare le coordinate GPS su Google Maps cliccando col tasto destro sulla posizione"
                                style="-fx-font-size: 12; -fx-text-fill: #6c757d; -fx-font-style: italic;"/>
                     </VBox>
-                    
+
                     <!-- Contatti -->
                     <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);">
                         <Text text="Informazioni di Contatto" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-fill: #2c3e50;"/>
-                        
+
                         <VBox spacing="8">
                             <Label text="Numero di Telefono *" style="-fx-font-weight: bold;"/>
                             <TextField fx:id="telefonoField" promptText="Es. +39 02 1234567"
                                       style="-fx-padding: 12; -fx-border-radius: 5; -fx-font-size: 14;"/>
                         </VBox>
-                        
+
                         <VBox spacing="8">
                             <Label text="Sito Web" style="-fx-font-weight: bold;"/>
                             <TextField fx:id="sitoWebField" promptText="Es. https://www.ilmioristorante.it"
                                       style="-fx-padding: 12; -fx-border-radius: 5; -fx-font-size: 14;"/>
                         </VBox>
                     </VBox>
-                    
+
                     <!-- Descrizioni -->
                     <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);">
                         <Text text="Descrizioni" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-fill: #2c3e50;"/>
-                        
+
                         <VBox spacing="8">
                             <Label text="Descrizione del Ristorante *" style="-fx-font-weight: bold;"/>
                             <TextArea fx:id="descrizioneArea" promptText="Descrivi il tuo ristorante, l'atmosfera, la specialità della casa..."
@@ -101,41 +101,41 @@
                                      style="-fx-padding: 12; -fx-border-radius: 5; -fx-font-size: 14;"/>
                             <Label text="Minimo 50 caratteri" style="-fx-font-size: 12; -fx-text-fill: #6c757d;"/>
                         </VBox>
-                        
+
                         <VBox spacing="8">
                             <Label text="Servizi e Strutture" style="-fx-font-weight: bold;"/>
                             <TextArea fx:id="serviziArea" promptText="Es. Aria condizionata, Parcheggio, Terrazza, WiFi gratuito, Accessibile ai disabili..."
                                      prefRowCount="3" wrapText="true"
                                      style="-fx-padding: 12; -fx-border-radius: 5; -fx-font-size: 14;"/>
                         </VBox>
-                        
+
                         <!-- Nuovi servizi specifici -->
                         <VBox spacing="12">
                             <Label text="Servizi Aggiuntivi" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
                             <HBox spacing="20">
-                                <CheckBox fx:id="deliveryCheck" text="🚚 Servizio di delivery disponibile" 
+                                <CheckBox fx:id="deliveryCheck" text="🚚 Servizio di delivery disponibile"
                                          style="-fx-font-size: 14;"/>
-                                <CheckBox fx:id="prenotazioneOnlineCheck" text="📅 Prenotazione online disponibile" 
+                                <CheckBox fx:id="prenotazioneOnlineCheck" text="📅 Prenotazione online disponibile"
                                          style="-fx-font-size: 14;"/>
                             </HBox>
                         </VBox>
                     </VBox>
-                    
+
                     <!-- Riconoscimenti -->
                     <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);">
                         <Text text="Riconoscimenti (Opzionale)" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-fill: #2c3e50;"/>
-                        
+
                         <VBox spacing="8">
                             <Label text="Premio/Riconoscimento" style="-fx-font-weight: bold;"/>
                             <ComboBox fx:id="premioCombo" promptText="Seleziona se applicabile"/>
                         </VBox>
-                        
+
                         <VBox spacing="8">
                             <Label text="Stella Verde (Sostenibilità)" style="-fx-font-weight: bold;"/>
                             <CheckBox fx:id="stellaVerdeCheck" text="Il mio ristorante ha pratiche sostenibili certificate"/>
                         </VBox>
                     </VBox>
-                    
+
                     <!-- Pulsanti -->
                     <HBox spacing="15" alignment="CENTER" style="-fx-padding: 20 0;">
                         <Button text="Salva Ristorante" onAction="#handleSalva"
@@ -143,10 +143,10 @@
                         <Button text="Annulla" onAction="#handleAnnulla"
                                 style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 12 25; -fx-font-size: 16;"/>
                     </HBox>
-                    
+
                     <Label fx:id="errorLabel" style="-fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-alignment: center;"/>
                     <Label fx:id="successLabel" style="-fx-text-fill: #27ae60; -fx-font-weight: bold; -fx-alignment: center;"/>
-                    
+
                 </VBox>
             </HBox>
         </ScrollPane>

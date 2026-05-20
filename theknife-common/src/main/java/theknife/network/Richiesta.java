@@ -5,6 +5,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Contenitore per i dati inviati sulla rete dal client al server.
+ *
+ * Associa un comando specifico ai relativi parametri dell'operazione.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class Richiesta implements Serializable {
 
     private final Comando            comando;

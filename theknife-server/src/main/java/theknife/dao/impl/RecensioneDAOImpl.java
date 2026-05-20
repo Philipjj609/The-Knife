@@ -6,16 +6,29 @@ import theknife.models.Recensione;
 import theknife.models.Risposta;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Implementazione JDBC dell'interfaccia RecensioneDAO.
+ *
+ * Gestisce la memorizzazione e il recupero delle recensioni dal database.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class RecensioneDAOImpl implements RecensioneDAO {
 
-    // Carica recensione + eventuale risposta in una sola query (niente N+1)
+    // Carica recensione, autore e eventuale risposta in una sola query.
+    // La JOIN su utenti rende il payload autosufficiente per il client.
     private static final String SELECT_BASE = """
         SELECT rec.id, rec.username_cliente, rec.ristorante_id, r.nome AS nome_ristorante,
+               u.nome AS nome_cliente, u.cognome AS cognome_cliente,
                rec.valutazione, rec.titolo, rec.commento, rec.data_recensione,
                risp.id           AS risposta_id,
                risp.username_ristoratore,
@@ -23,6 +36,7 @@ public class RecensioneDAOImpl implements RecensioneDAO {
                risp.data_risposta
         FROM recensioni rec
         JOIN ristoranti r   ON r.id   = rec.ristorante_id
+        JOIN utenti u       ON u.username = rec.username_cliente
         LEFT JOIN risposte risp ON risp.recensione_id = rec.id
         """;
 
@@ -71,6 +85,10 @@ public class RecensioneDAOImpl implements RecensioneDAO {
 
     @Override
     public Recensione save(Recensione recensione) {
+        if (recensione.getDataRecensione() == null) {
+            recensione.setDataRecensione(LocalDateTime.now());
+        }
+
         String sql = """
             INSERT INTO recensioni (username_cliente, ristorante_id, valutazione, titolo, commento, data_recensione)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -89,7 +107,7 @@ public class RecensioneDAOImpl implements RecensioneDAO {
                 recensione.setId(rs.getLong("id"));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore save recensione", e);
+            throw new RuntimeException(messaggioErroreRecensione(e), e);
         }
         return recensione;
     }
@@ -170,6 +188,8 @@ public class RecensioneDAOImpl implements RecensioneDAO {
         Recensione rec = new Recensione();
         rec.setId(rs.getLong("id"));
         rec.setUsernameCliente(rs.getString("username_cliente"));
+        rec.setNomeCliente(rs.getString("nome_cliente"));
+        rec.setCognomeCliente(rs.getString("cognome_cliente"));
         rec.setRistoranteId(rs.getLong("ristorante_id"));
         rec.setNomeRistorante(rs.getString("nome_ristorante"));
         rec.setValutazione(rs.getInt("valutazione"));
@@ -188,5 +208,16 @@ public class RecensioneDAOImpl implements RecensioneDAO {
             rec.setRisposta(risp);
         }
         return rec;
+    }
+
+    private String messaggioErroreRecensione(SQLException e) {
+        String sqlState = e.getSQLState();
+        if (sqlState == null) return "Errore save recensione";
+        return switch (sqlState) {
+            case "23505" -> "Hai gia lasciato una recensione per questo ristorante";
+            case "23503" -> "Utente o ristorante non valido per la recensione";
+            case "23514" -> "La valutazione deve essere compresa tra 1 e 5";
+            default -> "Errore save recensione";
+        };
     }
 }

@@ -23,7 +23,13 @@ import java.util.List;
  *
  * I DAO sono stateless (prendono connessioni dal pool per ogni operazione),
  * quindi condividerli tra più GestoreClient è thread-safe.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  */
+
 public class GestoreClient implements Runnable {
 
     private final Socket        socket;
@@ -191,7 +197,7 @@ public class GestoreClient implements Runnable {
                     if (!isRistoratoreAutenticato() ||
                             !utenteAutenticato.getUsername().equals(risposta.getUsernameRistoratore()))
                         yield Esito.errore("Operazione non autorizzata");
-                    yield Esito.ok(rispostaDAO.save(risposta));
+                    yield Esito.ok(rispostaDAO.save(risposta, utenteAutenticato.getId()));
                 }
 
                 // --- Preferiti ---

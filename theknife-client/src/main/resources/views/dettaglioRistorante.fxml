@@ -8,9 +8,12 @@
 <ScrollPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="theknife.controllers.DettaglioRistoranteController"
             fitToWidth="true" styleClass="main-container">
-    
+
     <VBox spacing="24" style="-fx-padding: 32;">
-        
+        <HBox alignment="CENTER_LEFT">
+            <Button text="← Indietro" onAction="#handleClose" styleClass="button outline"/>
+        </HBox>
+
         <!-- Header del ristorante -->
         <VBox spacing="20" styleClass="card" style="-fx-padding: 32;">
             <HBox spacing="20" alignment="CENTER_LEFT">
@@ -25,42 +28,42 @@
                 </VBox>
             </HBox>
         </VBox>
-        
+
         <!-- Informazioni di contatto -->
         <VBox spacing="16" styleClass="card" style="-fx-padding: 32;">
             <Text text="Informazioni di Contatto" styleClass="heading"/>
-            
+
             <GridPane hgap="16" vgap="12">
                 <columnConstraints>
                     <ColumnConstraints minWidth="120" prefWidth="140"/>
                     <ColumnConstraints hgrow="ALWAYS"/>
                 </columnConstraints>
-                
-                <Label text="Indirizzo:" styleClass="body-text" style="-fx-font-weight: bold;" 
+
+                <Label text="Indirizzo:" styleClass="body-text" style="-fx-font-weight: bold;"
                        GridPane.columnIndex="0" GridPane.rowIndex="0"/>
                 <Text fx:id="addressLabel" styleClass="body-text" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                
-                <Label text="Località:" styleClass="body-text" style="-fx-font-weight: bold;" 
+
+                <Label text="Località:" styleClass="body-text" style="-fx-font-weight: bold;"
                        GridPane.columnIndex="0" GridPane.rowIndex="1"/>
                 <Text fx:id="locationLabel" styleClass="body-text" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                
-                <Label text="Telefono:" styleClass="body-text" style="-fx-font-weight: bold;" 
+
+                <Label text="Telefono:" styleClass="body-text" style="-fx-font-weight: bold;"
                        GridPane.columnIndex="0" GridPane.rowIndex="2"/>
                 <Text fx:id="phoneLabel" styleClass="body-text" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                
-                <Label text="Sito Web:" styleClass="body-text" style="-fx-font-weight: bold;" 
+
+                <Label text="Sito Web:" styleClass="body-text" style="-fx-font-weight: bold;"
                        GridPane.columnIndex="0" GridPane.rowIndex="3"/>
                 <Hyperlink fx:id="websiteLink" styleClass="text-accent" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
             </GridPane>
         </VBox>
-        
+
         <!-- Descrizione -->
         <VBox spacing="16" styleClass="card" style="-fx-padding: 32;">
             <Text text="Descrizione" styleClass="heading"/>
             <TextArea fx:id="descriptionArea" editable="false" wrapText="true" prefRowCount="5"
                       style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-font-size: 14px;"/>
         </VBox>
-        
+
         <!-- Premi e riconoscimenti -->
         <VBox spacing="16" styleClass="card" style="-fx-padding: 32;">
             <Text text="Premi e Riconoscimenti" styleClass="heading"/>
@@ -75,11 +78,11 @@
                 </VBox>
             </HBox>
         </VBox>
-        
+
         <!-- Servizi e facilities -->
         <VBox spacing="16" styleClass="card" style="-fx-padding: 32;">
             <Text text="Servizi Disponibili" styleClass="heading"/>
-            
+
             <!-- Solo delivery e prenotazione online con Sì/No -->
             <VBox spacing="8">
                 <HBox spacing="8" alignment="CENTER_LEFT">
@@ -91,7 +94,7 @@
                     <Label fx:id="prenotazioneOnlineStatusLabel" text="No" styleClass="body-text"/>
                 </HBox>
             </VBox>
-            
+
             <!-- Descrizione dettagliata dei servizi -->
             <VBox spacing="8" style="-fx-padding: 16 0 0 0;">
                 <Label text="Dettagli Servizi e Strutture:" styleClass="body-text" style="-fx-font-weight: bold;"/>
@@ -99,29 +102,29 @@
                           style="-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-radius: 8; -fx-font-size: 14px; -fx-padding: 12;"/>
             </VBox>
         </VBox>
-          <!-- Azioni utente -->
+        <!-- Azioni utente -->
         <HBox spacing="16" alignment="CENTER" style="-fx-padding: 16;">
-            <Button fx:id="aggiungiPreferiti" text="❤️ Aggiungi ai Preferiti" styleClass="button-primary" 
+            <Button fx:id="aggiungiPreferiti" text="❤️ Aggiungi ai Preferiti" styleClass="button-primary"
                     prefWidth="200" prefHeight="40" onAction="#handleAggiungiPreferiti"/>
-            <Button fx:id="visualizzaMappa" text="🗺️ Visualizza Mappa" styleClass="button-secondary" 
+            <Button fx:id="visualizzaMappa" text="🗺️ Visualizza Mappa" styleClass="button-secondary"
                     prefWidth="200" prefHeight="40" onAction="#handleVisualizzaMappa"/>
-            <Button fx:id="chiamaRistorante" text="📞 Chiama" styleClass="button-secondary" 
+            <Button fx:id="chiamaRistorante" text="📞 Chiama" styleClass="button-secondary"
                     prefWidth="150" prefHeight="40" onAction="#handleChiamaRistorante"/>
         </HBox>
-        
+
         <!-- Recensioni -->
         <VBox spacing="16" styleClass="card" style="-fx-padding: 32;">
             <HBox alignment="CENTER_LEFT" spacing="16">
                 <Text text="Recensioni" styleClass="heading"/>
                 <Button fx:id="aggiungiRecensione" text="➕ Aggiungi Recensione" styleClass="button-accent" onAction="#handleAggiungiRecensione"/>
             </HBox>
-            
+
             <ListView fx:id="recensioniListView" prefHeight="400" styleClass="review-list">
                 <placeholder>
                     <Label text="Nessuna recensione disponibile" styleClass="body-text" style="-fx-text-fill: #999;"/>
                 </placeholder>
             </ListView>
         </VBox>
-        
+
     </VBox>
 </ScrollPane>

@@ -4,10 +4,22 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Modello dati che rappresenta una recensione effettuata da un cliente.
+ *
+ * Contiene il voto, il titolo, il commento e i riferimenti a utente e ristorante.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class Recensione implements Serializable {
 
     private long          id;
     private String        usernameCliente;
+    private String        nomeCliente;
+    private String        cognomeCliente;
     private long          ristoranteId;
     private String        nomeRistorante;  // popolato via JOIN, usato per la visualizzazione
     private int           valutazione;
@@ -38,6 +50,13 @@ public class Recensione implements Serializable {
         return dataRecensione.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 
+    public String getAutoreDisplayName() {
+        String nomeCompleto = String.join(" ",
+                nomeCliente != null ? nomeCliente.trim() : "",
+                cognomeCliente != null ? cognomeCliente.trim() : "").trim();
+        return !nomeCompleto.isEmpty() ? nomeCompleto : usernameCliente;
+    }
+
     @Override
     public String toString() {
         return String.format("%s — %s (%s) — %s",
@@ -50,6 +69,12 @@ public class Recensione implements Serializable {
 
     public String getUsernameCliente()                         { return usernameCliente; }
     public void setUsernameCliente(String usernameCliente)     { this.usernameCliente = usernameCliente; }
+
+    public String getNomeCliente()                 { return nomeCliente; }
+    public void setNomeCliente(String nomeCliente) { this.nomeCliente = nomeCliente; }
+
+    public String getCognomeCliente()                       { return cognomeCliente; }
+    public void setCognomeCliente(String cognomeCliente)     { this.cognomeCliente = cognomeCliente; }
 
     public long getRistoranteId()                      { return ristoranteId; }
     public void setRistoranteId(long ristoranteId)     { this.ristoranteId = ristoranteId; }

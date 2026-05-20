@@ -5,7 +5,6 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 import theknife.Main;
 import theknife.models.Ristorante;
 import theknife.models.Utente;
@@ -19,7 +18,10 @@ import java.util.ResourceBundle;
  * Controller per la finestra di aggiunta di un nuovo ristorante.
  * Usa ClientTK per il salvataggio sul server.
  *
- * @author Philip Jon Ji Ciuca
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  * @version 2.0
  */
 public class AggiungiRistoranteController implements Initializable {
@@ -122,8 +124,8 @@ public class AggiungiRistoranteController implements Initializable {
                 if (parentController != null) parentController.refreshData();
 
                 new Thread(() -> {
-                    try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
-                    javafx.application.Platform.runLater(this::handleAnnulla);
+                    try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
+                    javafx.application.Platform.runLater(() -> AppNavigator.goBackOrClose(nomeField));
                 }).start();
             });
 
@@ -159,5 +161,5 @@ public class AggiungiRistoranteController implements Initializable {
     private void clearMessages() { errorLabel.setText(""); successLabel.setText(""); }
 
     @FXML
-    private void handleAnnulla() { ((Stage) nomeField.getScene().getWindow()).close(); }
+    private void handleAnnulla() { AppNavigator.goBackOrClose(nomeField); }
 }

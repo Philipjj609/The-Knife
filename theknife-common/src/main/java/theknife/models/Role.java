@@ -3,9 +3,13 @@ package theknife.models;
 /**
  * Ruoli disponibili per gli utenti del sistema.
  *
- * @author Philip Jon Ji Ciuca
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  * @version 1.0
  */
+
 public enum Role {
     CLIENTE("Cliente"),
     RISTORATORE("Ristoratore");
@@ -21,7 +25,7 @@ public enum Role {
     }
 
     /**
-     * Converte una stringa (es. da CSV) nel corrispondente valore enum.
+     * Converte una stringa esterna nel corrispondente valore enum.
      *
      * @param s Stringa da convertire, case-insensitive.
      * @return Valore enum corrispondente, oppure null se non trovato.

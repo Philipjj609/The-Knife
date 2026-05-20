@@ -24,9 +24,13 @@ import java.io.InputStream;
  * Una volta connesso, carica la home view (home.fxml) e l'utente può
  * interagire con il sistema tramite ClientTK (facade di rete).
  *
- * @author Philip Jon Ji Ciuca
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  * @version 2.0
  */
+
 public class Main extends Application {
 
     /** Istanza globale del client di rete — accessibile da tutti i controller. */

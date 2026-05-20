@@ -3,14 +3,10 @@ package theknife.controllers;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 import theknife.Main;
 import theknife.models.Utente;
 
@@ -57,7 +53,6 @@ public class LoginController {
             Optional<Utente> result = task.getValue();
             if (result.isPresent()) {
                 homeController.setUtenteLoggato(result.get());
-                ((Stage) usernameField.getScene().getWindow()).close();
             } else {
                 errorLabel.setText("Username o password errati!");
             }
@@ -74,25 +69,18 @@ public class LoginController {
     @FXML
     private void handleRegistrazione() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/registrazione.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = new Stage();
-            stage.setTitle("Registrazione - The Knife");
-            Main.setApplicationIcon(stage);
-
-            Scene scene = new Scene(root, 700, 800);
-            scene.getStylesheets().add(getClass().getResource("/styles/main.css").toExternalForm());
-            stage.setScene(scene);
-            stage.setMinWidth(650);
-            stage.setMinHeight(750);
-            stage.show();
+            AppNavigator.show("/views/registrazione.fxml", null);
         } catch (IOException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Errore");
             alert.setHeaderText(null);
-            alert.setContentText("Impossibile aprire la finestra di registrazione.");
+            alert.setContentText("Impossibile caricare la registrazione.");
             alert.showAndWait();
         }
+    }
+
+    @FXML
+    private void handleBack() {
+        AppNavigator.goBackOrClose(usernameField);
     }
 }

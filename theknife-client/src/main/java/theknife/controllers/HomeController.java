@@ -23,7 +23,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -31,8 +30,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import theknife.models.Role;
 import theknife.models.Utente;
 
@@ -58,6 +55,7 @@ public class HomeController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        AppNavigator.initialize(contentPane, this);
         loadWelcomeContent();
     }
 
@@ -130,31 +128,10 @@ public class HomeController implements Initializable {
     @FXML
     private void handleLogin() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/login.fxml"));
-            Parent root = loader.load();
-
-            // Applica il CSS alla finestra di login
-            Scene scene = new Scene(root, 500, 650);
-            scene.getStylesheets().add(getClass().getResource("/styles/main.css").toExternalForm());
-
-            // Passa il riferimento a HomeController al LoginController
-            LoginController loginController = loader.getController();
-            loginController.setHomeController(this);
-
-            Stage loginStage = new Stage();
-            loginStage.initModality(Modality.APPLICATION_MODAL);
-            loginStage.setTitle("Accedi - The Knife");
-
-            // Imposta l'icona della finestra
-            theknife.Main.setApplicationIcon(loginStage);
-
-            loginStage.setScene(scene);
-            loginStage.setMinWidth(450);
-            loginStage.setMinHeight(600);
-            loginStage.showAndWait(); // Attende la chiusura della finestra
-
+            AppNavigator.show("/views/login.fxml", (LoginController controller) ->
+                    controller.setHomeController(this));
         } catch (IOException e) {
-            showError("Impossibile aprire la finestra di login.");
+            showError("Impossibile caricare il login.");
         }
     }
 
@@ -167,29 +144,9 @@ public class HomeController implements Initializable {
      * @since 1.0
      */
     private void handleUserMenu() {
-        // Crea un menu semplice per l'utente loggato
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/userMenu.fxml"));
-            Parent root = loader.load();
-
-            // Passa il riferimento al HomeController
-            UserMenuController controller = loader.getController();
-            controller.setHomeController(this);
-
-            Scene scene = new Scene(root, 300, 200);
-            scene.getStylesheets().add(getClass().getResource("/styles/main.css").toExternalForm());
-
-            Stage menuStage = new Stage();
-            menuStage.initModality(Modality.APPLICATION_MODAL);
-            menuStage.setTitle("Menu Utente");
-
-            // Imposta l'icona della finestra
-            theknife.Main.setApplicationIcon(menuStage);
-
-            menuStage.setScene(scene);
-            menuStage.setResizable(false);
-            menuStage.showAndWait();
-
+            AppNavigator.show("/views/userMenu.fxml", (UserMenuController controller) ->
+                    controller.setHomeController(this));
         } catch (IOException e) {
             handleLogout();
         }
@@ -203,6 +160,7 @@ public class HomeController implements Initializable {
     public void handleLogout() {
         utenteLoggato = null;
         guestMode = false;
+        AppNavigator.clearHistory();
         updateUI();
         loadContent();
     }
@@ -240,6 +198,7 @@ public class HomeController implements Initializable {
             }
 
             contentPane.getChildren().setAll(dashboard);
+            AppNavigator.clearHistory();
 
         } catch (IOException e) {
             showError("Impossibile caricare la dashboard.");
@@ -257,6 +216,7 @@ public class HomeController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/guestView.fxml"));
             Parent guestView = loader.load();
             contentPane.getChildren().setAll(guestView);
+            AppNavigator.clearHistory();
         } catch (IOException e) {
             showError("Impossibile caricare la vista principale.");
         }
@@ -291,6 +251,7 @@ public class HomeController implements Initializable {
 
         panel.getChildren().addAll(title, subtitle, actions);
         contentPane.getChildren().setAll(panel);
+        AppNavigator.clearHistory();
     }
 
     private void showError(String message) {
