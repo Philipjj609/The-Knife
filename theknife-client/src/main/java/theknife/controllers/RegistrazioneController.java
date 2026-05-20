@@ -12,9 +12,13 @@ import java.time.LocalDate;
  * Controller per la registrazione di un nuovo utente.
  * Valida i campi e invia la richiesta al server tramite ClientTK.
  *
- * @author Philip Jon Ji Ciuca
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  * @version 2.0
  */
+
 public class RegistrazioneController {
 
     private static final int MIN_USERNAME_LENGTH = 3;

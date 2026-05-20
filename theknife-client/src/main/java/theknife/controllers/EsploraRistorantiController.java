@@ -25,9 +25,13 @@ import java.util.ResourceBundle;
  * Controller per la vista di esplorazione dei ristoranti.
  * Usa ClientTK per la ricerca con filtri lato server.
  *
- * @author Philip Jon Ji Ciuca
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  * @version 2.0
  */
+
 public class EsploraRistorantiController implements Initializable {
 
     @FXML private TextField searchField;

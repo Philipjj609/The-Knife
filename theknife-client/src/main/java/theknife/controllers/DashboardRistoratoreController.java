@@ -28,9 +28,13 @@ import java.util.stream.Collectors;
  * Controller per il dashboard del ristoratore.
  * Usa ClientTK per tutti i dati.
  *
- * @author Philip Jon Ji Ciuca
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  * @version 2.0
  */
+
 public class DashboardRistoratoreController implements Initializable {
 
     @FXML private Text benvenutoLabel;

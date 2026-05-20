@@ -3,6 +3,16 @@ package theknife.models;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+/**
+ * Modello dati che rappresenta un utente iscritto alla piattaforma.
+ *
+ * Contiene credenziali, dati anagrafici, email e ruolo dell'utente.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class Utente implements Serializable {
 
     private long   id;

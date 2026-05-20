@@ -12,6 +12,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Implementazione JDBC dell'interfaccia RecensioneDAO.
+ *
+ * Gestisce la memorizzazione e il recupero delle recensioni dal database.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class RecensioneDAOImpl implements RecensioneDAO {
 
     // Carica recensione, autore e eventuale risposta in una sola query.

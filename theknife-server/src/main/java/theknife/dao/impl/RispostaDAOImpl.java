@@ -7,6 +7,16 @@ import theknife.models.Risposta;
 import java.sql.*;
 import java.util.Optional;
 
+/**
+ * Implementazione JDBC dell'interfaccia RispostaDAO.
+ *
+ * Gestisce la memorizzazione e modifica delle risposte del ristoratore.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class RispostaDAOImpl implements RispostaDAO {
 
     @Override

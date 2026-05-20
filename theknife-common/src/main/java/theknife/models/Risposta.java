@@ -4,6 +4,16 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Modello dati che rappresenta la risposta di un ristoratore ad una recensione.
+ *
+ * Contiene il testo della risposta e il riferimento alla recensione originale.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class Risposta implements Serializable {
 
     private long          id;
