@@ -2,6 +2,16 @@ package theknife.network;
 
 import java.io.Serializable;
 
+/**
+ * Enumerazione degli esiti possibili per una richiesta di rete.
+ *
+ * Indica se l'operazione sul server è andata a buon fine o se si sono verificati errori.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class Esito implements Serializable {
 
     private final boolean successo;

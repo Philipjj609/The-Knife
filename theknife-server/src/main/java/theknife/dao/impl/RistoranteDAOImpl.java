@@ -11,6 +11,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementazione JDBC dell'interfaccia RistoranteDAO.
+ *
+ * Gestisce l'inserimento, il filtraggio e il caricamento dei dettagli dei ristoranti.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class RistoranteDAOImpl implements RistoranteDAO {
 
     // Query base: JOIN per cucine e servizi, aggregati in array PostgreSQL.

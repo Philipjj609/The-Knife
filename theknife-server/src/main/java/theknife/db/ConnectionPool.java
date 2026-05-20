@@ -7,6 +7,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
+/**
+ * Gestore del pool di connessioni JDBC verso il database PostgreSQL.
+ *
+ * Fornisce connessioni thread-safe tramite HikariCP.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class ConnectionPool {
 
     private static volatile HikariDataSource dataSource;

@@ -40,6 +40,16 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller principale della schermata home dell'applicazione.
+ *
+ * Gestisce il caricamento delle viste guest o della dashboard in base allo stato di autenticazione.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class HomeController implements Initializable {
     @FXML
     private StackPane contentPane;

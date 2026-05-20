@@ -6,6 +6,16 @@ import theknife.models.Ristorante;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Interfaccia Data Access Object per la gestione dei ristoranti.
+ *
+ * Definisce le operazioni per la ricerca con filtri e l'inserimento di nuovi ristoranti.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public interface RistoranteDAO {
 
     List<Ristorante> findAll();

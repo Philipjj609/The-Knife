@@ -28,7 +28,13 @@ import java.util.Optional;
  *   ClientTK client = new ClientTK("localhost", 9090);
  *   // ... uso nei controller ...
  *   client.close();
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  */
+
 public class ClientTK implements Closeable {
 
     private final Socket             socket;

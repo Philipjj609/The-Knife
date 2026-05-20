@@ -4,6 +4,16 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Modello dati che rappresenta una recensione effettuata da un cliente.
+ *
+ * Contiene il voto, il titolo, il commento e i riferimenti a utente e ristorante.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class Recensione implements Serializable {
 
     private long          id;

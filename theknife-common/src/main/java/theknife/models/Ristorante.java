@@ -4,6 +4,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Modello dati che rappresenta un ristorante nel sistema.
+ *
+ * Contiene dettagli anagrafici, geografici, contatti, servizi e premi associati.
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class Ristorante implements Serializable {
 
     private long         id;
