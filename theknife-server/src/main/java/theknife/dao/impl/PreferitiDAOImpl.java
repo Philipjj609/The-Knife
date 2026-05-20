@@ -80,7 +80,7 @@ public class PreferitiDAOImpl implements PreferitiDAO {
             LEFT JOIN ristoranti_servizi rs ON rs.ristorante_id = r.id
             LEFT JOIN servizi s             ON s.id = rs.servizio_id
             WHERE p.username = ?
-            GROUP BY r.id
+            GROUP BY r.id, p.data_aggiunta
             ORDER BY p.data_aggiunta DESC
             """;
         try (Connection conn = ConnectionPool.getConnection();

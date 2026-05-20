@@ -241,6 +241,7 @@ public class EsploraRistorantiController implements Initializable {
             AppNavigator.show("/views/dettaglioRistorante.fxml", (DettaglioRistoranteController controller) -> {
                 controller.setRistorante(restaurant);
                 if (currentUser != null) controller.setCurrentUser(currentUser.getUsername());
+                if (parentController != null) controller.setDashboardClienteParentController(parentController);
             });
         } catch (IOException e) {
             e.printStackTrace();
