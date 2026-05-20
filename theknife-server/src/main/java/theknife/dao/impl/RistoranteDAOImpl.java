@@ -91,8 +91,14 @@ public class RistoranteDAOImpl implements RistoranteDAO {
             // Ricerca libera: il campo UI promette ristorante, cucina o localita.
             // Gli EXISTS interrogano le tabelle ponte senza alterare gli array aggregati
             // costruiti dalla SELECT principale.
+            // NOTA: il primo carattere di contenuto deve essere uno spazio.
+            // I text block Java applicano lo stripping dell'indentazione comune,
+            // quindi se questa riga ha 18 spazi e la riga di chiusura ne ha 17,
+            // restano 1 spazio prima di AND. Senza quello spazio, la query si
+            // attacca al "WHERE 1=1" precedente producendo "1=1AND..." e
+            // PostgreSQL fallisce con "spazzatura finale dopo letterale numerico".
             sql.append("""
-                 AND (
+                  AND (
                      r.nome ILIKE ?
                      OR r.citta ILIKE ?
                      OR r.nazione ILIKE ?
@@ -128,8 +134,14 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         }
         if (isNotBlank(filtri.getCucina())) {
             // Filtro N:M su cucina: passa solo i ristoranti collegati alla cucina richiesta.
+            // NOTA: il primo carattere di contenuto deve essere uno spazio.
+            // I text block Java applicano lo stripping dell'indentazione comune,
+            // quindi se questa riga ha 18 spazi e la riga di chiusura ne ha 17,
+            // restano 1 spazio prima di AND. Senza quello spazio, la query si
+            // attacca al "WHERE 1=1" precedente producendo "1=1AND..." e
+            // PostgreSQL fallisce con "spazzatura finale dopo letterale numerico".
             sql.append("""
-                 AND EXISTS (
+                  AND EXISTS (
                      SELECT 1
                      FROM ristoranti_cucine rc_filter
                      JOIN cucine c_filter ON c_filter.id = rc_filter.cucina_id
@@ -140,8 +152,14 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         }
         if (isNotBlank(filtri.getServizio())) {
             // Filtro N:M su servizio/facility: usa la tabella ponte corretta.
+            // NOTA: il primo carattere di contenuto deve essere uno spazio.
+            // I text block Java applicano lo stripping dell'indentazione comune,
+            // quindi se questa riga ha 18 spazi e la riga di chiusura ne ha 17,
+            // restano 1 spazio prima di AND. Senza quello spazio, la query si
+            // attacca al "WHERE 1=1" precedente producendo "1=1AND..." e
+            // PostgreSQL fallisce con "spazzatura finale dopo letterale numerico".
             sql.append("""
-                 AND EXISTS (
+                  AND EXISTS (
                      SELECT 1
                      FROM ristoranti_servizi rs_filter
                      JOIN servizi s_filter ON s_filter.id = rs_filter.servizio_id
@@ -236,6 +254,20 @@ public class RistoranteDAOImpl implements RistoranteDAO {
             throw new RuntimeException("Errore save ristorante: " + ristorante.getNome(), e);
         }
         return ristorante;
+    }
+
+    @Override
+    public List<String> findAllServizi() {
+        String sql = "SELECT nome FROM servizi ORDER BY nome";
+        try (Connection conn = ConnectionPool.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<String> list = new ArrayList<>();
+            while (rs.next()) list.add(rs.getString("nome"));
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore findAllServizi", e);
+        }
     }
 
     @Override

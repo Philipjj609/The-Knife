@@ -142,6 +142,9 @@ public class GestoreClient implements Runnable {
                         yield Esito.errore("Ristorante già presente nel sistema");
                     yield Esito.ok(ristoranteDAO.save(rist));
                 }
+                case GET_SERVIZI ->
+                    Esito.ok(ristoranteDAO.findAllServizi());
+
                 case GET_RISTORANTI_PROPRIETARIO -> {
                     long proprietarioId = r.get("proprietarioId");
                     if (!isRistoratoreAutenticato() || utenteAutenticato.getId() != proprietarioId)
@@ -236,6 +239,13 @@ public class GestoreClient implements Runnable {
             System.err.printf("[%s] Errore dispatch %s: %s: %s%n",
                     Thread.currentThread().getName(), r.getComando(),
                     e.getClass().getSimpleName(), e.getMessage());
+            if (e.getCause() != null) {
+                System.err.printf("[%s]   Caused by: %s: %s%n",
+                        Thread.currentThread().getName(),
+                        e.getCause().getClass().getSimpleName(),
+                        e.getCause().getMessage());
+            }
+            e.printStackTrace(System.err);
             return Esito.errore("Errore interno del server: " + e.getMessage());
         }
     }

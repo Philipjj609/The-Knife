@@ -29,4 +29,6 @@ public interface RistoranteDAO {
     Ristorante save(Ristorante ristorante);
 
     boolean existsByNomeAndIndirizzo(String nome, String indirizzo);
+
+    List<String> findAllServizi();
 }

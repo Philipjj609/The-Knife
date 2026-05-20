@@ -33,6 +33,7 @@ public class GuestViewController implements Initializable {
     @FXML private ComboBox<String> locationComboBox;
     @FXML private ComboBox<String> priceRangeComboBox;
     @FXML private ComboBox<String> starsComboBox;
+    @FXML private ComboBox<String> serviceComboBox;
     @FXML private CheckBox deliveryCheckBox;
     @FXML private CheckBox onlineBookingCheckBox;
     @FXML private Button searchButton;
@@ -53,7 +54,21 @@ public class GuestViewController implements Initializable {
         setupUI();
 
         starsComboBox.setItems(FXCollections.observableArrayList(
-                "1 Stella", "2 Stelle", "3 Stelle", "Stelle Verdi"));
+                "1 Stella Michelin", "2 Stelle Michelin", "3 Stelle Michelin",
+                "Bib Gourmand", "Selezionato Michelin"));
+
+        Task<List<String>> serviziTask = new Task<>() {
+            @Override
+            protected List<String> call() {
+                return Main.getClient().getServizi();
+            }
+        };
+        serviziTask.setOnSucceeded(e ->
+                serviceComboBox.setItems(FXCollections.observableArrayList(serviziTask.getValue())));
+        serviziTask.setOnFailed(e ->
+                System.err.println("[GuestView] Errore caricamento servizi: " +
+                        serviziTask.getException().getMessage()));
+        new Thread(serviziTask).start();
 
         handleSearch(); // carica tutti i ristoranti inizialmente
     }
@@ -148,11 +163,15 @@ public class GuestViewController implements Initializable {
 
         if (starsComboBox.getValue() != null) {
             switch (starsComboBox.getValue()) {
-                case "1 Stella" -> builder.riconoscimento("1 Star");
-                case "2 Stelle" -> builder.riconoscimento("2 Stars");
-                case "3 Stelle" -> builder.riconoscimento("3 Stars");
+                case "1 Stella Michelin"    -> builder.riconoscimento("1 Star");
+                case "2 Stelle Michelin"    -> builder.riconoscimento("2 Stars");
+                case "3 Stelle Michelin"    -> builder.riconoscimento("3 Stars");
+                case "Bib Gourmand"         -> builder.riconoscimento("Bib Gourmand");
+                case "Selezionato Michelin" -> builder.riconoscimento("Selected Restaurants");
             }
         }
+
+        if (serviceComboBox.getValue() != null) builder.servizio(serviceComboBox.getValue());
 
         builder.soloDelivery(deliveryCheckBox.isSelected());
         builder.soloPrenotazione(onlineBookingCheckBox.isSelected());
@@ -181,6 +200,7 @@ public class GuestViewController implements Initializable {
         locationComboBox.setValue(null);
         priceRangeComboBox.setValue(null);
         starsComboBox.setValue(null);
+        serviceComboBox.setValue(null);
         deliveryCheckBox.setSelected(false);
         onlineBookingCheckBox.setSelected(false);
         handleSearch();
