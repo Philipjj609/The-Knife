@@ -209,7 +209,7 @@ public class MigrazioneCSV {
         return campi;
     }
 
-    // In MigrazioneCSV.java — aggiungi questo metodo pubblico
+    //
     public static void importa(String csvPath) throws Exception {
         File csvFile = new File(csvPath);
         if (!csvFile.exists()) {

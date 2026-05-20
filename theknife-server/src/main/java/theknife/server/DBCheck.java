@@ -1,5 +1,7 @@
 package theknife.server;
 
+import theknife.db.ConnectionPool;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -31,12 +33,9 @@ public class DBCheck {
     private DBCheck() {}
 
     /**
-     * Punto d'ingresso principale.
-     *
-     * @param props proprietà con db.url / db.user / db.password già risolte
-     * @throws RuntimeException se il database non esiste (interrompe il boot del server)
+     * Verifica solo l'esistenza del database. Se non esiste, mostra le istruzioni e termina.
      */
-    public static void verifica(Properties props) {
+    public static void verificaEsistenza(Properties props) {
         String url      = props.getProperty("db.url");
         String user     = props.getProperty("db.user");
         String password = props.getProperty("db.password", "");
@@ -60,9 +59,15 @@ public class DBCheck {
         }
 
         System.out.println("[DBCheck] Database trovato.");
+    }
 
+    /**
+     * Verifica e applica lo schema SQL e la popolazione dati.
+     * Presuppone che la ConnectionPool sia già stata inizializzata.
+     */
+    public static void verificaSchemaEDati(Properties props) {
         // --- PASSO 2: schema applicato? ---
-        try (Connection conn = DriverManager.getConnection(url, user, password)) {
+        try (Connection conn = ConnectionPool.getConnection()) {
             if (!schemaApplicato(conn)) {
                 System.out.println("[DBCheck] Schema non trovato. Applicazione schema.sql...");
                 applicaSchema(conn);
@@ -78,7 +83,7 @@ public class DBCheck {
             }
 
             System.out.println("[DBCheck] Il database è vuoto.");
-            importaDaCSV(conn);
+            importaDaCSV();
 
         } catch (SQLException e) {
             throw new RuntimeException("[DBCheck] Errore di connessione al database: " + e.getMessage(), e);
@@ -153,7 +158,7 @@ public class DBCheck {
     // PASSO 3b — Import CSV tramite ImportCSV
     // -------------------------------------------------------------------------
 
-    private static void importaDaCSV(Connection conn) {
+    private static void importaDaCSV() {
         String percorsoCSV = "dbtk/michelin_my_maps.csv";
         File csvFile = new File(percorsoCSV);
 
@@ -169,7 +174,8 @@ public class DBCheck {
             MigrazioneCSV.importa(percorsoCSV);
             System.out.println("[DBCheck] Import completato.");
 
-            try (Statement s = conn.createStatement();
+            try (Connection conn = ConnectionPool.getConnection();
+                 Statement s = conn.createStatement();
                  ResultSet rs = s.executeQuery(
                          "SELECT " +
                                  "(SELECT count(*) FROM ristoranti) AS ristoranti, " +

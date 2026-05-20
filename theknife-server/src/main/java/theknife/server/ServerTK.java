@@ -38,11 +38,14 @@ public class ServerTK {
         Properties defaults = caricaConfig();
         Properties props    = promptCredenziali(defaults);
 
-        // Verifica o crea il database
-        DBCheck.verifica(props);
+        // Verifica l'esistenza del database
+        DBCheck.verificaEsistenza(props);
 
         // Inizializza il pool di connessioni con le credenziali risolte
         ConnectionPool.init(props);
+
+        // Verifica lo schema ed effettua il popolamento se necessario
+        DBCheck.verificaSchemaEDati(props);
 
         int port     = Integer.parseInt(props.getProperty("server.port",        "9090"));
         int poolSize = Integer.parseInt(props.getProperty("server.thread.pool", "20"));
