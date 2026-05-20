@@ -86,7 +86,10 @@ public class AggiungiRistoranteController implements Initializable {
 
             List<String> servizi = new ArrayList<>();
             if (!serviziArea.getText().trim().isEmpty()) {
-                servizi.add(serviziArea.getText().trim());
+                for (String servizio : serviziArea.getText().split(",")) {
+                    String pulito = servizio.trim();
+                    if (!pulito.isEmpty()) servizi.add(pulito);
+                }
             }
 
             Ristorante nuovo = new Ristorante(

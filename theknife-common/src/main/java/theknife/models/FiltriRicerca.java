@@ -8,6 +8,7 @@ public class FiltriRicerca implements Serializable {
     private String  citta;
     private String  nazione;
     private String  cucina;
+    private String  servizio;
     private Integer prezzoLivello;
     private String  riconoscimento;
     private boolean soloDelivery;
@@ -24,6 +25,7 @@ public class FiltriRicerca implements Serializable {
         public Builder citta(String v)            { f.citta            = v; return this; }
         public Builder nazione(String v)          { f.nazione          = v; return this; }
         public Builder cucina(String v)           { f.cucina           = v; return this; }
+        public Builder servizio(String v)         { f.servizio         = v; return this; }
         public Builder prezzoLivello(Integer v)   { f.prezzoLivello    = v; return this; }
         public Builder riconoscimento(String v)   { f.riconoscimento   = v; return this; }
         public Builder soloDelivery(boolean v)    { f.soloDelivery     = v; return this; }
@@ -36,6 +38,7 @@ public class FiltriRicerca implements Serializable {
     public String  getCitta()            { return citta; }
     public String  getNazione()          { return nazione; }
     public String  getCucina()           { return cucina; }
+    public String  getServizio()         { return servizio; }
     public Integer getPrezzoLivello()    { return prezzoLivello; }
     public String  getRiconoscimento()   { return riconoscimento; }
     public boolean isSoloDelivery()      { return soloDelivery; }

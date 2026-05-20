@@ -20,7 +20,7 @@ public class PreferitiDAOImpl implements PreferitiDAO {
             ps.setLong(2, ristoranteId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Errore add preferito: " + username + "/" + ristoranteId, e);
+            throw new RuntimeException(messaggioErrorePreferito(e, "aggiungere"), e);
         }
     }
 
@@ -33,7 +33,7 @@ public class PreferitiDAOImpl implements PreferitiDAO {
             ps.setLong(2, ristoranteId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Errore remove preferito: " + username + "/" + ristoranteId, e);
+            throw new RuntimeException(messaggioErrorePreferito(e, "rimuovere"), e);
         }
     }
 
@@ -115,5 +115,12 @@ public class PreferitiDAOImpl implements PreferitiDAO {
     private List<String> arrayToList(Array sqlArray) throws SQLException {
         if (sqlArray == null) return new ArrayList<>();
         return new ArrayList<>(Arrays.asList((String[]) sqlArray.getArray()));
+    }
+
+    private String messaggioErrorePreferito(SQLException e, String azione) {
+        if ("23503".equals(e.getSQLState())) {
+            return "Impossibile " + azione + " il preferito: utente o ristorante non valido";
+        }
+        return "Errore durante l'operazione sui preferiti";
     }
 }

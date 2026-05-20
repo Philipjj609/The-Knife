@@ -133,7 +133,7 @@ public class DettaglioRistoranteController implements Initializable {
         Text stelle = new Text(recensione.getStelle());
         stelle.setStyle("-fx-font-size: 16; -fx-fill: #f39c12;");
 
-        Text utente = new Text("di " + recensione.getUsernameCliente());
+        Text utente = new Text("di " + recensione.getAutoreDisplayName());
         utente.setStyle("-fx-font-size: 12; -fx-fill: #6c757d;");
 
         Text data = new Text(recensione.getDataRecensioneFormatted());

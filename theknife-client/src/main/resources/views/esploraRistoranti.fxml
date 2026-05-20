@@ -44,6 +44,7 @@
                     <!-- Prima riga di filtri -->
                     <HBox spacing="12" alignment="CENTER">
                         <ComboBox fx:id="cuisineComboBox" promptText="Tipo di cucina" prefWidth="150"/>
+                        <ComboBox fx:id="serviceComboBox" promptText="Servizio" prefWidth="150"/>
                         <ComboBox fx:id="locationComboBox" promptText="Località" prefWidth="150"/>
                         <ComboBox fx:id="priceRangeComboBox" promptText="Fascia di prezzo" prefWidth="120"/>
                         <ComboBox fx:id="starsComboBox" promptText="Stelle Michelin" prefWidth="120"/>

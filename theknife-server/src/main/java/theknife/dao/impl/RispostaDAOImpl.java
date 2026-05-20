@@ -10,24 +10,31 @@ import java.util.Optional;
 public class RispostaDAOImpl implements RispostaDAO {
 
     @Override
-    public Risposta save(Risposta risposta) {
+    public Risposta save(Risposta risposta, long proprietarioId) {
         String sql = """
             INSERT INTO risposte (recensione_id, username_ristoratore, testo, data_risposta)
-            VALUES (?, ?, ?, ?)
+            SELECT rec.id, ?, ?, ?
+            FROM recensioni rec
+            JOIN ristoranti r ON r.id = rec.ristorante_id
+            WHERE rec.id = ?
+              AND r.proprietario_id = ?
             RETURNING id
             """;
         try (Connection conn = ConnectionPool.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setLong(1, risposta.getRecensioneId());
-            ps.setString(2, risposta.getUsernameRistoratore());
-            ps.setString(3, risposta.getTesto());
-            ps.setTimestamp(4, Timestamp.valueOf(risposta.getDataRisposta()));
+            ps.setString(1, risposta.getUsernameRistoratore());
+            ps.setString(2, risposta.getTesto());
+            ps.setTimestamp(3, Timestamp.valueOf(risposta.getDataRisposta()));
+            ps.setLong(4, risposta.getRecensioneId());
+            ps.setLong(5, proprietarioId);
             try (ResultSet rs = ps.executeQuery()) {
-                rs.next();
+                if (!rs.next()) {
+                    throw new SQLException("Recensione non trovata o non appartenente al ristoratore", "NOAUTH");
+                }
                 risposta.setId(rs.getLong("id"));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore save risposta per recensione: " + risposta.getRecensioneId(), e);
+            throw new RuntimeException(messaggioErroreRisposta(e), e);
         }
         return risposta;
     }
@@ -57,5 +64,22 @@ public class RispostaDAOImpl implements RispostaDAO {
         r.setTesto(rs.getString("testo"));
         r.setDataRisposta(rs.getTimestamp("data_risposta").toLocalDateTime());
         return r;
+    }
+
+    private String messaggioErroreRisposta(SQLException e) {
+        String sqlState = e.getSQLState();
+        if ("NOAUTH".equals(sqlState)) {
+            return "Recensione non trovata o non appartenente al ristoratore";
+        }
+        if ("23505".equals(sqlState)) {
+            return "Esiste gia una risposta per questa recensione";
+        }
+        if ("23503".equals(sqlState)) {
+            return "Ristoratore o recensione non validi";
+        }
+        if ("23514".equals(sqlState)) {
+            return "La risposta non puo essere vuota";
+        }
+        return "Errore save risposta per recensione: " + e.getMessage();
     }
 }

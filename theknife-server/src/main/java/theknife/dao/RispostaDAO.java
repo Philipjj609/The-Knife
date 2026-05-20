@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public interface RispostaDAO {
 
-    Risposta save(Risposta risposta);
+    Risposta save(Risposta risposta, long proprietarioId);
 
     Optional<Risposta> findByRecensione(long recensioneId);
 }

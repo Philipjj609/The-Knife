@@ -191,7 +191,7 @@ public class GestoreClient implements Runnable {
                     if (!isRistoratoreAutenticato() ||
                             !utenteAutenticato.getUsername().equals(risposta.getUsernameRistoratore()))
                         yield Esito.errore("Operazione non autorizzata");
-                    yield Esito.ok(rispostaDAO.save(risposta));
+                    yield Esito.ok(rispostaDAO.save(risposta, utenteAutenticato.getId()));
                 }
 
                 // --- Preferiti ---

@@ -21,7 +21,7 @@ public enum Role {
     }
 
     /**
-     * Converte una stringa (es. da CSV) nel corrispondente valore enum.
+     * Converte una stringa esterna nel corrispondente valore enum.
      *
      * @param s Stringa da convertire, case-insensitive.
      * @return Valore enum corrispondente, oppure null se non trovato.

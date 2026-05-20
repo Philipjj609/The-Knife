@@ -32,6 +32,7 @@ public class EsploraRistorantiController implements Initializable {
 
     @FXML private TextField searchField;
     @FXML private ComboBox<String> cuisineComboBox;
+    @FXML private ComboBox<String> serviceComboBox;
     @FXML private ComboBox<String> locationComboBox;
     @FXML private ComboBox<String> priceRangeComboBox;
     @FXML private ComboBox<String> starsComboBox;
@@ -60,6 +61,7 @@ public class EsploraRistorantiController implements Initializable {
 
         // Filtro cucina: testo libero (LIKE sul server)
         cuisineComboBox.setEditable(true);
+        serviceComboBox.setEditable(true);
 
         // Filtro località: testo libero (LIKE sul server)
         locationComboBox.setEditable(true);
@@ -125,8 +127,14 @@ public class EsploraRistorantiController implements Initializable {
         String searchText = searchField.getText() != null ? searchField.getText().trim() : "";
         if (!searchText.isEmpty()) builder.nome(searchText);
 
-        if (cuisineComboBox.getValue() != null) builder.cucina(cuisineComboBox.getValue());
-        if (locationComboBox.getValue() != null) builder.citta(locationComboBox.getValue());
+        String cucina = comboText(cuisineComboBox);
+        if (!cucina.isEmpty()) builder.cucina(cucina);
+
+        String servizio = comboText(serviceComboBox);
+        if (!servizio.isEmpty()) builder.servizio(servizio);
+
+        String citta = comboText(locationComboBox);
+        if (!citta.isEmpty()) builder.citta(citta);
 
         if (priceRangeComboBox.getValue() != null) {
             int livello = priceRangeComboBox.getValue().length(); // €=1, €€=2, etc.
@@ -166,8 +174,9 @@ public class EsploraRistorantiController implements Initializable {
     @FXML
     private void handleReset() {
         searchField.clear();
-        cuisineComboBox.setValue(null);
-        locationComboBox.setValue(null);
+        clearCombo(cuisineComboBox);
+        clearCombo(serviceComboBox);
+        clearCombo(locationComboBox);
         priceRangeComboBox.setValue(null);
         starsComboBox.setValue(null);
         deliveryCheckBox.setSelected(false);
@@ -280,5 +289,17 @@ public class EsploraRistorantiController implements Initializable {
     public void refreshView() {
         restaurantListView.refresh();
         updateStatistics();
+    }
+
+    private String comboText(ComboBox<String> comboBox) {
+        String text = comboBox.isEditable() && comboBox.getEditor() != null
+                ? comboBox.getEditor().getText()
+                : comboBox.getValue();
+        return text != null ? text.trim() : "";
+    }
+
+    private void clearCombo(ComboBox<String> comboBox) {
+        comboBox.setValue(null);
+        if (comboBox.getEditor() != null) comboBox.getEditor().clear();
     }
 }

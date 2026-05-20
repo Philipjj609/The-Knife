@@ -31,6 +31,7 @@ public class GuestViewController implements Initializable {
 
     @FXML private TextField searchField;
     @FXML private ComboBox<String> cuisineComboBox;
+    @FXML private ComboBox<String> serviceComboBox;
     @FXML private ComboBox<String> locationComboBox;
     @FXML private ComboBox<String> priceRangeComboBox;
     @FXML private ComboBox<String> starsComboBox;
@@ -52,6 +53,10 @@ public class GuestViewController implements Initializable {
         filteredRestaurants = FXCollections.observableArrayList();
         restaurantListView.setItems(filteredRestaurants);
         setupUI();
+
+        cuisineComboBox.setEditable(true);
+        serviceComboBox.setEditable(true);
+        locationComboBox.setEditable(true);
 
         starsComboBox.setItems(FXCollections.observableArrayList(
                 "1 Stella", "2 Stelle", "3 Stelle", "Stelle Verdi"));
@@ -96,8 +101,14 @@ public class GuestViewController implements Initializable {
         String searchText = searchField.getText() != null ? searchField.getText().trim() : "";
         if (!searchText.isEmpty()) builder.nome(searchText);
 
-        if (cuisineComboBox.getValue() != null) builder.cucina(cuisineComboBox.getValue());
-        if (locationComboBox.getValue() != null) builder.citta(locationComboBox.getValue());
+        String cucina = comboText(cuisineComboBox);
+        if (!cucina.isEmpty()) builder.cucina(cucina);
+
+        String servizio = comboText(serviceComboBox);
+        if (!servizio.isEmpty()) builder.servizio(servizio);
+
+        String citta = comboText(locationComboBox);
+        if (!citta.isEmpty()) builder.citta(citta);
 
         if (priceRangeComboBox.getValue() != null) {
             builder.prezzoLivello(priceRangeComboBox.getValue().length());
@@ -134,8 +145,9 @@ public class GuestViewController implements Initializable {
     @FXML
     private void handleReset() {
         searchField.clear();
-        cuisineComboBox.setValue(null);
-        locationComboBox.setValue(null);
+        clearCombo(cuisineComboBox);
+        clearCombo(serviceComboBox);
+        clearCombo(locationComboBox);
         priceRangeComboBox.setValue(null);
         starsComboBox.setValue(null);
         deliveryCheckBox.setSelected(false);
@@ -213,5 +225,17 @@ public class GuestViewController implements Initializable {
         alert.setHeaderText(header);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private String comboText(ComboBox<String> comboBox) {
+        String text = comboBox.isEditable() && comboBox.getEditor() != null
+                ? comboBox.getEditor().getText()
+                : comboBox.getValue();
+        return text != null ? text.trim() : "";
+    }
+
+    private void clearCombo(ComboBox<String> comboBox) {
+        comboBox.setValue(null);
+        if (comboBox.getEditor() != null) comboBox.getEditor().clear();
     }
 }
