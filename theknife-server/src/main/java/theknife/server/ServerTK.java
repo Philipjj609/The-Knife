@@ -3,6 +3,7 @@ package theknife.server;
 import theknife.dao.*;
 import theknife.dao.impl.*;
 import theknife.db.ConnectionPool;
+import theknife.server.DBCheck;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -32,7 +33,7 @@ public class ServerTK {
         Properties props    = promptCredenziali(defaults);
 
         // Verifica o crea il database
-        assicuraDatabase(props);
+        DBCheck.verifica(props);
 
         // Inizializza il pool di connessioni con le credenziali risolte
         ConnectionPool.init(props);

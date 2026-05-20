@@ -208,4 +208,49 @@ public class MigrazioneCSV {
         campi.add(cur.toString().trim());
         return campi;
     }
+
+    // In MigrazioneCSV.java — aggiungi questo metodo pubblico
+    public static void importa(String csvPath) throws Exception {
+        File csvFile = new File(csvPath);
+        if (!csvFile.exists()) {
+            throw new IOException("File CSV non trovato: " + csvFile.getAbsolutePath());
+        }
+
+        RistoranteDAO dao = new RistoranteDAOImpl();
+        int importati = 0, saltati = 0, errori = 0;
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(csvFile), StandardCharsets.UTF_8))) {
+
+            reader.readLine(); // salta intestazione
+
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                linea = linea.trim();
+                if (linea.isEmpty()) continue;
+
+                try {
+                    Ristorante r = parseRiga(linea);
+                    if (r == null) { errori++; continue; }
+
+                    if (dao.existsByNomeAndIndirizzo(r.getNome(), r.getIndirizzo())) {
+                        saltati++;
+                    } else {
+                        dao.save(r);
+                        importati++;
+                        if (importati % 100 == 0)
+                            System.out.printf("  %d ristoranti importati...%n", importati);
+                    }
+                } catch (Exception e) {
+                    errori++;
+                    System.err.println("  Errore riga: " + e.getMessage()
+                            + " → " + linea.substring(0, Math.min(60, linea.length())));
+                }
+            }
+        }
+
+        System.out.printf("%nMigrazione completata: %d importati, %d già presenti, %d errori%n",
+                importati, saltati, errori);
+    }
+
 }
