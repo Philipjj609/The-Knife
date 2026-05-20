@@ -79,13 +79,21 @@ public class DashboardClienteController implements Initializable {
         benvenutoLabel.setText("Benvenuto, " + currentUser.getNome() + "!");
 
         Task<Void> task = new Task<>() {
-            private List<Recensione> recensioni;
-            private List<Ristorante> preferiti;
+            private List<Recensione> recensioni = List.of();
+            private List<Ristorante> preferiti  = List.of();
 
             @Override
             protected Void call() {
-                recensioni = Main.getClient().getRecensioniCliente(currentUser.getUsername());
-                preferiti = Main.getClient().getPreferiti(currentUser.getUsername());
+                try {
+                    recensioni = Main.getClient().getRecensioniCliente(currentUser.getUsername());
+                } catch (Exception e) {
+                    System.err.println("[Dashboard] Errore caricamento recensioni: " + e.getMessage());
+                }
+                try {
+                    preferiti = Main.getClient().getPreferiti(currentUser.getUsername());
+                } catch (Exception e) {
+                    System.err.println("[Dashboard] Errore caricamento preferiti: " + e.getMessage());
+                }
                 return null;
             }
 
@@ -98,6 +106,8 @@ public class DashboardClienteController implements Initializable {
                 nessunPreferitoLabel.setVisible(preferiti.isEmpty());
             }
         };
+        task.setOnFailed(e -> System.err.println("[Dashboard] Errore imprevisto: " +
+                task.getException().getMessage()));
         new Thread(task).start();
     }
 
