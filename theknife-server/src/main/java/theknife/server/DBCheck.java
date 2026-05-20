@@ -170,12 +170,11 @@ public class DBCheck {
 
         System.out.printf("[DBCheck] CSV trovato. Import da: %s%n", csvFile.getAbsolutePath());
 
-        try {
-            MigrazioneCSV.importa(percorsoCSV);
+        try (Connection conn = ConnectionPool.getConnection()) {
+            ImportCSV.importa(conn, percorsoCSV);
             System.out.println("[DBCheck] Import completato.");
 
-            try (Connection conn = ConnectionPool.getConnection();
-                 Statement s = conn.createStatement();
+            try (Statement s = conn.createStatement();
                  ResultSet rs = s.executeQuery(
                          "SELECT " +
                                  "(SELECT count(*) FROM ristoranti) AS ristoranti, " +
