@@ -1,5 +1,6 @@
 package theknife.dao.impl;
 
+import theknife.dao.ErroreApplicativo;
 import theknife.dao.RecensioneDAO;
 import theknife.db.ConnectionPool;
 import theknife.models.Recensione;
@@ -107,6 +108,9 @@ public class RecensioneDAOImpl implements RecensioneDAO {
                 recensione.setId(rs.getLong("id"));
             }
         } catch (SQLException e) {
+            if ("23505".equals(e.getSQLState())) {
+                throw new ErroreApplicativo(messaggioErroreRecensione(e));
+            }
             throw new RuntimeException(messaggioErroreRecensione(e), e);
         }
         return recensione;

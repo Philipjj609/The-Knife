@@ -2,6 +2,7 @@ package theknife.server;
 
 import org.mindrot.jbcrypt.BCrypt;
 import theknife.dao.*;
+import theknife.dao.ErroreApplicativo;
 import theknife.models.FiltriRicerca;
 import theknife.models.Recensione;
 import theknife.models.Risposta;
@@ -229,6 +230,8 @@ public class GestoreClient implements Runnable {
                     yield Esito.ok(pref);
                 }
             };
+        } catch (ErroreApplicativo e) {
+            return Esito.errore(e.getMessage());
         } catch (Throwable e) {
             System.err.printf("[%s] Errore dispatch %s: %s: %s%n",
                     Thread.currentThread().getName(), r.getComando(),
