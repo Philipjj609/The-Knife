@@ -4,7 +4,6 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.stage.Stage;
 import theknife.Main;
 import theknife.models.Recensione;
 import theknife.models.Risposta;
@@ -72,7 +71,7 @@ public class RispondiRecensioneController implements Initializable {
 
         task.setOnSucceeded(e -> {
             if (parentController != null) parentController.refreshData();
-            ((Stage) rispostaArea.getScene().getWindow()).close();
+            AppNavigator.goBackOrClose(rispostaArea);
         });
 
         task.setOnFailed(e -> errorLabel.setText("Errore nell'inviare la risposta: " + task.getException().getMessage()));
@@ -82,6 +81,6 @@ public class RispondiRecensioneController implements Initializable {
 
     @FXML
     private void handleAnnulla() {
-        ((Stage) rispostaArea.getScene().getWindow()).close();
+        AppNavigator.goBackOrClose(rispostaArea);
     }
 }

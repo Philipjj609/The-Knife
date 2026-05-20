@@ -530,3 +530,183 @@
     -fx-text-fill: -fx-warning;
     -fx-font-weight: 500;
 }
+
+/* Modern polish pass */
+.main-container {
+    -fx-background-color: linear-gradient(to bottom, #f6faf6 0%, #eef5ee 100%);
+}
+
+.navbar,
+.header-bar {
+    -fx-background-color: linear-gradient(to right, #173d25, #2d5a2d 64%, #4a8f4a);
+    -fx-padding: 16 28;
+    -fx-effect: dropshadow(gaussian, rgba(23, 61, 37, 0.22), 14, 0, 0, 4);
+}
+
+.card,
+.stat-card,
+.restaurant-card {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+.search-container {
+    -fx-background-color: rgba(255, 255, 255, 0.88);
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: rgba(74, 143, 74, 0.18);
+    -fx-border-width: 1;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(45, 90, 45, 0.10), 18, 0, 0, 5);
+}
+
+.section-titlebar {
+    -fx-padding: 20 28 8 28;
+    -fx-background-color: transparent;
+}
+
+.primary,
+.button-primary,
+.button-accent {
+    -fx-background-color: linear-gradient(to bottom, #5aa65a, #2f713f);
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-font-weight: 700;
+}
+
+.primary:hover,
+.button-primary:hover,
+.button-accent:hover {
+    -fx-background-color: linear-gradient(to bottom, #6bb76b, #3f874b);
+    -fx-text-fill: white;
+}
+
+.outline,
+.button-secondary {
+    -fx-background-color: rgba(255, 255, 255, 0.76);
+    -fx-text-fill: -fx-primary-green;
+    -fx-border-color: rgba(74, 143, 74, 0.42);
+    -fx-border-width: 1;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-font-weight: 600;
+}
+
+.outline:hover,
+.button-secondary:hover {
+    -fx-background-color: -fx-soft-green;
+    -fx-border-color: -fx-accent-green;
+}
+
+.edge-to-edge-scroll,
+.edge-to-edge-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.restaurant-list,
+.dashboard-list,
+.review-list {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 2 4 2 0;
+}
+
+.restaurant-list .list-cell,
+.dashboard-list .list-cell,
+.review-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 8 8 10 8;
+}
+
+.restaurant-list .list-cell:selected,
+.dashboard-list .list-cell:selected,
+.review-list .list-cell:selected {
+    -fx-background-color: rgba(74, 143, 74, 0.13);
+    -fx-background-radius: 8;
+}
+
+.restaurant-card {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #fbfdfb);
+    -fx-border-color: rgba(74, 143, 74, 0.18);
+    -fx-border-width: 1;
+    -fx-padding: 18;
+    -fx-effect: dropshadow(gaussian, rgba(23, 61, 37, 0.10), 14, 0, 0, 4);
+}
+
+.restaurant-card:hover {
+    -fx-border-color: rgba(74, 143, 74, 0.75);
+    -fx-effect: dropshadow(gaussian, rgba(23, 61, 37, 0.18), 18, 0, 0, 6);
+}
+
+.restaurant-name {
+    -fx-font-size: 17px;
+    -fx-font-weight: 800;
+    -fx-fill: #17251b;
+}
+
+.restaurant-info {
+    -fx-font-size: 13px;
+    -fx-fill: #536454;
+}
+
+.price-badge {
+    -fx-background-color: #fff4d8;
+    -fx-text-fill: #8a5d00;
+}
+
+.michelin-badge {
+    -fx-background-color: #fff8e6;
+    -fx-text-fill: #9a6a00;
+}
+
+.info {
+    -fx-background-color: #e7f0ff;
+    -fx-text-fill: #285b9a;
+}
+
+.danger-action {
+    -fx-background-color: #c74949;
+    -fx-text-fill: white;
+}
+
+.scroll-bar:vertical {
+    -fx-pref-width: 12;
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:horizontal {
+    -fx-pref-height: 12;
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .track {
+    -fx-background-color: rgba(45, 90, 45, 0.08);
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: linear-gradient(to bottom, #6bb76b, #3f874b);
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-background-insets: 2;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: linear-gradient(to bottom, #78c578, #2d5a2d);
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-background-color: transparent;
+    -fx-opacity: 0;
+    -fx-padding: 0;
+}
