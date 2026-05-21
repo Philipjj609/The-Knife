@@ -10,30 +10,36 @@ import java.util.Properties;
 import java.util.Scanner;
 
 /**
- * Verifica l'esistenza e la popolazione del database TheKnife.
+ * Classe di utilità che verifica l'esistenza e lo stato di popolazione del database TheKnife.
+ * Gestisce l'installazione automatica dello schema SQL (se assente) e l'importazione
+ * del dataset iniziale di ristoranti da file CSV.
  *
  * Flusso:
- *   1. Il database esiste?
- *      NO  → stampa istruzioni e termina (non crea automaticamente).
- *      SÌ  → prosegui.
- *   2. Lo schema è applicato (tabella "ristoranti" presente)?
- *      NO  → applica schema.sql dal classpath.
- *   3. Il database contiene già dei dati (ristoranti)?
- *      SÌ  → fine, tutto ok.
- *      NO  → chiedi all'utente il percorso del CSV Michelin e importa.
+ * <ol>
+ *   <li>Il database PostgreSQL specificato esiste? Se no, stampa le istruzioni e termina.</li>
+ *   <li>Lo schema è applicato (la tabella "ristoranti" è presente)? Se no, esegue il file schema.sql.</li>
+ *   <li>Il database contiene già dati? Se no, importa i dati dal file CSV predefinito.</li>
+ * </ol>
  *
- * Uso da ServerTK:
- *   <pre>
- *     DBCheck.verifica(props);   // lancia RuntimeException se il DB non esiste
- *     ConnectionPool.init(props);
- *   </pre>
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  */
 public class DBCheck {
 
+    /**
+     * Costruttore privato per prevenire l'istanziazione di questa classe utility.
+     */
     private DBCheck() {}
 
     /**
-     * Verifica solo l'esistenza del database. Se non esiste, mostra le istruzioni e termina.
+     * Verifica l'esistenza fisica del database PostgreSQL.
+     * Se il database non esiste, stampa un pannello informativo di errore sulla console del server
+     * ed interrompe l'esecuzione dell'applicazione tramite {@link System#exit(int)} con codice 1.
+     *
+     * @param props l'oggetto {@link Properties} contenente i parametri di connessione (URL, username, password)
+     * @throws RuntimeException se si verifica un errore SQL diverso dal "database non esistente" (es. credenziali errate o server offline)
      */
     public static void verificaEsistenza(Properties props) {
         String url      = props.getProperty("db.url");
@@ -62,8 +68,12 @@ public class DBCheck {
     }
 
     /**
-     * Verifica e applica lo schema SQL e la popolazione dati.
-     * Presuppone che la ConnectionPool sia già stata inizializzata.
+     * Verifica l'applicazione dello schema SQL e la presenza del popolamento dati iniziale.
+     * Se lo schema non è applicato, esegue lo script SQL. Se i dati sono vuoti, importa il CSV.
+     * Presuppone che {@link ConnectionPool} sia già inizializzato.
+     *
+     * @param props l'oggetto {@link Properties} di configurazione del server e del database
+     * @throws RuntimeException se si riscontrano eccezioni SQL bloccanti durante il controllo
      */
     public static void verificaSchemaEDati(Properties props) {
         // --- PASSO 2: schema applicato? ---
@@ -94,6 +104,15 @@ public class DBCheck {
     // PASSO 1 — Verifica esistenza del database
     // -------------------------------------------------------------------------
 
+    /**
+     * Tenta una connessione diretta tramite DriverManager per stabilire se il database PostgreSQL esiste.
+     *
+     * @param url la stringa JDBC di connessione
+     * @param user il nome utente
+     * @param password la password
+     * @return true se la connessione avviene con successo, false se fallisce a causa del DB non esistente
+     * @throws RuntimeException per qualsiasi altro errore SQL di rete o di credenziali errate
+     */
     private static boolean databaseEsiste(String url, String user, String password) {
         try (Connection c = DriverManager.getConnection(url, user, password)) {
             return true;
@@ -114,7 +133,12 @@ public class DBCheck {
     // -------------------------------------------------------------------------
 
     /**
-     * Controlla se la tabella "ristoranti" esiste — proxy per "schema applicato".
+     * Controlla se la tabella "ristoranti" esiste nel catalogo "public" del DB.
+     * Funge da controllo indicativo per stabilire se lo schema SQL è già presente.
+     *
+     * @param conn la connessione SQL attiva
+     * @return true se la tabella esiste, false altrimenti
+     * @throws SQLException se si verifica un errore durante il recupero dei metadati
      */
     private static boolean schemaApplicato(Connection conn) throws SQLException {
         DatabaseMetaData meta = conn.getMetaData();
@@ -123,6 +147,13 @@ public class DBCheck {
         }
     }
 
+    /**
+     * Legge lo script di schema "schema.sql" dalle risorse del classpath e lo esegue,
+     * dividendo gli statement separati dal carattere punto e virgola (;).
+     *
+     * @param conn la connessione SQL attiva su cui applicare lo schema
+     * @throws RuntimeException se si verificano errori di I/O o durante l'esecuzione SQL delle istruzioni
+     */
     private static void applicaSchema(Connection conn) {
         try (InputStream in = DBCheck.class.getResourceAsStream("/schema.sql")) {
             if (in == null) throw new IOException("schema.sql non trovato nel classpath");
@@ -146,6 +177,13 @@ public class DBCheck {
     // PASSO 3 — Verifica presenza dati
     // -------------------------------------------------------------------------
 
+    /**
+     * Esegue una query di conteggio sulla tabella "ristoranti" per capire se è presente del contenuto.
+     *
+     * @param conn la connessione SQL attiva
+     * @return true se sono presenti record all'interno dei ristoranti, false altrimenti
+     * @throws SQLException se si verifica un errore durante l'esecuzione della query
+     */
     private static boolean datiPresenti(Connection conn) throws SQLException {
         try (Statement stmt = conn.createStatement();
              ResultSet rs   = stmt.executeQuery("SELECT COUNT(*) FROM ristoranti")) {
@@ -158,6 +196,10 @@ public class DBCheck {
     // PASSO 3b — Import CSV tramite ImportCSV
     // -------------------------------------------------------------------------
 
+    /**
+     * Cerca ed importa il file CSV dei ristoranti "michelin_my_maps.csv" all'interno del DB.
+     * Se il file non esiste, salta l'importazione ed avvia il database vuoto.
+     */
     private static void importaDaCSV() {
         String percorsoCSV = "dbtk/michelin_my_maps.csv";
         File csvFile = new File(percorsoCSV);
@@ -197,6 +239,12 @@ public class DBCheck {
     // Utility
     // -------------------------------------------------------------------------
 
+    /**
+     * Estrae il nome del database a partire da un URL JDBC di connessione.
+     *
+     * @param jdbcUrl stringa URL JDBC completa (es. "jdbc:postgresql://localhost:5432/dbtk?ssl=false")
+     * @return il solo nome del database (es. "dbtk")
+     */
     private static String estraiNomeDb(String jdbcUrl) {
         String path = jdbcUrl.substring(jdbcUrl.lastIndexOf('/') + 1);
         int q = path.indexOf('?');

@@ -18,6 +18,12 @@ package theknife.dao;
  */
 public class ErroreApplicativo extends RuntimeException {
 
+    /**
+     * Costruisce una nuova eccezione applicativa contenente il messaggio descrittivo dell'errore
+     * pronto per essere mostrato all'utente finale.
+     *
+     * @param messaggio il messaggio descrittivo dell'errore
+     */
     public ErroreApplicativo(String messaggio) {
         super(messaggio);
     }

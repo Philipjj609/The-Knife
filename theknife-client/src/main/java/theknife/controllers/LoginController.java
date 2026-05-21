@@ -14,24 +14,47 @@ import java.io.IOException;
 import java.util.Optional;
 
 /**
- * Controller per la finestra di login.
- * Gestisce l'autenticazione dell'utente tramite ClientTK.
+ * Controller JavaFX per la vista di Login dell'applicazione "The Knife".
+ * Gestisce l'interazione per l'autenticazione degli utenti.
  *
- * @author Philip Jon Ji Ciuca
- * @version 2.0
+ * <p>Fa parte del pattern <b>MVC (Model-View-Controller)</b> come Controller.
+ * Esegue le chiamate di autenticazione in modo asincrono tramite un thread di background
+ * (usando {@link Task}) per evitare il blocco del JavaFX Application Thread,
+ * aggiornando l'interfaccia grafica nei callback di successo e fallimento.</p>
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  */
 public class LoginController {
 
+    /** Campo di testo per l'inserimento dello username. */
     @FXML private TextField usernameField;
+
+    /** Campo per l'inserimento della password. */
     @FXML private PasswordField passwordField;
+
+    /** Label per la visualizzazione di messaggi di errore nella UI. */
     @FXML private Label errorLabel;
 
+    /** Controller della home page principale, utilizzato per aggiornare lo stato dell'utente loggato. */
     private HomeController homeController;
 
+    /**
+     * Associa il controller della home principale.
+     *
+     * @param homeController l'istanza del {@link HomeController}
+     */
     public void setHomeController(HomeController homeController) {
         this.homeController = homeController;
     }
 
+    /**
+     * Gestisce l'evento di pressione del pulsante Accedi.
+     * Valida l'input locale ed esegue il tentativo di login sul server tramite {@link ClientTK#login(String, String)}
+     * all'interno di un thread separato. I risultati vengono poi applicati sul JavaFX Application Thread.
+     */
     @FXML
     private void handleLogin() {
         String username = usernameField.getText().trim();
@@ -66,6 +89,9 @@ public class LoginController {
         new Thread(task).start();
     }
 
+    /**
+     * Gestisce l'evento di navigazione verso la schermata di registrazione di un nuovo utente.
+     */
     @FXML
     private void handleRegistrazione() {
         try {
@@ -79,6 +105,9 @@ public class LoginController {
         }
     }
 
+    /**
+     * Gestisce l'evento di ritorno alla schermata o chiusura del dialogo.
+     */
     @FXML
     private void handleBack() {
         AppNavigator.goBackOrClose(usernameField);

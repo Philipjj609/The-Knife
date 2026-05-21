@@ -12,16 +12,33 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Utility di migrazione: importa i ristoranti da michelin_my_maps.csv nel DB.
+ * Classe di utilità ed entry-point autonomo per eseguire la migrazione dei dati
+ * dei ristoranti a partire da un file CSV Michelin all'interno del database TheKnife.
+ * Utilizza {@link RistoranteDAO} per salvare le entità.
  *
- * Uso:
- *   java -cp theknife-server-shaded.jar theknife.server.MigrazioneCSV <percorso.csv>
+ * <p>Uso da terminale:
+ * <pre>
+ *   java -cp theknife-server-shaded.jar theknife.server.MigrazioneCSV &lt;percorso.csv&gt;
+ * </pre>
  *
- * Esempio:
+ * <p>Esempio:
+ * <pre>
  *   java -cp theknife-server-1.0.0-shaded.jar theknife.server.MigrazioneCSV dbtk/michelin_my_maps.csv
+ * </pre>
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  */
 public class MigrazioneCSV {
 
+    /**
+     * Entry-point principale che esegue il processo di migrazione dei dati dal file CSV al database.
+     *
+     * @param args argomenti passati da riga di comando; il primo argomento opzionale specifica il percorso del file CSV
+     * @throws Exception se si verificano errori di I/O o SQL durante la migrazione dei dati
+     */
     public static void main(String[] args) throws Exception {
         String csvPath = args.length > 0 ? args[0] : "dbtk/michelin_my_maps.csv";
         File csvFile = new File(csvPath);
@@ -84,6 +101,12 @@ public class MigrazioneCSV {
 
     // -------------------------------------------------------------------------
 
+    /**
+     * Carica le configurazioni di database dal file `db.properties` situato nel classpath.
+     *
+     * @return le proprietà caricate dal file di configurazione
+     * @throws IOException se il file delle proprietà non è presente o non può essere letto
+     */
     private static Properties caricaConfig() throws IOException {
         Properties props = new Properties();
         try (InputStream in = MigrazioneCSV.class.getResourceAsStream("/db.properties")) {
@@ -93,6 +116,12 @@ public class MigrazioneCSV {
         return props;
     }
 
+    /**
+     * Analizza una singola riga di testo in formato CSV per mapparne i dati in un oggetto {@link Ristorante}.
+     *
+     * @param linea la riga del file CSV da decodificare
+     * @return l'oggetto {@link Ristorante} corrispondente alla riga letta, o null se i dati sono insufficienti
+     */
     private static Ristorante parseRiga(String linea) {
         List<String> campi = parseCSV(linea);
         if (campi.size() < 14) return null;
@@ -137,12 +166,24 @@ public class MigrazioneCSV {
         );
     }
 
+    /**
+     * Mappa la stringa dei simboli valuta (€, $) in un intero indicante il livello di prezzo (da 1 a 4).
+     *
+     * @param s la stringa dei simboli valuta
+     * @return un numero intero compreso tra 1 e 4
+     */
     private static int mapPrezzo(String s) {
         if (s == null || s.isBlank()) return 1;
         long n = s.chars().filter(c -> c == '€' || c == '$').count();
         return (int) Math.max(1, Math.min(4, n > 0 ? n : s.trim().length()));
     }
 
+    /**
+     * Valida e normalizza la stringa di riconoscimento Michelin (es. stelle o Bib Gourmand).
+     *
+     * @param s la stringa del riconoscimento da mappare
+     * @return la stringa normalizzata corrispondente all'enum, o null se non corrisponde a nessun valore valido
+     */
     private static String mapAward(String s) {
         if (s == null || s.isBlank()) return null;
         return switch (s.trim()) {
@@ -155,6 +196,12 @@ public class MigrazioneCSV {
         };
     }
 
+    /**
+     * Divide una stringa separata da virgole in una lista di singoli valori stringa ripuliti dagli spazi.
+     *
+     * @param s la stringa con valori multipli separati da virgola
+     * @return la lista dei singoli elementi estratti
+     */
     private static List<String> splitValues(String s) {
         List<String> result = new ArrayList<>();
         if (s == null || s.isBlank()) return result;
@@ -165,19 +212,46 @@ public class MigrazioneCSV {
         return result;
     }
 
+    /**
+     * Restituisce vero se la stringa in input indica un valore logico positivo (es. "sì", "si", "yes").
+     *
+     * @param s la stringa da valutare
+     * @return true se la stringa corrisponde a un valore positivo, false altrimenti
+     */
     private static boolean isVero(String s) {
         return "sì".equalsIgnoreCase(s) || "si".equalsIgnoreCase(s) || "yes".equalsIgnoreCase(s);
     }
 
+    /**
+     * Restituisce null se la stringa passata è vuota o contiene solo spazi bianchi,
+     * altrimenti restituisce la stringa stessa.
+     *
+     * @param s la stringa da verificare
+     * @return la stringa originale, o null se vuota o blank
+     */
     private static String nullIfEmpty(String s) {
         return (s == null || s.isBlank()) ? null : s;
     }
 
+    /**
+     * Converte in modo sicuro una stringa in un valore numerico decimale (double).
+     * In caso di eccezione restituisce 0.0.
+     *
+     * @param s la stringa contenente il valore decimale
+     * @return il valore double convertito, o 0.0 in caso di fallimento
+     */
     private static double parseDouble(String s) {
         try { return Double.parseDouble(s.trim()); }
         catch (Exception e) { return 0.0; }
     }
 
+    /**
+     * Parser personalizzato per righe in formato CSV in grado di ignorare le virgole
+     * contenute all'interno dei campi delimitati da virgolette doppie.
+     *
+     * @param linea la riga di testo del file CSV da analizzare
+     * @return una lista di stringhe rappresentanti i singoli campi estratti
+     */
     private static List<String> parseCSV(String linea) {
         List<String> campi = new ArrayList<>();
         StringBuilder cur = new StringBuilder();

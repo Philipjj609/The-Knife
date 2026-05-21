@@ -9,29 +9,36 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Controller per il menu utente che appare dopo il login.
- * Mostra le informazioni di base dell'utente loggato e fornisce
- * azioni come il logout. Riceve un riferimento al HomeController
- * per eseguire operazioni legate alla sessione.
+ * Controller JavaFX per la vista del menu utente personalizzato (User Menu) dell'applicazione "The Knife".
+ * Mostra le informazioni dell'utente autenticato (come lo username e il ruolo) e permette di effettuare il logout.
  *
- * @author Philip Jon Ji Ciuca
- * @version 1.0
+ * <p>Fa parte del pattern <b>MVC (Model-View-Controller)</b> come Controller.
+ * Le operazioni grafiche e di delegazione avvengono sul JavaFX Application Thread.</p>
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  */
 public class UserMenuController implements Initializable {
-    @FXML
-    private Label usernameLabel;
-    @FXML
-    private Label roleLabel;
 
+    /** Label per la visualizzazione dello username dell'utente loggato. */
+    @FXML private Label usernameLabel;
+
+    /** Label per la visualizzazione del ruolo (es. CLIENTE, RISTORATORE) dell'utente loggato. */
+    @FXML private Label roleLabel;
+
+    /** Riferimento al controller della home principale. */
     private HomeController homeController;
+
+    /** L'utente correntemente autenticato nella sessione. */
     private Utente currentUser;
 
     /**
-     * Inizializzazione del controller (JavaFX lifecycle).
+     * Metodo di inizializzazione richiamato automaticamente da JavaFX dopo il caricamento del file FXML.
      *
-     * @param location  URL della risorsa FXML (ignored)
-     * @param resources ResourceBundle eventualmente fornito (ignored)
-     * @since 1.0
+     * @param location l'URL utilizzato per risolvere i percorsi relativi dell'oggetto radice, o null
+     * @param resources le risorse utilizzate per localizzare l'oggetto radice, o null
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -39,10 +46,9 @@ public class UserMenuController implements Initializable {
     }
 
     /**
-     * Imposta il riferimento al HomeController e aggiorna le informazioni utente.
+     * Associa il controller principale Home e aggiorna le informazioni visive dell'utente.
      *
-     * @param homeController Controller principale Home, must be non-null.
-     * @since 1.0
+     * @param homeController il {@link HomeController} principale, deve essere diverso da null
      */
     public void setHomeController(HomeController homeController) {
         this.homeController = homeController;
@@ -51,10 +57,7 @@ public class UserMenuController implements Initializable {
     }
 
     /**
-     * Aggiorna le label della UI con i dati dell'utente corrente.
-     * Non ha effetti collaterali oltre l'aggiornamento visivo.
-     *
-     * @since 1.0
+     * Aggiorna il testo delle label grafiche con le informazioni dell'utente correntemente connesso.
      */
     private void updateLabels() {
         if (currentUser != null) {
@@ -64,10 +67,7 @@ public class UserMenuController implements Initializable {
     }
 
     /**
-     * Esegue il logout dell'utente delegando al HomeController e chiude
-     * il menu corrente.
-     *
-     * @since 1.0
+     * Gestisce l'azione di logout dell'utente delegando l'operazione al controller principale Home.
      */
     @FXML
     private void handleLogout() {
@@ -76,6 +76,9 @@ public class UserMenuController implements Initializable {
         }
     }
 
+    /**
+     * Ritorna alla schermata precedente o chiude la vista.
+     */
     @FXML
     private void handleBack() {
         AppNavigator.goBackOrClose(usernameLabel);

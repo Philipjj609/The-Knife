@@ -43,8 +43,11 @@ public class Main extends Application {
 
     /**
      * Mostra il dialogo di connessione al server.
-     * L'utente inserisce host e porta e preme "Connetti".
-     * In caso di successo la home view viene caricata sul primaryStage.
+     * Consente all'utente di inserire l'host e la porta del server.
+     * All'avvenuto collegamento riuscito (eseguito asincronamente fuori dal thread della UI),
+     * chiude il dialogo ed esegue il caricamento dell'interfaccia principale tramite {@link #caricaHome(Stage)}.
+     *
+     * @param primaryStage lo Stage principale dell'applicazione
      */
     private void mostraDialogoConnessione(Stage primaryStage) {
         Stage dialogStage = new Stage();
@@ -134,7 +137,10 @@ public class Main extends Application {
     }
 
     /**
-     * Carica la home view principale dell'applicazione.
+     * Carica e visualizza la schermata principale dell'applicazione (Home) caricandola
+     * da file FXML ed associando i relativi fogli di stile CSS.
+     *
+     * @param primaryStage lo Stage principale su cui caricare la scena
      */
     private void caricaHome(Stage primaryStage) {
         try {
@@ -167,15 +173,19 @@ public class Main extends Application {
     // API statica per i controller
     // -------------------------------------------------------------------------
 
-    /** Restituisce l'istanza condivisa del client di rete. */
+    /**
+     * Restituisce l'istanza singleton del client di rete attiva e connessa.
+     *
+     * @return l'istanza corrente di {@link ClientTK}
+     */
     public static ClientTK getClient() {
         return client;
     }
 
     /**
-     * Imposta l'icona dell'applicazione su uno Stage.
+     * Imposta l'icona dell'applicazione su uno Stage caricandola dalle risorse.
      *
-     * @param stage Lo Stage a cui applicare l'icona.
+     * @param stage lo Stage a cui applicare l'icona
      */
     public static void setApplicationIcon(Stage stage) {
         try (InputStream is = Main.class.getResourceAsStream("/images/icon.png")) {
@@ -185,6 +195,11 @@ public class Main extends Application {
         } catch (IOException ignored) {}
     }
 
+    /**
+     * Main method dell'applicazione JavaFX.
+     *
+     * @param args argomenti a riga di comando
+     */
     public static void main(String[] args) {
         launch(args);
     }

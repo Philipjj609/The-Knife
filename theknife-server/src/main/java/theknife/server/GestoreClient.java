@@ -30,17 +30,33 @@ import java.util.List;
  * @author Flavio Marin, 759910, Sede CO
  * @author Davide Caccia, 760742, Sede CO
  */
-
 public class GestoreClient implements Runnable {
 
+    /** Socket TCP per la comunicazione con il client */
     private final Socket        socket;
+    /** DAO per la gestione dei dati utente */
     private final UtenteDAO     utenteDAO;
+    /** DAO per la gestione dei dati dei ristoranti */
     private final RistoranteDAO ristoranteDAO;
+    /** DAO per la gestione delle recensioni */
     private final RecensioneDAO recensioneDAO;
+    /** DAO per la gestione delle risposte alle recensioni */
     private final RispostaDAO   rispostaDAO;
+    /** DAO per la gestione delle preferenze/preferiti degli utenti */
     private final PreferitiDAO  preferitiDAO;
+    /** Oggetto contenente l'utente attualmente autenticato nella sessione (null se ospite) */
     private Utente utenteAutenticato;
 
+    /**
+     * Costruisce un gestore di sessione per un client specifico collegando i DAO necessari.
+     *
+     * @param socket        il socket di connessione TCP con il client
+     * @param utenteDAO     il DAO per le operazioni sugli utenti
+     * @param ristoranteDAO il DAO per le operazioni sui ristoranti
+     * @param recensioneDAO il DAO per le operazioni sulle recensioni
+     * @param rispostaDAO   il DAO per le operazioni sulle risposte
+     * @param preferitiDAO  il DAO per le operazioni sui preferiti
+     */
     public GestoreClient(Socket socket,
                          UtenteDAO utenteDAO,
                          RistoranteDAO ristoranteDAO,
@@ -55,6 +71,11 @@ public class GestoreClient implements Runnable {
         this.preferitiDAO  = preferitiDAO;
     }
 
+    /**
+     * Avvia il thread dedicato alla sessione del client. Gestisce la lettura sequenziale
+     * delle richieste serializzate su socket, ne esegue il dispatch e invia gli esiti corrispondenti.
+     * La connessione permane fino alla chiusura esplicita o al verificarsi di un errore di I/O.
+     */
     @Override
     public void run() {
         String indirizzo = socket.getRemoteSocketAddress().toString();
@@ -91,10 +112,14 @@ public class GestoreClient implements Runnable {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // Dispatcher: mappa ogni Comando alle chiamate DAO corrispondenti.
-    // Tutti gli errori applicativi vengono catturati e restituiti come Esito.errore().
-    // -------------------------------------------------------------------------
+    /**
+     * Esegue il dispatch (smistamento) delle richieste inviate dal client basandosi sul tipo di comando.
+     * Mappa i comandi di rete alle corrispondenti operazioni sui DAO e gestisce i controlli di sicurezza.
+     * In caso di eccezioni applicative o errori gravi, restituisce un pacchetto di esito contenente il messaggio di errore.
+     *
+     * @param r la richiesta ricevuta dal client contenente il comando e i parametri
+     * @return un DTO di tipo {@link Esito} contenente i dati di risposta o la descrizione dell'errore
+     */
     private Esito dispatch(Richiesta r) {
         try {
             return switch (r.getComando()) {
@@ -256,26 +281,60 @@ public class GestoreClient implements Runnable {
         }
     }
 
+    /**
+     * Stampa un messaggio di log sulla console includendo il nome del thread corrente.
+     *
+     * @param msg il messaggio da loggare
+     */
     private void log(String msg) {
         System.out.printf("[%s] %s%n", Thread.currentThread().getName(), msg);
     }
 
+    /**
+     * Verifica se il client si è autenticato con lo username specificato.
+     *
+     * @param username lo username da verificare
+     * @return true se l'utente è autenticato e coincide con lo username, false altrimenti
+     */
     private boolean isUtenteAutenticato(String username) {
         return utenteAutenticato != null && utenteAutenticato.getUsername().equals(username);
     }
 
+    /**
+     * Verifica se l'utente correntemente autenticato possiede il ruolo di cliente.
+     *
+     * @return true se l'utente è autenticato ed è un cliente, false altrimenti
+     */
     private boolean isClienteAutenticato() {
         return utenteAutenticato != null && utenteAutenticato.getRuoloEnum() == Role.CLIENTE;
     }
 
+    /**
+     * Verifica se l'utente correntemente autenticato possiede il ruolo di ristoratore.
+     *
+     * @return true se l'utente è autenticato ed è un ristoratore, false altrimenti
+     */
     private boolean isRistoratoreAutenticato() {
         return utenteAutenticato != null && utenteAutenticato.getRuoloEnum() == Role.RISTORATORE;
     }
 
+    /**
+     * Verifica se una stringa è nulla o formata da soli spazi bianchi.
+     *
+     * @param value la stringa da verificare
+     * @return true se la stringa è vuota o nulla, false altrimenti
+     */
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
     }
 
+    /**
+     * Copia un oggetto utente escludendo l'hash della password per impedire la
+     * trasmissione di dati riservati e sensibili verso il client.
+     *
+     * @param utente l'oggetto {@link Utente} originale completo
+     * @return un nuovo oggetto {@link Utente} con la password impostata a null
+     */
     private Utente senzaPassword(Utente utente) {
         return new Utente(
                 utente.getId(),

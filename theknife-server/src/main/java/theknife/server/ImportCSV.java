@@ -5,27 +5,41 @@ import java.nio.charset.StandardCharsets;
 import java.sql.*;
 
 /**
- * Importa un CSV Michelin nel database TheKnife.
- *
- * La logica replica fedelmente import_michelin.sql:
- *   1. Carica le righe del CSV in memoria (riga per riga).
- *   2. Inserisce/aggiorna i ristoranti (upsert su nome+indirizzo).
- *   3. Popola le lookup "cucine" e "servizi".
- *   4. Crea i legami N:M ristoranti_cucine e ristoranti_servizi.
- *
- * Tutto avviene in un'unica transazione; in caso di errore viene fatto rollback.
+ * Classe di utilità che gestisce l'importazione iniziale dei dati da un file CSV
+ * contenente i ristoranti Michelin all'interno del database relazionale di The Knife.
+ * 
+ * La logica replica i seguenti passaggi:
+ * <ol>
+ *   <li>Creazione di una tabella temporanea di transito in PostgreSQL.</li>
+ *   <li>Caricamento in batch delle righe del file CSV nella tabella temporanea.</li>
+ *   <li>Esecuzione di operazioni di upsert (INSERT ... ON CONFLICT UPDATE) sui ristoranti.</li>
+ *   <li>Popolamento delle tabelle di lookup (cucine e servizi).</li>
+ *   <li>Associazione molti-a-molti (N:M) tra ristoranti e cucine, e tra ristoranti e servizi.</li>
+ * </ol>
+ * 
+ * Tutte le operazioni vengono eseguite in un'unica transazione per garantire l'atomicità (ACID).
+ * 
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  */
 public class ImportCSV {
 
+    /**
+     * Costruttore privato per prevenire l'istanziazione di questa classe utility.
+     */
     private ImportCSV() {}
 
     /**
-     * Esegue l'import del CSV sulla connessione fornita.
-     * La connessione deve essere aperta e non in autocommit quando viene chiamato
-     * questo metodo (la gestione della transazione è interna).
+     * Esegue l'importazione guidata del file CSV Michelin all'interno del database,
+     * gestendo la transazione (disabilitando temporaneamente l'auto-commit) ed eseguendo
+     * un rollback automatico in caso di errore.
      *
-     * @param conn       connessione JDBC già aperta
-     * @param percorsoCSV percorso assoluto del file CSV Michelin
+     * @param conn        connessione JDBC attiva e aperta verso il database PostgreSQL
+     * @param percorsoCSV percorso del file CSV Michelin da importare
+     * @throws Exception  se si verifica un errore durante la lettura del file (IOException) o durante
+     *                    l'esecuzione delle query SQL (SQLException)
      */
     public static void importa(Connection conn, String percorsoCSV) throws Exception {
         boolean autoCommitOriginale = conn.getAutoCommit();
@@ -44,6 +58,14 @@ public class ImportCSV {
 
     // -------------------------------------------------------------------------
 
+    /**
+     * Crea la tabella temporanea di supporto in PostgreSQL ed avvia l'importazione
+     * dei dati, seguita dalle query di popolamento relazionale delle tabelle finali.
+     *
+     * @param conn        connessione JDBC attiva
+     * @param percorsoCSV percorso del file CSV Michelin
+     * @throws Exception  se si riscontrano errori di I/O o SQL
+     */
     private static void caricaERielabora(Connection conn, String percorsoCSV) throws Exception {
 
         // --- 1. Tabella temporanea in memoria (emulata con una TEMP TABLE PostgreSQL) ---
@@ -191,13 +213,12 @@ public class ImportCSV {
     }
 
     /**
-     * Legge il CSV riga per riga e lo inserisce nella tabella temporanea
-     * tramite un PreparedStatement con batch insert.
+     * Legge fisicamente il file CSV riga per riga e inserisce i campi all'interno
+     * della tabella temporanea utilizzando un {@link PreparedStatement} e insert batch.
      *
-     * Gestisce:
-     *   - riga di intestazione (skippata)
-     *   - campi quotati con virgole interne
-     *   - encoding UTF-8
+     * @param conn        connessione JDBC attiva
+     * @param percorsoCSV percorso del file CSV da caricare
+     * @throws Exception  se si verifica un errore durante l'I/O di lettura o l'esecuzione SQL dei batch
      */
     private static void inserisciRigheCSV(Connection conn, String percorsoCSV) throws Exception {
         String sql = """
@@ -246,8 +267,11 @@ public class ImportCSV {
     }
 
     /**
-     * Parser CSV minimale che gestisce campi quotati con virgole interne.
-     * Supporta il formato RFC 4180 (campi tra doppi apici, apici doppi escaped).
+     * Parser minimale per righe in formato CSV che supporta la gestione di campi
+     * racchiusi tra doppi apici e virgole interne (conforme a RFC 4180).
+     *
+     * @param line la riga del file CSV da analizzare
+     * @return un array di {@link String} corrispondente ai campi estratti dalla riga
      */
     private static String[] splitCSV(String line) {
         java.util.List<String> campi = new java.util.ArrayList<>();

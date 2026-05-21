@@ -32,35 +32,107 @@ import java.util.ResourceBundle;
  * @author Davide Caccia, 760742, Sede CO
  * @version 2.0
  */
+/**
+ * Controller JavaFX per la vista di dettaglio di un ristorante.
+ * Fa parte del pattern <b>MVC (Model-View-Controller)</b> nel ruolo di Controller.
+ *
+ * <p>Gestisce la visualizzazione di tutte le informazioni dettagliate di un ristorante
+ * (nome, cucina, stelle Michelin, fascia di prezzo, contatti, descrizione, servizi aggiuntivi),
+ * l'apertura del sito web o della mappa geografica tramite browser esterno, l'inserimento
+ * e rimozione del ristorante dai preferiti, e l'elenco delle recensioni con relative risposte.
+ * Comunica con il server in modo non bloccante per l'interfaccia grafica tramite {@link Task}
+ * o thread dedicati e aggiorna gli elementi UI in modo asincrono sul JavaFX Application Thread.</p>
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ * @version 2.0
+ */
 public class DettaglioRistoranteController implements Initializable {
 
+    /** Label per mostrare il nome del ristorante. */
     @FXML private Text nameLabel;
+
+    /** Label per mostrare le specialità culinarie/cucine. */
     @FXML private Text cuisineLabel;
+
+    /** Label per mostrare la valutazione o stelle Michelin assegnate. */
     @FXML private Text starsLabel;
+
+    /** Label per mostrare la fascia di prezzo del ristorante. */
     @FXML private Text priceLabel;
+
+    /** Label per mostrare l'indirizzo civico. */
     @FXML private Text addressLabel;
+
+    /** Label per mostrare la città/nazione. */
     @FXML private Text locationLabel;
+
+    /** Label per mostrare il numero di telefono. */
     @FXML private Text phoneLabel;
+
+    /** Collegamento ipertestuale per navigare al sito internet ufficiale del ristorante. */
     @FXML private Hyperlink websiteLink;
+
+    /** Area di testo non modificabile per leggere la descrizione del ristorante. */
     @FXML private TextArea descriptionArea;
+
+    /** Contenitore grafico per i dettagli del premio Michelin (Bib Gourmand, stelle). */
     @FXML private VBox awardBox;
+
+    /** Label che mostra il testo del premio Michelin ottenuto. */
     @FXML private Text awardLabel;
+
+    /** Contenitore grafico per il badge "Stella Verde Michelin". */
     @FXML private VBox greenStarBox;
+
+    /** Label che descrive la Stella Verde. */
     @FXML private Text greenStarLabel;
+
+    /** Label per mostrare la media e la visualizzazione testuale delle stelle di recensione. */
     @FXML private Text mediaRecensioniLabel;
+
+    /** Pulsante per consentire l'inserimento di una recensione. */
     @FXML private Button aggiungiRecensione;
+
+    /** ListView contenente tutte le recensioni lasciate dagli utenti per questo ristorante. */
     @FXML private ListView<Recensione> recensioniListView;
+
+    /** Pulsante per inserire o rimuovere il ristorante dall'elenco preferiti dell'utente. */
     @FXML private Button aggiungiPreferiti;
+
+    /** Pulsante per aprire la finestra di dialogo con la mappa. */
     @FXML private Button visualizzaMappa;
+
+    /** Pulsante per mostrare il telefono ed avviare la chiamata. */
     @FXML private Button chiamaRistorante;
+
+    /** Label indicante se è attivo il servizio di consegna a domicilio (delivery). */
     @FXML private Label deliveryStatusLabel;
+
+    /** Label indicante se è supportata la prenotazione online dei tavoli. */
     @FXML private Label prenotazioneOnlineStatusLabel;
+
+    /** Area di testo per mostrare i servizi e le infrastrutture del ristorante. */
     @FXML private TextArea facilitiesArea;
 
+    /** Il ristorante correntemente visualizzato. */
     private Ristorante ristorante;
+
+    /** Lo username dell'utente attualmente loggato. */
     private String currentUser;
+
+    /** Riferimento opzionale al controller padre della dashboard cliente per favorire l'aggiornamento reciproco. */
     private DashboardClienteController dashboardClienteParentController;
 
+    /**
+     * Inizializza il controller JavaFX. Imposta la cella personalizzata della ListView delle recensioni.
+     * Metodo richiamato automaticamente dopo il caricamento del file FXML.
+     *
+     * @param location l'URL di localizzazione della risorsa FXML
+     * @param resources il bundle delle risorse localizzate
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         recensioniListView.setCellFactory(lv -> new ListCell<>() {
@@ -72,6 +144,12 @@ public class DettaglioRistoranteController implements Initializable {
         });
     }
 
+    /**
+     * Associa il ristorante da mostrare ed avvia il popolamento dei campi visivi,
+     * il caricamento asincrono delle recensioni e lo stato del pulsante preferiti.
+     *
+     * @param ristorante il ristorante {@link Ristorante} da visualizzare
+     */
     public void setRistorante(Ristorante ristorante) {
         this.ristorante = ristorante;
         populateFields();
@@ -79,21 +157,40 @@ public class DettaglioRistoranteController implements Initializable {
         updateFavoritesButton();
     }
 
+    /**
+     * Associa lo username dell'utente loggato per determinare la visibilità
+     * dei pulsanti interattivi (recensione e preferito).
+     *
+     * @param username il nome utente autenticato
+     */
     public void setCurrentUser(String username) {
         this.currentUser = username;
         updateRecensioneButton();
         updateFavoritesButton();
     }
 
+    /**
+     * Associa il controller genitore della dashboard cliente.
+     *
+     * @param parentController il {@link DashboardClienteController} padre
+     */
     public void setDashboardClienteParentController(DashboardClienteController parentController) {
         this.dashboardClienteParentController = parentController;
     }
 
+    /**
+     * Mostra o nasconde i pulsanti "Aggiungi Recensione" e "Aggiungi ai Preferiti"
+     * a seconda che l'utente sia registrato e autenticato (username non nullo).
+     */
     private void updateRecensioneButton() {
         aggiungiRecensione.setVisible(currentUser != null);
         aggiungiPreferiti.setVisible(currentUser != null);
     }
 
+    /**
+     * Avvia un thread secondario che richiede al server (tramite {@link ClientTK}) l'elenco delle recensioni
+     * associate al ristorante. All'ottenimento, riempie la ListView e calcola la media stelle nella UI.
+     */
     private void loadRecensioni() {
         if (ristorante == null) return;
 
@@ -121,6 +218,13 @@ public class DettaglioRistoranteController implements Initializable {
         new Thread(task).start();
     }
 
+    /**
+     * Crea graficamente la card (VBox) di visualizzazione di una recensione lasciata da un utente.
+     * Mostra stelle, autore, data, titolo, corpo del commento ed eventuale risposta del ristoratore.
+     *
+     * @param recensione l'oggetto {@link Recensione} da formattare
+     * @return il contenitore grafico {@link VBox} della recensione
+     */
     private VBox createRecensioneCard(Recensione recensione) {
         VBox card = new VBox(8);
         card.setStyle("-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-radius: 8; " +
@@ -168,6 +272,9 @@ public class DettaglioRistoranteController implements Initializable {
         return card;
     }
 
+    /**
+     * Gestisce l'evento di visualizzazione della mappa stradale di Google Maps in base alle coordinate.
+     */
     @FXML private void handleOpenMap() {
         if (ristorante != null && (ristorante.getLatitudine() != 0.0 || ristorante.getLongitudine() != 0.0)) {
             String mapUrl = String.format(java.util.Locale.US, "https://www.google.com/maps?q=%.6f,%.6f",
@@ -176,6 +283,9 @@ public class DettaglioRistoranteController implements Initializable {
         }
     }
 
+    /**
+     * Gestisce l'apertura del sito internet ufficiale del ristorante.
+     */
     @FXML private void handleOpenWebsite() {
         if (ristorante != null && ristorante.getSitoWeb() != null
                 && !ristorante.getSitoWeb().trim().isEmpty()
@@ -184,14 +294,27 @@ public class DettaglioRistoranteController implements Initializable {
         }
     }
 
+    /**
+     * Chiude la schermata corrente di dettaglio tornando a quella precedente.
+     */
     @FXML private void handleClose() {
         AppNavigator.goBackOrClose(nameLabel);
     }
 
+    /**
+     * Listener helper per aprire l'URL del sito web all'attivazione del link ipertestuale.
+     *
+     * @param event l'evento d'azione associato
+     */
     private void openWebsite(ActionEvent event) {
         if (ristorante != null && ristorante.getSitoWeb() != null) openUrl(ristorante.getSitoWeb());
     }
 
+    /**
+     * Tenta l'apertura di un URL esterno delegando la navigazione al browser web predefinito del sistema.
+     *
+     * @param url la stringa dell'URL da aprire
+     */
     private void openUrl(String url) {
         try {
             if (!url.startsWith("http://") && !url.startsWith("https://")) url = "https://" + url;
@@ -203,6 +326,10 @@ public class DettaglioRistoranteController implements Initializable {
         }
     }
 
+    /**
+     * Gestisce l'evento di click sul pulsante recensione. Richiede l'autenticazione ed apre
+     * la finestra di composizione recensione {@link AggiungiRecensioneController}.
+     */
     @FXML
     private void handleAggiungiRecensione() {
         if (currentUser == null) {
@@ -226,6 +353,11 @@ public class DettaglioRistoranteController implements Initializable {
         }
     }
 
+    /**
+     * Gestisce l'aggiunta o la rimozione del ristorante dall'elenco preferiti dell'utente corrente.
+     * L'operazione avviene in background con callback di aggiornamento del bottone preferito
+     * nel JavaFX Thread.
+     */
     @FXML
     private void handleAggiungiPreferiti() {
         if (currentUser == null) {
@@ -255,6 +387,9 @@ public class DettaglioRistoranteController implements Initializable {
         }).start();
     }
 
+    /**
+     * Gestisce l'evento di visualizzazione della mappa FXML localmente all'applicazione.
+     */
     @FXML
     private void handleVisualizzaMappa() {
         if (ristorante != null && (ristorante.getLatitudine() != 0.0 || ristorante.getLongitudine() != 0.0)) {
@@ -270,6 +405,9 @@ public class DettaglioRistoranteController implements Initializable {
         }
     }
 
+    /**
+     * Mostra una finestra di avviso con il numero telefonico del ristorante per l'utente.
+     */
     @FXML
     private void handleChiamaRistorante() {
         if (ristorante != null && ristorante.getTelefono() != null
@@ -283,8 +421,15 @@ public class DettaglioRistoranteController implements Initializable {
         }
     }
 
+    /**
+     * Forza il ricaricamento asincrono dell'elenco recensioni aggiornando la vista.
+     */
     public void refreshRecensioni() { loadRecensioni(); }
 
+    /**
+     * Interroga in asincrono lo stato del database per capire se il ristorante è segnato preferito dell'utente,
+     * aggiornando il testo del pulsante associato.
+     */
     private void updateFavoritesButton() {
         if (currentUser != null && ristorante != null) {
             new Thread(() -> {
@@ -295,6 +440,10 @@ public class DettaglioRistoranteController implements Initializable {
         }
     }
 
+    /**
+     * Popola tutti i componenti grafici testuali, hyperlink,badge e aree di testo
+     * caricando i dati del ristorante correntemente associato.
+     */
     private void populateFields() {
         if (ristorante == null) return;
 
@@ -343,6 +492,10 @@ public class DettaglioRistoranteController implements Initializable {
         updateServicesDisplay();
     }
 
+    /**
+     * Aggiorna lo stile cromatico e testuale per i badge asporto/consegna (delivery)
+     * e prenotazione online.
+     */
     private void updateServicesDisplay() {
         if (ristorante == null) return;
 
@@ -357,6 +510,13 @@ public class DettaglioRistoranteController implements Initializable {
                 : "-fx-text-fill: #dc3545; -fx-font-weight: bold;");
     }
 
+    /**
+     * Helper per mostrare messaggi informativi a schermo tramite finestre di dialogo JavaFX.
+     *
+     * @param title titolo del dialogo
+     * @param header testata del dialogo
+     * @param message corpo del messaggio
+     */
     private void showAlert(String title, String header, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);

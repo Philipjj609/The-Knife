@@ -14,9 +14,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Implementazione JDBC dell'interfaccia RecensioneDAO.
+ * Implementazione JDBC concreta per la gestione delle recensioni su database PostgreSQL.
  *
- * Gestisce la memorizzazione e il recupero delle recensioni dal database.
+ * Questa classe realizza il pattern <b>DAO</b> (Data Access Object) in modo stateless ed è thread-safe,
+ * cooperando con {@link ConnectionPool}.
  *
  * @author Philip Jon Ji Ciuca, 761446, Sede CO
  * @author Samuele Secchi, 761031, Sede CO
@@ -41,6 +42,15 @@ public class RecensioneDAOImpl implements RecensioneDAO {
         LEFT JOIN risposte risp ON risp.recensione_id = rec.id
         """;
 
+    /**
+     * {@inheritDoc}
+     * Recupera una singola recensione specificata per ID, includendo i dettagli del cliente
+     * e l'eventuale risposta inserita dal ristoratore proprietario del locale.
+     *
+     * @param id l'identificativo della recensione
+     * @return un Optional contenente l'oggetto {@link Recensione} mappato, o vuoto se non esiste
+     * @throws RuntimeException in caso di errori di connettività o di esecuzione SQL
+     */
     @Override
     public Optional<Recensione> findById(long id) {
         String sql = SELECT_BASE + "WHERE rec.id = ?";
@@ -55,18 +65,41 @@ public class RecensioneDAOImpl implements RecensioneDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param ristoranteId l'identificativo del ristorante
+     * @return la lista delle recensioni del ristorante specificato, in ordine cronologico decrescente
+     * @throws RuntimeException in caso di errori di interrogazione SQL
+     */
     @Override
     public List<Recensione> findByRistorante(long ristoranteId) {
         return query(SELECT_BASE + "WHERE rec.ristorante_id = ? ORDER BY rec.data_recensione DESC",
                 ps -> ps.setLong(1, ristoranteId));
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param username lo username del cliente
+     * @return la lista delle recensioni scritte dall'utente specificato, in ordine cronologico decrescente
+     * @throws RuntimeException in caso di errori di interrogazione SQL
+     */
     @Override
     public List<Recensione> findByCliente(String username) {
         return query(SELECT_BASE + "WHERE rec.username_cliente = ? ORDER BY rec.data_recensione DESC",
                 ps -> ps.setString(1, username));
     }
 
+    /**
+     * {@inheritDoc}
+     * Utilizza un'espressione `IN` dinamica parametrizzata per recuperare le recensioni associate
+     * a più ristoranti in un'unica chiamata al database.
+     *
+     * @param ristoranteIds la lista degli identificativi dei ristoranti
+     * @return la lista di recensioni caricate
+     * @throws RuntimeException in caso di anomalie SQL nella clausola `IN`
+     */
     @Override
     public List<Recensione> findByRistoranteIds(List<Long> ristoranteIds) {
         if (ristoranteIds == null || ristoranteIds.isEmpty()) return List.of();
@@ -84,6 +117,17 @@ public class RecensioneDAOImpl implements RecensioneDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * Inserisce la recensione nel database popolando automaticamente il timestamp corrente
+     * se non specificato. Gestisce le eccezioni per recensioni duplicate intercettando lo stato SQL 23505
+     * e sollevando una {@link ErroreApplicativo}.
+     *
+     * @param recensione l'oggetto recensione da salvare
+     * @return l'oggetto {@link Recensione} aggiornato con l'ID autogenerato
+     * @throws ErroreApplicativo se l'utente ha già recensito il ristorante specificato
+     * @throws RuntimeException per errori SQL imprevisti
+     */
     @Override
     public Recensione save(Recensione recensione) {
         if (recensione.getDataRecensione() == null) {
@@ -116,6 +160,13 @@ public class RecensioneDAOImpl implements RecensioneDAO {
         return recensione;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param recensione l'oggetto recensione contenente le modifiche
+     * @return true se l'aggiornamento ha modificato una riga, false altrimenti
+     * @throws RuntimeException in caso di errore SQL
+     */
     @Override
     public boolean update(Recensione recensione) {
         String sql = """
@@ -136,6 +187,14 @@ public class RecensioneDAOImpl implements RecensioneDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param id               l'identificativo della recensione da cancellare
+     * @param usernameCliente lo username del cliente proprietario della recensione
+     * @return true se la cancellazione ha rimosso una riga, false altrimenti
+     * @throws RuntimeException in caso di errore SQL
+     */
     @Override
     public boolean delete(long id, String usernameCliente) {
         String sql = "DELETE FROM recensioni WHERE id = ? AND username_cliente = ?";
@@ -149,6 +208,13 @@ public class RecensioneDAOImpl implements RecensioneDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param ristoranteId l'identificativo del ristorante
+     * @return il valore double della media voti (0.0 se assenti)
+     * @throws RuntimeException in caso di fallimento SQL
+     */
     @Override
     public double getMediaValutazioni(long ristoranteId) {
         String sql = "SELECT COALESCE(AVG(valutazione), 0) FROM recensioni WHERE ristorante_id = ?";
@@ -164,12 +230,29 @@ public class RecensioneDAOImpl implements RecensioneDAO {
         }
     }
 
-    // Helpers per evitare duplicazione
+    /**
+     * Interfaccia funzionale interna utilizzata per impostare i parametri di un {@link PreparedStatement}
+     * evitando codice boiler-plate nella gestione delle risorse SQL.
+     */
     @FunctionalInterface
     private interface ParamSetter {
+        /**
+         * Imposta i parametri sul PreparedStatement fornito.
+         *
+         * @param ps l'oggetto statement da valorizzare
+         * @throws SQLException in caso di errore di posizionamento dei parametri
+         */
         void set(PreparedStatement ps) throws SQLException;
     }
 
+    /**
+     * Esegue in modo sicuro una query di selezione SQL, applicando il setter per i parametri
+     * e restituendo la lista mappata dei record.
+     *
+     * @param sql    la stringa di interrogazione SQL
+     * @param setter il setter dei parametri
+     * @return una lista tipizzata di recensioni mappate
+     */
     private List<Recensione> query(String sql, ParamSetter setter) {
         try (Connection conn = ConnectionPool.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -182,12 +265,27 @@ public class RecensioneDAOImpl implements RecensioneDAO {
         }
     }
 
+    /**
+     * Itera sul ResultSet di selezione estraendo e mappando tutte le righe.
+     *
+     * @param rs il ResultSet SQL attivo
+     * @return una lista di oggetti {@link Recensione}
+     * @throws SQLException in caso di errori di lettura dei record
+     */
     private List<Recensione> collectRows(ResultSet rs) throws SQLException {
         List<Recensione> list = new ArrayList<>();
         while (rs.next()) list.add(mapRow(rs));
         return list;
     }
 
+    /**
+     * Mappa una singola riga di ResultSet in un oggetto recensione, inclusa l'eventuale risposta
+     * ad essa collegata dal proprietario del ristorante.
+     *
+     * @param rs il ResultSet SQL posizionato sulla riga da mappare
+     * @return l'oggetto {@link Recensione} risultante
+     * @throws SQLException in caso di errore di mapping dei tipi SQL
+     */
     private Recensione mapRow(ResultSet rs) throws SQLException {
         Recensione rec = new Recensione();
         rec.setId(rs.getLong("id"));
@@ -214,6 +312,13 @@ public class RecensioneDAOImpl implements RecensioneDAO {
         return rec;
     }
 
+    /**
+     * Intercetta gli errori SQL specifici di violazione di vincoli (es. chiave unica o check constraint)
+     * e li trasforma in messaggi comprensibili per l'utente finale.
+     *
+     * @param e l'eccezione SQL
+     * @return una descrizione localizzata del motivo dell'errore
+     */
     private String messaggioErroreRecensione(SQLException e) {
         String sqlState = e.getSQLState();
         if (sqlState == null) return "Errore save recensione";

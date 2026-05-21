@@ -20,8 +20,15 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 /**
- * Controller per il dashboard del ristoratore.
- * Usa ClientTK per tutti i dati.
+ * Controller JavaFX per la dashboard riservata all'utente con ruolo "Ristoratore".
+ * Fa parte del pattern <b>MVC (Model-View-Controller)</b> nel ruolo di Controller.
+ *
+ * <p>Gestisce la visualizzazione dei ristoranti di proprietà del ristoratore loggato
+ * e di tutte le recensioni ad essi collegate. Fornisce statistiche aggregate (numero ristoranti,
+ * totale recensioni ricevute, media stelle generale, risposte ancora da inviare), consente
+ * di filtrare le recensioni per singolo ristorante e permette di rispondere direttamente alle recensioni
+ * o inserire un nuovo ristorante. Le chiamate di rete al server avvengono tramite la Facade {@link ClientTK}
+ * in modo asincrono su un thread secondario, aggiornando successivamente la UI nel JavaFX Application Thread.</p>
  *
  * @author Philip Jon Ji Ciuca, 761446, Sede CO
  * @author Samuele Secchi, 761031, Sede CO
@@ -31,33 +38,75 @@ import java.util.stream.Collectors;
  */
 public class DashboardRistoratoreController implements Initializable {
 
+    /** Testo di benvenuto personalizzato con il nome del ristoratore. */
     @FXML private Text benvenutoLabel;
+
+    /** Contatore dei ristoranti posseduti dal ristoratore. */
     @FXML private Text numRistorantiLabel;
+
+    /** Contatore complessivo delle recensioni ricevute da tutti i ristoranti del ristoratore. */
     @FXML private Text totalRecensioniLabel;
+
+    /** Valutazione media complessiva di tutti i ristoranti del ristoratore, con rappresentazione grafica a stelle. */
     @FXML private Text mediaGeneraleLabel;
+
+    /** Contatore delle recensioni che non hanno ancora ricevuto una risposta. */
     @FXML private Text risposteDaInviareLabel;
+
+    /** ListView per mostrare l'elenco dei ristoranti posseduti. */
     @FXML private ListView<Ristorante> ristorantiListView;
+
+    /** ListView per mostrare l'elenco delle recensioni ricevute. */
     @FXML private ListView<Recensione> recensioniListView;
+
+    /** ComboBox per filtrare le recensioni in base ad un ristorante specifico. */
     @FXML private ComboBox<String> filtroRistoranteCombo;
+
+    /** Label mostrata qualora l'elenco dei ristoranti sia vuoto. */
     @FXML private Label nessunRistoranteLabel;
+
+    /** Label mostrata qualora l'elenco delle recensioni sia vuoto. */
     @FXML private Label nessueRecensioniRistoratoreLabel;
+
+    /** Pannello a schede (TabPane) per navigare tra ristoranti e recensioni. */
     @FXML private TabPane tabPane;
 
+    /** L'utente ristoratore correntemente autenticato. */
     private Utente currentUser;
+
+    /** Lista locale dei ristoranti associati al ristoratore. */
     private List<Ristorante> ristorantiUtente;
+
+    /** Lista locale di tutte le recensioni ricevute per tutti i ristoranti del ristoratore. */
     private List<Recensione> tutteRecensioni;
 
+    /**
+     * Inizializza il controller JavaFX. Associa i custom cell factory per le ListView dei ristoranti
+     * e delle recensioni per visualizzarli come schede (card) personalizzate.
+     * Metodo richiamato automaticamente dopo il caricamento del file FXML.
+     *
+     * @param location l'URL di localizzazione del file FXML
+     * @param resources il bundle di risorse localizzate
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setupRistorantiListView();
         setupRecensioniListView();
     }
 
+    /**
+     * Associa l'utente ristoratore loggato ed avvia il caricamento asincrono dei dati.
+     *
+     * @param user l'utente ristoratore loggato
+     */
     public void setCurrentUser(Utente user) {
         this.currentUser = user;
         loadUserData();
     }
 
+    /**
+     * Imposta il cell factory per la ListView dei ristoranti, delegando la creazione grafica alla card.
+     */
     private void setupRistorantiListView() {
         ristorantiListView.setCellFactory(lv -> new ListCell<>() {
             @Override
@@ -68,6 +117,9 @@ public class DashboardRistoratoreController implements Initializable {
         });
     }
 
+    /**
+     * Imposta il cell factory per la ListView delle recensioni, delegando la creazione grafica alla card del ristoratore.
+     */
     private void setupRecensioniListView() {
         recensioniListView.setCellFactory(lv -> new ListCell<>() {
             @Override
@@ -78,6 +130,11 @@ public class DashboardRistoratoreController implements Initializable {
         });
     }
 
+    /**
+     * Avvia un thread in background che richiede asincronamente al server i ristoranti di proprietà dell'utente
+     * e tutte le recensioni a loro collegate tramite {@link ClientTK}. Al successo, inserisce gli elementi
+     * nelle relative liste e aggiorna le statistiche aggregate e i filtri di selezione nella UI.
+     */
     private void loadUserData() {
         if (currentUser == null) return;
 
@@ -116,6 +173,13 @@ public class DashboardRistoratoreController implements Initializable {
         new Thread(task).start();
     }
 
+    /**
+     * Calcola le statistiche riassuntive del ristoratore (numero ristoranti, recensioni totali, media stelle,
+     * e risposte in attesa) impostando i relativi testi nella UI.
+     *
+     * @param ristoranti la lista dei ristoranti del ristoratore
+     * @param recensioni la lista delle recensioni collegate
+     */
     private void updateStatistiche(List<Ristorante> ristoranti, List<Recensione> recensioni) {
         numRistorantiLabel.setText(String.valueOf(ristoranti.size()));
         totalRecensioniLabel.setText(String.valueOf(recensioni.size()));
@@ -132,6 +196,15 @@ public class DashboardRistoratoreController implements Initializable {
         risposteDaInviareLabel.setText(String.valueOf(risposteDaInviare));
     }
 
+    /**
+     * Crea graficamente una card (VBox) che rappresenta un ristorante del ristoratore.
+     * Mostra dettagli quali nome, cucine, città, telefono e riconoscimenti Michelin. Fornisce inoltre
+     * pulsanti per visualizzarne il dettaglio o per passare direttamente al tab recensioni pre-filtrato
+     * per quel ristorante.
+     *
+     * @param ristorante l'oggetto {@link Ristorante} da mostrare
+     * @return la VBox contenente la scheda grafica del ristorante
+     */
     private VBox createRistoranteCard(Ristorante ristorante) {
         VBox card = new VBox(10);
         card.setStyle("-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-radius: 8; " +
@@ -189,6 +262,15 @@ public class DashboardRistoratoreController implements Initializable {
         return card;
     }
 
+    /**
+     * Crea graficamente una card (VBox) che rappresenta una recensione ricevuta da uno dei ristoranti.
+     * Visualizza stelle, nome del ristorante recensito, autore, data, titolo e commento.
+     * Mostra inoltre l'eventuale risposta già fornita o presenta un pulsante "Rispondi alla Recensione"
+     * per aprirne la finestra di inserimento risposta.
+     *
+     * @param recensione l'oggetto {@link Recensione} ricevuto
+     * @return la VBox contenente la scheda grafica della recensione
+     */
     private VBox createRecensioneCardRistoratore(Recensione recensione) {
         VBox card = new VBox(8);
         card.setStyle("-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-radius: 8; " +
@@ -244,6 +326,9 @@ public class DashboardRistoratoreController implements Initializable {
         return card;
     }
 
+    /**
+     * Gestisce l'azione di click sul pulsante Aggiungi Ristorante, mostrando la schermata di creazione ristorante.
+     */
     @FXML
     private void handleAggiungiRistorante() {
         try {
@@ -256,6 +341,9 @@ public class DashboardRistoratoreController implements Initializable {
         }
     }
 
+    /**
+     * Gestisce il filtro sulle recensioni in base al ristorante selezionato nella ComboBox.
+     */
     @FXML
     private void handleFiltroRistorante() {
         String ristoranteSelezionato = filtroRistoranteCombo.getValue();
@@ -267,12 +355,20 @@ public class DashboardRistoratoreController implements Initializable {
         recensioniListView.setItems(FXCollections.observableArrayList(filtrate));
     }
 
+    /**
+     * Rimuove il filtro di selezione ristoranti e mostra tutte le recensioni collegate.
+     */
     @FXML
     private void handleMostraTutte() {
         filtroRistoranteCombo.setValue(null);
         recensioniListView.setItems(FXCollections.observableArrayList(tutteRecensioni));
     }
 
+    /**
+     * Apre la schermata di dettaglio di un ristorante specifico.
+     *
+     * @param ristorante il ristorante {@link Ristorante} da visualizzare
+     */
     private void apriDettaglioRistorante(Ristorante ristorante) {
         try {
             AppNavigator.show("/views/dettaglioRistorante.fxml", (DettaglioRistoranteController controller) -> {
@@ -284,6 +380,11 @@ public class DashboardRistoratoreController implements Initializable {
         }
     }
 
+    /**
+     * Apre la finestra per inviare o modificare una risposta ad una determinata recensione.
+     *
+     * @param recensione la recensione {@link Recensione} a cui rispondere
+     */
     private void apriFinstraRisposta(Recensione recensione) {
         try {
             AppNavigator.show("/views/rispondiRecensione.fxml", (RispondiRecensioneController controller) -> {
@@ -296,6 +397,13 @@ public class DashboardRistoratoreController implements Initializable {
         }
     }
 
+    /**
+     * Helper per mostrare messaggi informativi a schermo tramite finestre di dialogo JavaFX.
+     *
+     * @param title titolo del dialogo
+     * @param header testata del dialogo
+     * @param message corpo del messaggio
+     */
     private void showAlert(String title, String header, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
@@ -304,6 +412,9 @@ public class DashboardRistoratoreController implements Initializable {
         alert.showAndWait();
     }
 
+    /**
+     * Aggiorna e ricarica i dati del ristoratore effettuando una nuova chiamata al server.
+     */
     public void refreshData() {
         if (currentUser != null) loadUserData();
     }

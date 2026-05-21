@@ -40,6 +40,12 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         LEFT JOIN servizi s             ON s.id = rs.servizio_id
         """;
 
+    /**
+     * {@inheritDoc}
+     *
+     * Esegue una query SELECT base ordinando per nome del ristorante.
+     * Recupera le cucine e i servizi aggregandoli come array nativi PostgreSQL.
+     */
     @Override
     public List<Ristorante> findAll() {
         String sql = SELECT_BASE + "GROUP BY r.id ORDER BY r.nome";
@@ -52,6 +58,12 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Cerca il ristorante tramite ID primario eseguendo la query SELECT_BASE
+     * filtrata per "r.id = ?".
+     */
     @Override
     public Optional<Ristorante> findById(long id) {
         String sql = SELECT_BASE + "WHERE r.id = ? GROUP BY r.id";
@@ -66,6 +78,11 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Recupera i ristoranti registrati da uno specifico utente con ruolo di ristoratore.
+     */
     @Override
     public List<Ristorante> findByProprietario(long proprietarioId) {
         String sql = SELECT_BASE + "WHERE r.proprietario_id = ? GROUP BY r.id ORDER BY r.nome";
@@ -80,6 +97,14 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Costruisce dinamicamente la query SQL aggiungendo clausole WHERE in base
+     * ai filtri non vuoti presenti nell'oggetto {@link FiltriRicerca}.
+     * Supporta la ricerca testuale case-insensitive sia per nome/città/nazione che
+     * per cucine e servizi associati tramite sottoquery EXISTS.
+     */
     @Override
     public List<Ristorante> search(FiltriRicerca filtri) {
         if (filtri == null) return findAll();
@@ -192,6 +217,13 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Salva il ristorante e gestisce la persistenza delle relazioni N:M con le tabelle
+     * "cucine" e "servizi" inserendo o recuperando le chiavi esterne tramite tabelle di giunzione.
+     * L'operazione è eseguita all'interno di una transazione atomica con rollback in caso di errore.
+     */
     @Override
     public Ristorante save(Ristorante ristorante) {
         String insertRist = """
@@ -256,6 +288,11 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         return ristorante;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Recupera l'elenco completo dei servizi in ordine alfabetico.
+     */
     @Override
     public List<String> findAllServizi() {
         String sql = "SELECT nome FROM servizi ORDER BY nome";
@@ -270,6 +307,11 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Recupera l'elenco completo dei tipi di cucina in ordine alfabetico.
+     */
     @Override
     public List<String> findAllCucine() {
         String sql = "SELECT nome FROM cucine ORDER BY nome";
@@ -284,6 +326,11 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Recupera tutte le città distinte in cui sono ubicati i ristoranti.
+     */
     @Override
     public List<String> findAllCitta() {
         String sql = "SELECT DISTINCT citta FROM ristoranti WHERE citta IS NOT NULL ORDER BY citta";
@@ -298,6 +345,11 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Recupera tutte le nazioni distinte in cui sono ubicati i ristoranti.
+     */
     @Override
     public List<String> findAllNazioni() {
         String sql = "SELECT DISTINCT nazione FROM ristoranti WHERE nazione IS NOT NULL ORDER BY nazione";
@@ -312,6 +364,12 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Esegue un controllo di unicità a livello logico (nome + indirizzo) ignorando la distinzione
+     * tra maiuscole e minuscole.
+     */
     @Override
     public boolean existsByNomeAndIndirizzo(String nome, String indirizzo) {
         String sql = "SELECT 1 FROM ristoranti WHERE LOWER(nome) = LOWER(?) AND LOWER(indirizzo) = LOWER(?)";
@@ -327,7 +385,16 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         }
     }
 
-    // INSERT nella tabella lookup (cucine/servizi) ignorando duplicati; restituisce l'id.
+    /**
+     * Inserisce un valore in una tabella di lookup (es. cucine, servizi) se non è già presente,
+     * e ne restituisce l'id associato.
+     *
+     * @param conn la connessione al database attiva
+     * @param tabella il nome della tabella in cui inserire il valore
+     * @param valore il valore testuale da inserire (es. "Italiana")
+     * @return l'identificatore univoco del valore
+     * @throws SQLException se si verifica un errore durante l'esecuzione SQL
+     */
     private long upsertLookup(Connection conn, String tabella, String valore) throws SQLException {
         String upsert = "INSERT INTO " + tabella + " (nome) VALUES (?) ON CONFLICT (nome) DO NOTHING";
         String select = "SELECT id FROM " + tabella + " WHERE nome = ?";
@@ -344,7 +411,17 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         }
     }
 
-    // INSERT nella tabella di giunzione ignorando duplicati.
+    /**
+     * Associa due entità inserendo una riga nella tabella di giunzione specificata.
+     *
+     * @param conn la connessione al database attiva
+     * @param tabella la tabella di giunzione (es. "ristoranti_cucine")
+     * @param col1 la colonna della prima chiave esterna
+     * @param col2 la colonna della seconda chiave esterna
+     * @param id1 il valore della prima chiave
+     * @param id2 il valore della seconda chiave
+     * @throws SQLException se si verifica un errore SQL durante l'inserimento
+     */
     private void linkJunction(Connection conn, String tabella,
                                String col1, String col2,
                                long id1, long id2) throws SQLException {
@@ -356,6 +433,13 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         }
     }
 
+    /**
+     * Associa i parametri forniti a un oggetto PreparedStatement dinamico.
+     *
+     * @param ps il PreparedStatement da configurare
+     * @param params la lista dei parametri da associare
+     * @throws SQLException se si verifica un errore di binding
+     */
     private void bindParams(PreparedStatement ps, List<Object> params) throws SQLException {
         for (int i = 0; i < params.size(); i++) {
             Object p = params.get(i);
@@ -364,12 +448,26 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         }
     }
 
+    /**
+     * Colleziona tutte le righe di un ResultSet e le mappa in oggetti Ristorante.
+     *
+     * @param rs il ResultSet da scorrere
+     * @return la lista di {@link Ristorante} estratti
+     * @throws SQLException se si verifica un errore di lettura
+     */
     private List<Ristorante> collectRows(ResultSet rs) throws SQLException {
         List<Ristorante> list = new ArrayList<>();
         while (rs.next()) list.add(mapRow(rs));
         return list;
     }
 
+    /**
+     * Mappa una singola riga del ResultSet in un oggetto Ristorante.
+     *
+     * @param rs il ResultSet posizionato sulla riga corrente
+     * @return il {@link Ristorante} mappato
+     * @throws SQLException se si verifica un errore nel recupero delle colonne o degli array SQL
+     */
     private Ristorante mapRow(ResultSet rs) throws SQLException {
         List<String> cucine  = arrayToList(rs.getArray("cucine_arr"));
         List<String> servizi = arrayToList(rs.getArray("servizi_arr"));
@@ -396,15 +494,35 @@ public class RistoranteDAOImpl implements RistoranteDAO {
         );
     }
 
+    /**
+     * Converte un oggetto Array SQL di stringhe in una lista Java di stringhe.
+     *
+     * @param sqlArray l'array SQL da convertire
+     * @return la lista di stringhe corrispondente, o una lista vuota se l'array è nullo
+     * @throws SQLException se si verifica un errore durante la conversione nativa dell'array
+     */
     private List<String> arrayToList(Array sqlArray) throws SQLException {
         if (sqlArray == null) return new ArrayList<>();
         return new ArrayList<>(Arrays.asList((String[]) sqlArray.getArray()));
     }
 
+    /**
+     * Verifica se una stringa non è nulla e contiene caratteri non-white-space.
+     *
+     * @param s la stringa da controllare
+     * @return true se la stringa è valida e compilata, false altrimenti
+     */
     private boolean isNotBlank(String s) {
         return s != null && !s.isBlank();
     }
 
+    /**
+     * Confeziona una stringa per l'utilizzo in ricerche tramite operatore SQL LIKE (o ILIKE),
+     * racchiudendola tra caratteri percentuale (%).
+     *
+     * @param value il testo da cercare
+     * @return la stringa formattata per la clausola LIKE (es. "%valore%")
+     */
     private String like(String value) {
         return "%" + value.trim() + "%";
     }

@@ -24,6 +24,11 @@ public class UtenteDAOImpl implements UtenteDAO {
         "SELECT id, nome, cognome, username, password_hash, data_nascita, domicilio, ruolo " +
         "FROM utenti ";
 
+    /**
+     * {@inheritDoc}
+     *
+     * Esegue una query SELECT filtrando per lo username fornito.
+     */
     @Override
     public Optional<Utente> findByUsername(String username) {
         try (Connection conn = ConnectionPool.getConnection();
@@ -37,12 +42,22 @@ public class UtenteDAOImpl implements UtenteDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Verifica la password dell'utente confrontandola con l'hash memorizzato tramite BCrypt.
+     */
     @Override
     public Optional<Utente> authenticate(String username, String password) {
         return findByUsername(username)
                 .filter(u -> BCrypt.checkpw(password, u.getPasswordHash()));
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Controlla la presenza dello username a livello case-insensitive.
+     */
     @Override
     public boolean existsByUsername(String username) {
         String sql = "SELECT 1 FROM utenti WHERE LOWER(username) = LOWER(?)";
@@ -57,6 +72,12 @@ public class UtenteDAOImpl implements UtenteDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Inserisce un record nella tabella utenti, con hashing della password già avvenuto a monte.
+     * Restituisce l'utente con l'ID autogenerato.
+     */
     @Override
     public Utente save(Utente utente) {
         String sql = """
@@ -86,6 +107,13 @@ public class UtenteDAOImpl implements UtenteDAO {
         return utente;
     }
 
+    /**
+     * Mappa una riga del ResultSet correntemente posizionato in un oggetto Utente.
+     *
+     * @param rs il ResultSet posizionato sulla riga da estrarre
+     * @return un oggetto {@link Utente} contenente i dati estratti
+     * @throws SQLException se si verifica un errore durante il recupero dei valori delle colonne
+     */
     private Utente mapRow(ResultSet rs) throws SQLException {
         Date dataSql = rs.getDate("data_nascita");
         return new Utente(

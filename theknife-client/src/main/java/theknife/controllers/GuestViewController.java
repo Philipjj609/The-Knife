@@ -21,37 +21,93 @@ import java.util.ResourceBundle;
 import java.util.function.Predicate;
 
 /**
- * Controller per la vista guest (ospite non autenticato).
- * Carica tutti i ristoranti una volta sola e filtra in locale.
+ * Controller JavaFX per la vista guest dell'applicazione (utente non autenticato).
+ * Fa parte del pattern <b>MVC (Model-View-Controller)</b> nel ruolo di Controller.
  *
- * @author Philip Jon Ji Ciuca
+ * <p>Consente a un utente non autenticato (ospite) di consultare l'elenco dei ristoranti
+ * presenti sul portale. Carica asincronamente i ristoranti e i filtri di ricerca dal server
+ * tramite {@link Task} ed effettua ricerche e filtraggi reattivi in locale,
+ * senza possibilità di interagire con le funzioni riservate (come preferiti o recensioni).</p>
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  * @version 3.0
  */
 public class GuestViewController implements Initializable {
 
+    /** Campo di testo per la ricerca libera per parole chiave. */
     @FXML private TextField searchField;
+
+    /** ComboBox per filtrare i ristoranti in base alla cucina. */
     @FXML private ComboBox<String> cuisineComboBox;
+
+    /** ComboBox per filtrare i ristoranti per città. */
     @FXML private ComboBox<String> cittaComboBox;
+
+    /** ComboBox per filtrare i ristoranti per nazione. */
     @FXML private ComboBox<String> nazioneComboBox;
+
+    /** ComboBox per filtrare per livello/fascia di prezzo. */
     @FXML private ComboBox<String> priceRangeComboBox;
+
+    /** ComboBox per filtrare per riconoscimento Michelin. */
     @FXML private ComboBox<String> starsComboBox;
+
+    /** ComboBox per filtrare per servizio aggiuntivo offerto. */
     @FXML private ComboBox<String> serviceComboBox;
+
+    /** Checkbox per filtrare solo i ristoranti con servizio a domicilio. */
     @FXML private CheckBox deliveryCheckBox;
+
+    /** Checkbox per filtrare solo i ristoranti che accettano prenotazioni online. */
     @FXML private CheckBox onlineBookingCheckBox;
+
+    /** Checkbox per filtrare solo i ristoranti insigniti di Stella Verde Michelin. */
     @FXML private CheckBox greenStarCheckBox;
+
+    /** Pulsante per attivare la ricerca applicando i filtri. */
     @FXML private Button searchButton;
+
+    /** Pulsante per ripulire tutti i parametri di filtro. */
     @FXML private Button resetButton;
+
+    /** ListView per mostrare l'elenco dei ristoranti filtrati. */
     @FXML private ListView<Ristorante> restaurantListView;
+
+    /** Pulsante per accedere al dettaglio del ristorante selezionato. */
     @FXML private Button detailsButton;
+
+    /** Pulsante per localizzare il ristorante selezionato sulla mappa. */
     @FXML private Button mapButton;
+
+    /** Etichetta di testo per mostrare il numero totale di ristoranti corrispondenti ai filtri. */
     @FXML private Text totalRestaurantsLabel;
+
+    /** Etichetta di testo per mostrare il numero di ristoranti stellati corrispondenti ai filtri. */
     @FXML private Text michelinStarsLabel;
+
+    /** Etichetta di testo per mostrare il numero di ristoranti con stella verde Michelin corrispondenti ai filtri. */
     @FXML private Text greenStarsLabel;
+
+    /** Etichetta di caricamento che indica l'avanzamento delle operazioni di rete. */
     @FXML private Label loadingLabel;
 
+    /** Lista osservabile contenente l'elenco dei ristoranti correntemente filtrati. */
     private ObservableList<Ristorante> filteredRestaurants;
+
+    /** Lista completa di tutti i ristoranti caricata all'avvio dal server. */
     private List<Ristorante> allRestaurants = new ArrayList<>();
 
+    /**
+     * Inizializza il controller. Configura la ListView, imposta le liste dei filtri statici,
+     * e avvia un {@link Task} asincrono su un thread secondario per il caricamento iniziale dei
+     * ristoranti e delle opzioni di ricerca dal server, evitando di bloccare la UI principale.
+     *
+     * @param location  l'URL della risorsa FXML (non utilizzato direttamente).
+     * @param resources il ResourceBundle per l'internazionalizzazione (non utilizzato direttamente).
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         filteredRestaurants = FXCollections.observableArrayList();
@@ -117,6 +173,10 @@ public class GuestViewController implements Initializable {
         new Thread(initTask).start();
     }
 
+    /**
+     * Configura la ListView impostando la cell factory personalizzata per renderizzare
+     * ciascun ristorante tramite una card visiva, e configura i listener di selezione.
+     */
     private void setupUI() {
         restaurantListView.setCellFactory(lv -> new ListCell<>() {
             @Override
@@ -145,6 +205,14 @@ public class GuestViewController implements Initializable {
         });
     }
 
+    /**
+     * Crea un componente grafico (VBox) per visualizzare in modo elegante i dati di un ristorante,
+     * inclusi nome, cucina, località, prezzo e i vari badge di riconoscimento (Stelle Michelin,
+     * Stella Verde, Prenotazione Online).
+     *
+     * @param ristorante il ristorante da rappresentare.
+     * @return un {@link VBox} configurato con tutti i controlli grafici.
+     */
     private VBox createRestaurantCard(Ristorante ristorante) {
         VBox card = new VBox(10);
         card.getStyleClass().add("restaurant-card");
@@ -191,6 +259,10 @@ public class GuestViewController implements Initializable {
         return card;
     }
 
+    /**
+     * Gestisce l'azione di ricerca e filtraggio dei ristoranti.
+     * Filtra localmente l'elenco completo caricato in memoria e aggiorna la ListView.
+     */
     @FXML
     private void handleSearch() {
         Predicate<Ristorante> predicate = buildPredicate();
@@ -198,6 +270,9 @@ public class GuestViewController implements Initializable {
         updateStatistics();
     }
 
+    /**
+     * Ripristina tutti i filtri di ricerca ai valori originari e rinfresca la lista completa dei ristoranti.
+     */
     @FXML
     private void handleReset() {
         searchField.clear();
@@ -214,6 +289,11 @@ public class GuestViewController implements Initializable {
         updateStatistics();
     }
 
+    /**
+     * Aggiorna asincronamente la lista dei ristoranti interrogando nuovamente il server.
+     * Utilizza un {@link Task} asincrono per non congelare la UI durante la chiamata socket
+     * verso {@code ClientTK}.
+     */
     @FXML
     private void handleAggiorna() {
         loadingLabel.setText("Aggiornamento ristoranti...");
@@ -252,18 +332,29 @@ public class GuestViewController implements Initializable {
         new Thread(aggiornaTask).start();
     }
 
+    /**
+     * Mostra la finestra dei dettagli per il ristorante selezionato.
+     */
     @FXML
     private void handleDetails() {
         Ristorante sel = restaurantListView.getSelectionModel().getSelectedItem();
         if (sel != null) openRestaurantDetails(sel);
     }
 
+    /**
+     * Mostra la mappa della posizione del ristorante selezionato.
+     */
     @FXML
     private void handleMap() {
         Ristorante sel = restaurantListView.getSelectionModel().getSelectedItem();
         if (sel != null) showOnMap(sel);
     }
 
+    /**
+     * Genera un predicato composto che applica i filtri impostati dall'utente.
+     *
+     * @return il {@link Predicate} di filtraggio da applicare alla lista.
+     */
     private Predicate<Ristorante> buildPredicate() {
         Predicate<Ristorante> p = r -> true;
 
@@ -328,6 +419,12 @@ public class GuestViewController implements Initializable {
         return p;
     }
 
+    /**
+     * Apre la schermata di dettaglio per il ristorante specificato, impostando l'utente a null
+     * in quanto l'utente ospite non è autenticato.
+     *
+     * @param restaurant il ristorante da visualizzare.
+     */
     private void openRestaurantDetails(Ristorante restaurant) {
         try {
             AppNavigator.show("/views/dettaglioRistorante.fxml", (DettaglioRistoranteController controller) -> {
@@ -339,6 +436,13 @@ public class GuestViewController implements Initializable {
         }
     }
 
+    /**
+     * Mostra la mappa della posizione del ristorante selezionato.
+     * Se le coordinate GPS sono 0,0 mostra un alert informativo di errore.
+     * Se l'apertura dialog fallisce (es. per problemi FXML), ripiega mostrando le coordinate testuali.
+     *
+     * @param restaurant il ristorante da visualizzare sulla mappa.
+     */
     private void showOnMap(Ristorante restaurant) {
         if (restaurant.getLatitudine() == 0.0 && restaurant.getLongitudine() == 0.0) {
             showAlert("Info", "Posizione non disponibile",
@@ -355,6 +459,9 @@ public class GuestViewController implements Initializable {
         }
     }
 
+    /**
+     * Aggiorna le etichette di testo con i conteggi statistici relativi all'elenco dei ristoranti filtrati.
+     */
     private void updateStatistics() {
         totalRestaurantsLabel.setText(String.valueOf(filteredRestaurants.size()));
         michelinStarsLabel.setText(String.valueOf(
@@ -363,6 +470,13 @@ public class GuestViewController implements Initializable {
                 filteredRestaurants.stream().filter(Ristorante::isGreenStar).count()));
     }
 
+    /**
+     * Helper per mostrare una finestra di dialogo di tipo {@link Alert.AlertType#INFORMATION}.
+     *
+     * @param title   il titolo della finestra.
+     * @param header  l'intestazione dell'alert.
+     * @param message il messaggio descrittivo da visualizzare.
+     */
     private void showAlert(String title, String header, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);

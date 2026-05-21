@@ -16,32 +16,44 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Controller per la finestra di dialogo mappa.
- * Mostra coordinate, URL Google Maps e fornisce comandi per copiare
- * e aprire la posizione nel browser.
+ * Controller JavaFX per il dialogo di visualizzazione geografica del ristorante (Mappa).
+ * Mostra le coordinate geografiche (latitudine, longitudine) e un URL cliccabile/copiabile
+ * per localizzare il ristorante su Google Maps.
  *
- * @author Philip Jon Ji Ciuca
- * @version 1.0
+ * <p>Fa parte del pattern <b>MVC (Model-View-Controller)</b> come Controller.
+ * Le interazioni grafiche, la gestione della clipboard di sistema e l'avvio del browser predefinito
+ * avvengono in modo sincrono sul thread JavaFX.</p>
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  */
 public class MapDialogController implements Initializable {
-    @FXML
-    private Text titleLabel;
-    @FXML
-    private TextField latitudeField;
-    @FXML
-    private TextField longitudeField;
-    @FXML
-    private TextField urlField;
 
+    /** Label per il titolo del dialogo che riporta il nome del ristorante. */
+    @FXML private Text titleLabel;
+
+    /** Campo di testo di sola lettura per la latitudine del ristorante. */
+    @FXML private TextField latitudeField;
+
+    /** Campo di testo di sola lettura per la longitudine del ristorante. */
+    @FXML private TextField longitudeField;
+
+    /** Campo di testo di sola lettura per l'URL di Google Maps del ristorante. */
+    @FXML private TextField urlField;
+
+    /** Il ristorante correntemente mostrato nella dialog. */
     private Ristorante restaurant;
+
+    /** L'URL formattato di Google Maps corrispondente alle coordinate del ristorante. */
     private String mapUrl;
 
     /**
-     * Inizializzazione del controller (JavaFX lifecycle).
+     * Metodo di inizializzazione JavaFX.
      *
-     * @param location  URL della risorsa FXML (ignored)
-     * @param resources ResourceBundle eventualmente fornito (ignored)
-     * @since 1.0
+     * @param location l'URL FXML
+     * @param resources il ResourceBundle
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -49,10 +61,9 @@ public class MapDialogController implements Initializable {
     }
 
     /**
-     * Imposta il ristorante da mostrare nella dialog e aggiorna i campi.
+     * Associa il ristorante a questa dialog ed esegue il popolamento dei relativi campi.
      *
-     * @param restaurant Oggetto Ristorante, must be non-null.
-     * @since 1.0
+     * @param restaurant il {@link Ristorante} da visualizzare
      */
     public void setRestaurant(Ristorante restaurant) {
         this.restaurant = restaurant;
@@ -60,10 +71,7 @@ public class MapDialogController implements Initializable {
     }
 
     /**
-     * Aggiorna i campi della UI (coordinate e URL Google Maps) in base al ristorante impostato.
-     * Non modifica lo stato esterno all'applicazione.
-     *
-     * @since 1.0
+     * Aggiorna i campi testuali della UI formattando le coordinate e calcolando l'URL di Google Maps.
      */
     private void updateFields() {
         if (restaurant != null) {
@@ -78,9 +86,7 @@ public class MapDialogController implements Initializable {
     }
 
     /**
-     * Copia la latitudine negli appunti di sistema.
-     *
-     * @since 1.0
+     * Copia il valore della latitudine negli appunti (Clipboard) del sistema operativo.
      */
     @FXML
     private void copyLatitude() {
@@ -88,9 +94,7 @@ public class MapDialogController implements Initializable {
     }
 
     /**
-     * Copia la longitudine negli appunti di sistema.
-     *
-     * @since 1.0
+     * Copia il valore della longitudine negli appunti (Clipboard) del sistema operativo.
      */
     @FXML
     private void copyLongitude() {
@@ -98,9 +102,7 @@ public class MapDialogController implements Initializable {
     }
 
     /**
-     * Copia l'URL di Google Maps negli appunti di sistema.
-     *
-     * @since 1.0
+     * Copia l'URL di Google Maps generato negli appunti (Clipboard) del sistema operativo.
      */
     @FXML
     private void copyUrl() {
@@ -108,13 +110,8 @@ public class MapDialogController implements Initializable {
     }
 
     /**
-     * Apre la posizione corrente nel browser predefinito.
-     * <p>
-     * Se il desktop è supportato prova ad aprire l'URI, altrimenti non fa nulla.
-     * Eventuali eccezioni vengono catturate internamente.
-     * </p>
-     *
-     * @since 1.0
+     * Apre l'URL di Google Maps all'interno del browser web predefinito di sistema.
+     * Utilizza la classe {@link Desktop} se supportata dal sistema operativo ospite.
      */
     @FXML
     private void openInBrowser() {
@@ -130,9 +127,7 @@ public class MapDialogController implements Initializable {
     }
 
     /**
-     * Chiude la finestra di dialogo mappa.
-     *
-     * @since 1.0
+     * Chiude la finestra di dialogo ritornando alla vista principale.
      */
     @FXML
     private void close() {
@@ -140,10 +135,9 @@ public class MapDialogController implements Initializable {
     }
 
     /**
-     * Copia il testo fornito negli appunti di sistema.
+     * Metodo di supporto per inserire una stringa testuale nella clipboard di sistema.
      *
-     * @param text Testo da copiare, deve essere non-null.
-     * @since 1.0
+     * @param text la stringa da copiare
      */
     private void copyToClipboard(String text) {
         Clipboard clipboard = Clipboard.getSystemClipboard();

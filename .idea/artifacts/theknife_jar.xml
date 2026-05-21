@@ -2,7 +2,6 @@
   <artifact type="jar" name="theknife:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/theknife_jar</output-path>
     <root id="archive" name="theknife.jar">
-      <element id="module-output" name="theknife" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-graphics/22.0.1/javafx-graphics-22.0.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-fxml/22.0.1/javafx-fxml-22.0.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-controls/22.0.1/javafx-controls-22.0.1-win.jar" path-in-jar="/" />
@@ -12,6 +11,21 @@
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/mindrot/jbcrypt/0.4/jbcrypt-0.4.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-graphics/22.0.1/javafx-graphics-22.0.1-win.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/openjfx/javafx-controls/22.0.1/javafx-controls-22.0.1.jar" path-in-jar="/" />
+      <element id="library" level="project" name="Maven: org.openjfx:javafx-controls:22.0.1" />
+      <element id="library" level="project" name="Maven: org.openjfx:javafx-controls:win:22.0.1" />
+      <element id="library" level="project" name="Maven: org.openjfx:javafx-graphics:22.0.1" />
+      <element id="library" level="project" name="Maven: org.openjfx:javafx-graphics:win:22.0.1" />
+      <element id="library" level="project" name="Maven: org.openjfx:javafx-base:22.0.1" />
+      <element id="library" level="project" name="Maven: org.openjfx:javafx-base:win:22.0.1" />
+      <element id="library" level="project" name="Maven: org.openjfx:javafx-fxml:22.0.1" />
+      <element id="library" level="project" name="Maven: org.openjfx:javafx-fxml:win:22.0.1" />
+      <element id="module-output" name="theknife-common" />
+      <element id="module-output" name="theknife-server" />
+      <element id="library" level="project" name="Maven: org.postgresql:postgresql:42.7.3" />
+      <element id="library" level="project" name="Maven: org.checkerframework:checker-qual:3.42.0" />
+      <element id="library" level="project" name="Maven: com.zaxxer:HikariCP:5.1.0" />
+      <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.36" />
+      <element id="library" level="project" name="Maven: org.mindrot:jbcrypt:0.4" />
     </root>
   </artifact>
 </component>

@@ -8,14 +8,20 @@ package theknife.controllers;
  * */
 
 /**
- * Controller principale della schermata home dell'applicazione.
- * Gestisce il caricamento delle viste guest o della dashboard in base
- * allo stato di autenticazione, l'apertura della finestra di login e
- * la visualizzazione del menu utente.
+ * Controller principale della schermata Home dell'applicazione "The Knife".
+ * Fa parte del pattern <b>MVC (Model-View-Controller)</b> nel ruolo di Controller.
  *
- * Fornisce metodi per impostare e rimuovere l'utente loggato.
+ * <p>Gestisce lo stato complessivo di navigazione e visualizzazione del client:
+ * all'avvio mostra una schermata di benvenuto programmata e permette all'utente
+ * di autenticarsi (aprendo il login in modalità modale) o accedere come ospite.
+ * In base al ruolo dell'utente loggato (Cliente o Ristoratore), coordina il caricamento
+ * dinamico delle rispettive dashboard nel contenitore centrale {@link StackPane},
+ * delegando la navigazione ad {@link AppNavigator}.</p>
  *
- * @author Philip Jon Ji Ciuca
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
  * @version 1.0
  */
 import javafx.fxml.FXML;
@@ -38,12 +44,19 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class HomeController implements Initializable {
+
+    /** Contenitore StackPane principale in cui vengono caricate dinamicamente le varie viste dell'applicazione. */
     @FXML
     private StackPane contentPane;
+
+    /** Pulsante posizionato nella barra superiore per accedere, visualizzare il profilo o effettuare il logout. */
     @FXML
     private Button loginButton;
 
+    /** Oggetto contenente i dettagli dell'utente attualmente autenticato. Pari a null se non autenticato. */
     private Utente utenteLoggato;
+
+    /** Flag che indica se l'applicazione è in esecuzione in modalità ospite (non autenticato). */
     private boolean guestMode;
 
     /**
@@ -165,6 +178,11 @@ public class HomeController implements Initializable {
         loadContent();
     }
 
+    /**
+     * Gestisce l'accesso dell'utente come ospite (non autenticato).
+     * Imposta il flag guestMode a true, aggiorna la barra superiore della UI
+     * e carica la vista guest.
+     */
     private void handleGuestAccess() {
         guestMode = true;
         updateUI();
@@ -172,12 +190,13 @@ public class HomeController implements Initializable {
     }
 
     /**
-     * Carica la dashboard appropriata per il ruolo dell'utente loggato.
-     * <p>
-     * Passa l'utente corrente al controller della dashboard.
-     * </p>
+     * Carica la dashboard appropriata in base al ruolo dell'utente loggato.
      *
-     * @since 1.0
+     * <p>In caso di {@link Role#CLIENTE}, viene caricata la vista {@code dashboardCliente.fxml}
+     * configurando il relativo {@link DashboardClienteController}. In caso di {@link Role#RISTORATORE},
+     * viene caricata {@code dashboardRistoratore.fxml} configurando {@link DashboardRistoratoreController}.
+     * Qualora il caricamento della vista fallisca lanciando una {@link IOException}, mostra
+     * un alert di errore ed esegue il fallback caricando la vista guest.</p>
      */
     private void loadDashboard() {
         try {
@@ -207,9 +226,8 @@ public class HomeController implements Initializable {
     }
 
     /**
-     * Carica la vista guest nella contentPane.
-     *
-     * @since 1.0
+     * Carica nel pannello centrale dell'interfaccia la vista ospite ({@code guestView.fxml}).
+     * Qualora il caricamento fallisca a causa di una {@link IOException}, mostra un alert di errore.
      */
     private void loadGuestContent() {
         try {
@@ -222,6 +240,10 @@ public class HomeController implements Initializable {
         }
     }
 
+    /**
+     * Carica e crea programmaticamente (via codice JavaFX) il contenuto di benvenuto iniziale
+     * contenente il titolo, il sottotitolo e i pulsanti per accedere o continuare come ospite.
+     */
     private void loadWelcomeContent() {
         VBox panel = new VBox(18);
         panel.setAlignment(Pos.CENTER);
@@ -254,6 +276,11 @@ public class HomeController implements Initializable {
         AppNavigator.clearHistory();
     }
 
+    /**
+     * Mostra una finestra di dialogo di tipo {@link Alert.AlertType#ERROR} con un messaggio personalizzato.
+     *
+     * @param message il messaggio descrittivo dell'errore da visualizzare.
+     */
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Errore");

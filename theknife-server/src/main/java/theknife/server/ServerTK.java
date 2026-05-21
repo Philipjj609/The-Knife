@@ -30,8 +30,37 @@ import java.util.concurrent.TimeUnit;
  * @author Davide Caccia, 760742, Sede CO
  */
 
+/**
+ * Entry-point principale dell'applicazione server per <i>The Knife</i>.
+ * 
+ * Si occupa di:
+ * <ul>
+ *   <li>Richiedere le credenziali del database (pgAdmin / PostgreSQL) a console o risolverle da file.</li>
+ *   <li>Verificare l'esistenza del database e dello schema tramite {@link DBCheck}.</li>
+ *   <li>Inizializzare il pool di connessioni globali con {@link ConnectionPool}.</li>
+ *   <li>Avviare un socket server su porta dedicata che accetta connessioni client in arrivo.</li>
+ *   <li>Spedire ogni client a un {@link GestoreClient} in esecuzione su un thread di un {@link ExecutorService} pool fisso.</li>
+ * </ul>
+ *
+ * <p>Avvio da terminale:
+ * <pre>
+ *   java -cp theknife-server-shaded.jar theknife.server.ServerTK
+ * </pre>
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 public class ServerTK {
 
+    /**
+     * Entry-point che avvia il server, caricando la configurazione, richiedendo le credenziali,
+     * effettuando i check sul DB ed entrando nel loop infinito di accettazione dei socket client.
+     *
+     * @param args argomenti passati da riga di comando (non utilizzati)
+     * @throws Exception per errori generici durante l'avvio del server o del socket
+     */
     public static void main(String[] args) throws Exception {
         System.out.println("=== TheKnife Server ===");
 
@@ -84,6 +113,14 @@ public class ServerTK {
 
     // -------------------------------------------------------------------------
 
+    /**
+     * Interroga l'amministratore del server tramite console di sistema per acquisire
+     * i parametri di connessione e le credenziali di PostgreSQL. In assenza di valori immessi,
+     * vengono scelti i parametri di default letti da db.properties.
+     *
+     * @param defaults i parametri di configurazione predefiniti caricati da file
+     * @return un oggetto {@link Properties} con i parametri inseriti o predefiniti
+     */
     private static Properties promptCredenziali(Properties defaults) {
         Scanner scanner = new Scanner(System.in);
         Properties props = new Properties(defaults);
@@ -110,7 +147,11 @@ public class ServerTK {
     }
 
     /**
-     * Se il database non esiste lo crea e applica schema.sql dal classpath.
+     * Tenta una connessione e se il database non esiste, effettua la chiamata per crearlo
+     * ed applicare lo script SQL schema.sql.
+     *
+     * @param props le proprietà con le credenziali del database
+     * @throws Exception in caso di errore di connessione SQL o fallimento I/O
      */
     private static void assicuraDatabase(Properties props) throws Exception {
         String url      = props.getProperty("db.url");
@@ -145,12 +186,24 @@ public class ServerTK {
         System.out.printf("Database '%s' creato e schema applicato.%n%n", dbName);
     }
 
+    /**
+     * Estrae il nome del database relazionale analizzando l'URL di connessione JDBC PostgreSQL.
+     *
+     * @param jdbcUrl stringa dell'URL di connessione JDBC
+     * @return il nome del database
+     */
     private static String estraiNomeDb(String jdbcUrl) {
         String path = jdbcUrl.substring(jdbcUrl.lastIndexOf('/') + 1);
         int q = path.indexOf('?');
         return q >= 0 ? path.substring(0, q) : path;
     }
 
+    /**
+     * Legge ed esegue lo script SQL schema.sql caricandolo dal classpath.
+     *
+     * @param conn la connessione JDBC attiva su cui applicare lo schema
+     * @throws Exception in caso di errore SQL o problemi di lettura I/O del file
+     */
     private static void applicaSchema(Connection conn) throws Exception {
         try (InputStream in = ServerTK.class.getResourceAsStream("/schema.sql")) {
             if (in == null) throw new IOException("schema.sql non trovato nel classpath del server");
@@ -166,6 +219,12 @@ public class ServerTK {
         }
     }
 
+    /**
+     * Carica il file `db.properties` contenente i parametri di configurazione del server.
+     *
+     * @return le proprietà configurate
+     * @throws IOException se il file delle proprietà non è reperibile nel classpath o non leggibile
+     */
     private static Properties caricaConfig() throws IOException {
         Properties props = new Properties();
         try (InputStream in = ServerTK.class.getResourceAsStream("/db.properties")) {

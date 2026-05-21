@@ -10,9 +10,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Implementazione JDBC dell'interfaccia PreferitiDAO.
+ * Implementazione concreta dell'interfaccia {@link PreferitiDAO} basata su database relazionale PostgreSQL.
  *
- * Gestisce la persistenza nel database delle preferenze sui ristoranti.
+ * Questa classe implementa il pattern <b>DAO</b> (Data Access Object) ed è stateless. 
+ * Ogni operazione acquisisce in modo thread-safe una connessione dal gestore globale {@link ConnectionPool}.
  *
  * @author Philip Jon Ji Ciuca, 761446, Sede CO
  * @author Samuele Secchi, 761031, Sede CO
@@ -21,6 +22,15 @@ import java.util.List;
  */
 public class PreferitiDAOImpl implements PreferitiDAO {
 
+    /**
+     * {@inheritDoc}
+     * Esegue una query di INSERT sulla tabella dei preferiti. Gestisce le eccezioni SQL convertendole
+     * in eccezioni di runtime descrittive.
+     *
+     * @param username     lo username dell'utente
+     * @param ristoranteId l'identificativo univoco del ristorante da inserire
+     * @throws RuntimeException in caso di errori di connessione SQL o vincoli di integrità referenziale
+     */
     @Override
     public void add(String username, long ristoranteId) {
         String sql = "INSERT INTO preferiti (username, ristorante_id) VALUES (?, ?) ON CONFLICT DO NOTHING";
@@ -34,6 +44,14 @@ public class PreferitiDAOImpl implements PreferitiDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * Esegue una query di DELETE per rimuovere l'associazione tra l'utente ed il ristorante preferito.
+     *
+     * @param username     lo username dell'utente
+     * @param ristoranteId l'identificativo del ristorante da rimuovere
+     * @throws RuntimeException in caso di errori gravi di esecuzione SQL
+     */
     @Override
     public void remove(String username, long ristoranteId) {
         String sql = "DELETE FROM preferiti WHERE username = ? AND ristorante_id = ?";
@@ -47,6 +65,15 @@ public class PreferitiDAOImpl implements PreferitiDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * Controlla l'esistenza di un record nella tabella preferiti filtrato per username e ID ristorante.
+     *
+     * @param username     lo username dell'utente
+     * @param ristoranteId l'identificativo del ristorante
+     * @return true se il ristorante è tra i preferiti dell'utente, false altrimenti
+     * @throws RuntimeException in caso di errore di connettività al database
+     */
     @Override
     public boolean isPreferito(String username, long ristoranteId) {
         String sql = "SELECT 1 FROM preferiti WHERE username = ? AND ristorante_id = ?";
@@ -62,6 +89,15 @@ public class PreferitiDAOImpl implements PreferitiDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * Recupera l'elenco dei ristoranti preferiti ordinati per data decrescente di aggiunta.
+     * Effettua l'aggregazione degli array delle cucine e dei servizi per ridurre il numero di query.
+     *
+     * @param username lo username dell'utente
+     * @return la lista di oggetti {@link Ristorante} preferiti
+     * @throws RuntimeException in caso di anomalie di esecuzione della query relazionale
+     */
     @Override
     public List<Ristorante> findByUtente(String username) {
         // Stessa struttura di RistoranteDAOImpl ma filtrata su preferiti
@@ -96,6 +132,13 @@ public class PreferitiDAOImpl implements PreferitiDAO {
         }
     }
 
+    /**
+     * Mappa una singola riga estratta dal {@link ResultSet} in un oggetto {@link Ristorante}.
+     *
+     * @param rs il ResultSet SQL posizionato sulla riga corrente
+     * @return un'istanza compilata del modello {@link Ristorante}
+     * @throws SQLException in caso di errore di lettura delle colonne SQL
+     */
     private Ristorante mapRow(ResultSet rs) throws SQLException {
         List<String> cucine  = arrayToList(rs.getArray("cucine_arr"));
         List<String> servizi = arrayToList(rs.getArray("servizi_arr"));
@@ -122,11 +165,26 @@ public class PreferitiDAOImpl implements PreferitiDAO {
         );
     }
 
+    /**
+     * Converte un oggetto {@link Array} SQL contenente stringhe in una lista Java di tipo {@link List}.
+     *
+     * @param sqlArray l'array SQL recuperato da database
+     * @return una lista Java contenente gli elementi dell'array, o una lista vuota in caso di parametro nullo
+     * @throws SQLException se si verifica un errore durante il recupero dei dati dell'array SQL
+     */
     private List<String> arrayToList(Array sqlArray) throws SQLException {
         if (sqlArray == null) return new ArrayList<>();
         return new ArrayList<>(Arrays.asList((String[]) sqlArray.getArray()));
     }
 
+    /**
+     * Genera un messaggio di errore personalizzato in base allo stato dell'eccezione {@link SQLException}.
+     * Riconosce le violazioni di vincolo di chiave esterna (SQLState 23503).
+     *
+     * @param e     l'eccezione SQL intercettata
+     * @param azione la stringa descrittiva dell'azione in corso (es. "aggiungere", "rimuovere")
+     * @return una stringa descrittiva contenente il motivo dell'errore
+     */
     private String messaggioErrorePreferito(SQLException e, String azione) {
         if ("23503".equals(e.getSQLState())) {
             return "Impossibile " + azione + " il preferito: utente o ristorante non valido";

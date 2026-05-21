@@ -20,8 +20,15 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * Controller per il dashboard utente (Cliente).
- * Usa ClientTK per ottenere i dati dal server.
+ * Controller JavaFX per la dashboard riservata all'utente con ruolo "Cliente".
+ * Fa parte del pattern <b>MVC (Model-View-Controller)</b> nel ruolo di Controller.
+ *
+ * <p>Gestisce la visualizzazione delle informazioni sul profilo dell'utente loggato,
+ * il riepilogo delle sue statistiche personali (numero recensioni, media valutazioni, numero preferiti),
+ * e gli elenchi personali di recensioni scritte e ristoranti preferiti tramite componenti {@link ListView}.
+ * Interagisce asincronamente con la Facade {@link ClientTK} per l'ottenimento dei dati e la gestione delle
+ * operazioni di modifica ed eliminazione recensioni o rimozione dai preferiti, impiegando thread in background
+ * e {@link Platform#runLater(Runnable)} per garantire l'aggiornamento sicuro e reattivo dell'interfaccia utente.</p>
  *
  * @author Philip Jon Ji Ciuca, 761446, Sede CO
  * @author Samuele Secchi, 761031, Sede CO
@@ -31,28 +38,60 @@ import java.util.ResourceBundle;
  */
 public class DashboardClienteController implements Initializable {
 
+    /** Testo di benvenuto personalizzato con il nome dell'utente. */
     @FXML private Text benvenutoLabel;
+
+    /** Contatore delle recensioni inserite dall'utente. */
     @FXML private Text numRecensioniLabel;
+
+    /** Valore medio delle valutazioni date dall'utente con rappresentazione a stelle. */
     @FXML private Text mediaValutazioniLabel;
+
+    /** Contatore dei ristoranti salvati nei preferiti dell'utente. */
     @FXML private Text preferitiLabel;
+
+    /** Lista grafica per la visualizzazione delle recensioni scritte dall'utente. */
     @FXML private ListView<Recensione> recensioniListView;
+
+    /** Lista grafica per la visualizzazione dei ristoranti preferiti salvati dall'utente. */
     @FXML private ListView<Ristorante> preferitiListView;
+
+    /** Messaggio mostrato qualora la lista delle recensioni sia vuota. */
     @FXML private Label nessueRecensioniLabel;
+
+    /** Messaggio mostrato qualora la lista dei preferiti sia vuota. */
     @FXML private Label nessunPreferitoLabel;
 
+    /** L'utente cliente correntemente loggato. */
     private Utente currentUser;
 
+    /**
+     * Inizializza il controller JavaFX. Imposta i custom cell factory per le ListView
+     * al fine di rendere le schede personalizzate (card) per recensioni e preferiti.
+     * Metodo richiamato automaticamente dopo il caricamento del file FXML.
+     *
+     * @param location l'URL di localizzazione del file FXML
+     * @param resources il bundle di risorse localizzate
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setupRecensioniListView();
         setupPreferitiListView();
     }
 
+    /**
+     * Associa l'utente cliente correntemente loggato ed avvia il caricamento dei suoi dati dal server.
+     *
+     * @param user l'utente {@link Utente} loggato
+     */
     public void setCurrentUser(Utente user) {
         this.currentUser = user;
         loadUserData();
     }
 
+    /**
+     * Configura la visualizzazione personalizzata degli elementi della ListView delle recensioni.
+     */
     private void setupRecensioniListView() {
         recensioniListView.setCellFactory(lv -> new ListCell<>() {
             @Override
@@ -63,6 +102,9 @@ public class DashboardClienteController implements Initializable {
         });
     }
 
+    /**
+     * Configura la visualizzazione personalizzata degli elementi della ListView dei preferiti.
+     */
     private void setupPreferitiListView() {
         preferitiListView.setCellFactory(lv -> new ListCell<>() {
             @Override
@@ -73,6 +115,12 @@ public class DashboardClienteController implements Initializable {
         });
     }
 
+    /**
+     * Avvia un thread in background per scaricare in modo asincrono dal server (tramite {@link ClientTK})
+     * l'elenco delle recensioni e dei preferiti associati all'utente corrente.
+     * I dati ottenuti vengono poi impostati sulle rispettive ListView e utilizzati per calcolare
+     * le statistiche nel JavaFX Application Thread.
+     */
     private void loadUserData() {
         if (currentUser == null) return;
 
@@ -118,6 +166,13 @@ public class DashboardClienteController implements Initializable {
         new Thread(task).start();
     }
 
+    /**
+     * Calcola e aggiorna le informazioni statistiche dell'utente (numero recensioni, preferiti, media stelle)
+     * mostrandole nei rispettivi nodi di testo della UI.
+     *
+     * @param recensioni la lista delle recensioni dell'utente
+     * @param preferiti la lista dei ristoranti preferiti dell'utente
+     */
     private void updateStatistiche(List<Recensione> recensioni, List<Ristorante> preferiti) {
         numRecensioniLabel.setText(String.valueOf(recensioni.size()));
         preferitiLabel.setText(String.valueOf(preferiti.size()));
@@ -131,6 +186,15 @@ public class DashboardClienteController implements Initializable {
         }
     }
 
+    /**
+     * Crea dinamicamente un elemento grafico (VBox) che rappresenta la card di una recensione.
+     * Include dettagli come nome ristorante, valutazione a stelle, data, titolo, corpo troncato,
+     * l'indicazione di un'eventuale risposta del ristoratore, pulsanti di modifica/eliminazione
+     * ed il supporto al doppio click per navigare al ristorante recensito.
+     *
+     * @param recensione l'oggetto {@link Recensione} da mostrare
+     * @return il contenitore grafico {@link VBox} configurato
+     */
     private VBox createRecensioneCard(Recensione recensione) {
         VBox card = new VBox(8);
         card.setStyle("-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-radius: 8; " +
@@ -189,6 +253,12 @@ public class DashboardClienteController implements Initializable {
         return card;
     }
 
+    /**
+     * Richiede asincronamente i dati completi del ristorante associato alla recensione dal server,
+     * quindi apre in modo asincrono (su JavaFX Thread) la schermata per la modifica della recensione.
+     *
+     * @param recensione la recensione {@link Recensione} da modificare
+     */
     private void apriModificaRecensione(Recensione recensione) {
         new Thread(() -> Main.getClient().getRistorante(recensione.getRistoranteId()).ifPresent(ristorante ->
             Platform.runLater(() -> {
@@ -206,6 +276,13 @@ public class DashboardClienteController implements Initializable {
         )).start();
     }
 
+    /**
+     * Mostra una finestra di dialogo di conferma per procedere all'eliminazione di una recensione.
+     * Se confermato, avvia un thread in background che notifica il server tramite la Facade di rete
+     * e aggiorna la schermata principale al termine del processo.
+     *
+     * @param recensione la recensione {@link Recensione} da eliminare
+     */
     private void confermaEliminaRecensione(Recensione recensione) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Elimina Recensione");
@@ -221,6 +298,14 @@ public class DashboardClienteController implements Initializable {
         });
     }
 
+    /**
+     * Crea dinamicamente un elemento grafico (VBox) che rappresenta la card di un ristorante preferito.
+     * Mostra dettagli come nome, tipo di cucina, stelle Michelin, città, fascia di prezzo
+     * e un pulsante per rimuovere il ristorante dai preferiti, oltre al supporto al doppio click per navigare al dettaglio.
+     *
+     * @param ristorante il {@link Ristorante} preferito da rappresentare
+     * @return la VBox contenente la scheda grafica del ristorante
+     */
     private VBox createRistoranteCard(Ristorante ristorante) {
         VBox card = new VBox(8);
         card.setStyle("-fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-radius: 8; " +
@@ -269,6 +354,9 @@ public class DashboardClienteController implements Initializable {
         return card;
     }
 
+    /**
+     * Gestisce l'evento di navigazione verso la schermata di esplorazione/ricerca dei ristoranti.
+     */
     @FXML
     private void handleEsploraRistoranti() {
         try {
@@ -281,6 +369,13 @@ public class DashboardClienteController implements Initializable {
         }
     }
 
+    /**
+     * Avvia un thread in background per richiedere al server i dati completi di un ristorante
+     * e apre (su JavaFX Application Thread) la relativa schermata di dettaglio.
+     *
+     * @param ristoranteId l'identificativo univoco del ristorante
+     * @param nomeRistorante il nome del ristorante
+     */
     private void apriDettaglioRistorante(long ristoranteId, String nomeRistorante) {
         new Thread(() -> {
             Main.getClient().getRistorante(ristoranteId).ifPresent(ristorante ->
@@ -299,6 +394,9 @@ public class DashboardClienteController implements Initializable {
         }).start();
     }
 
+    /**
+     * Ricarica e aggiorna tutti i dati dell'utente sincronizzandoli con lo stato attuale sul server.
+     */
     public void refreshData() {
         loadUserData();
     }
