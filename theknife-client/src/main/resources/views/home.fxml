@@ -2,6 +2,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="theknife.controllers.HomeController"
@@ -11,9 +12,16 @@
     <top>
         <HBox fx:id="navbar" styleClass="navbar">
             <!-- Logo -->
-            <HBox spacing="8" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
-                <Text text="The" styleClass="logo-text"/>
-                <Text text="Knife" styleClass="logo-text logo-accent"/>
+            <HBox spacing="10" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                <ImageView fitHeight="32" fitWidth="32" preserveRatio="true">
+                    <image>
+                        <Image url="@../images/icon.png"/>
+                    </image>
+                </ImageView>
+                <HBox spacing="4" alignment="CENTER_LEFT">
+                    <Text text="The" styleClass="logo-text"/>
+                    <Text text="Knife" styleClass="logo-text logo-accent"/>
+                </HBox>
             </HBox>
 
             <!-- Torna alla Dashboard -->
