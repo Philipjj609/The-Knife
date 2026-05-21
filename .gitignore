@@ -6,6 +6,9 @@ target/
 #vscode
 /.dist/
 
+#maven
+/.mvn/
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
