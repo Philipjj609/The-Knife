@@ -38,6 +38,8 @@ import java.util.ResourceBundle;
  *
  * <p>Gestisce la visualizzazione di tutte le informazioni dettagliate di un ristorante
  * (nome, cucina, stelle Michelin, fascia di prezzo, contatti, descrizione, servizi aggiuntivi),
+ * le quali sono integrate in un header "sticky" (fisso) in alto per ottimizzare lo spazio
+ * visivo ed evitare card duplicate all'interno dell'area di scorrimento. Permette inoltre
  * l'apertura del sito web o della mappa geografica tramite browser esterno, l'inserimento
  * e rimozione del ristorante dai preferiti, e l'elenco delle recensioni con relative risposte.
  * Comunica con il server in modo non bloccante per l'interfaccia grafica tramite {@link Task}
@@ -47,7 +49,7 @@ import java.util.ResourceBundle;
  * @author Samuele Secchi, 761031, Sede CO
  * @author Flavio Marin, 759910, Sede CO
  * @author Davide Caccia, 760742, Sede CO
- * @version 2.0
+ * @version 2.1
  */
 public class DettaglioRistoranteController implements Initializable {
 

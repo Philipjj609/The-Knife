@@ -10,27 +10,26 @@
       styleClass="main-container">
     
     <!-- Sticky Header Top Box -->
-    <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 10 24; -fx-background-color: -fx-surface-bg; -fx-border-color: -fx-border-light; -fx-border-width: 0 0 1 0;">
+    <HBox alignment="CENTER_LEFT" spacing="20" styleClass="details-sticky-header">
         <Button text="← Indietro" onAction="#handleClose" styleClass="button,outline"/>
+        
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <HBox spacing="12" alignment="CENTER_LEFT">
+                <Text fx:id="nameLabel" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-fill: -fx-primary-text;"/>
+                <Text fx:id="starsLabel" styleClass="michelin-stars" style="-fx-font-size: 14px;"/>
+                <Text fx:id="priceLabel" styleClass="heading" style="-fx-font-size: 14px; -fx-fill: -fx-accent-green;"/>
+            </HBox>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Text fx:id="cuisineLabel" style="-fx-font-size: 12px; -fx-fill: -fx-secondary-text;"/>
+                <Text text="•" style="-fx-fill: -fx-muted-text;"/>
+                <Text fx:id="mediaRecensioniLabel" style="-fx-font-size: 12px; -fx-fill: #f39c12;"/>
+            </HBox>
+        </VBox>
     </HBox>
 
     <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-background: transparent;">
         <VBox spacing="24" style="-fx-padding: 32;">
 
-            <!-- Header del ristorante -->
-            <VBox spacing="20" styleClass="card" style="-fx-padding: 32;">
-                <HBox spacing="20" alignment="CENTER_LEFT">
-                    <VBox HBox.hgrow="ALWAYS" spacing="8">
-                        <Text fx:id="nameLabel" styleClass="title"/>
-                        <Text fx:id="cuisineLabel" styleClass="body-text"/>
-                    </VBox>
-                    <VBox alignment="CENTER_RIGHT" spacing="8">
-                        <Text fx:id="starsLabel" styleClass="michelin-stars"/>
-                        <Text fx:id="priceLabel" styleClass="heading"/>
-                        <Text fx:id="mediaRecensioniLabel" style="-fx-font-size: 16px; -fx-fill: #f39c12;"/>
-                    </VBox>
-                </HBox>
-            </VBox>
 
             <!-- Informazioni di contatto -->
             <VBox spacing="16" styleClass="card" style="-fx-padding: 32;">

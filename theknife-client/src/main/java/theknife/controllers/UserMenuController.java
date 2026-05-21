@@ -181,6 +181,8 @@ public class UserMenuController implements Initializable {
     @FXML
     private void handleLogout() {
         if (homeController != null) {
+            homeController.showNavbar(true);
+            homeController.setContentPanePadding(true);
             AppNavigator.goBackOrClose(usernameTitleLabel);
             homeController.handleLogout();
         }
@@ -191,6 +193,10 @@ public class UserMenuController implements Initializable {
      */
     @FXML
     private void handleBack() {
+        if (homeController != null) {
+            homeController.showNavbar(true);
+            homeController.setContentPanePadding(true);
+        }
         AppNavigator.goBackOrClose(usernameTitleLabel);
     }
 

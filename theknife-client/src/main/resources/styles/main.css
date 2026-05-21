@@ -543,7 +543,8 @@
 }
 
 .badge.success {
-    -fx-background-color: -fx-success;
+    -fx-background-color: #2e7d32;
+    -fx-text-fill: white;
 }
 
 .badge.warning {
@@ -925,3 +926,13 @@
     -fx-border-width: 2;
     -fx-effect: dropshadow(gaussian, rgba(45, 90, 45, 0.2), 16, 0, 0, 4);
 }
+
+/* Stile per l'header sticky dei dettagli ristorante */
+.details-sticky-header {
+    -fx-padding: 12 28;
+    -fx-background-color: -fx-tertiary-bg;
+    -fx-border-color: -fx-border-light;
+    -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 8, 0, 0, 3);
+}
+

@@ -9,7 +9,7 @@
 
     <!-- Modern Navbar -->
     <top>
-        <HBox styleClass="navbar">
+        <HBox fx:id="navbar" styleClass="navbar">
             <!-- Logo -->
             <HBox spacing="8" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
                 <Text text="The" styleClass="logo-text"/>

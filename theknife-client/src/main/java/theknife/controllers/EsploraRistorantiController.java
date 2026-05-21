@@ -385,7 +385,7 @@ public class EsploraRistorantiController implements Initializable {
             badges.getChildren().add(michelin);
         }
         if (ristorante.isGreenStar()) {
-            Label green = new Label("Green Star");
+            Label green = new Label("🌱 Green Star");
             green.getStyleClass().addAll("badge", "success");
             badges.getChildren().add(green);
         }

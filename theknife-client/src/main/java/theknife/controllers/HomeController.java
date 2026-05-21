@@ -49,6 +49,10 @@ public class HomeController implements Initializable {
     @FXML
     private StackPane contentPane;
 
+    /** La barra di navigazione superiore (navbar). */
+    @FXML
+    private HBox navbar;
+
     /** Pulsante posizionato nella barra superiore per accedere, visualizzare il profilo o effettuare il logout. */
     @FXML
     private Button loginButton;
@@ -156,11 +160,42 @@ public class HomeController implements Initializable {
      *
      * @since 1.0
      */
+    /**
+     * Mostra o nasconde la barra di navigazione superiore (navbar) e ne aggiorna il posizionamento.
+     *
+     * @param show true se la navbar deve essere visibile e occupare spazio, false altrimenti
+     */
+    public void showNavbar(boolean show) {
+        if (navbar != null) {
+            navbar.setVisible(show);
+            navbar.setManaged(show);
+        }
+    }
+
+    /**
+     * Imposta o rimuove il padding del pannello principale per consentire il layout a schermo intero.
+     *
+     * @param pad true per ripristinare il padding a 32px, false per azzerarlo
+     */
+    public void setContentPanePadding(boolean pad) {
+        if (contentPane != null) {
+            if (pad) {
+                contentPane.setStyle("-fx-padding: 32;");
+            } else {
+                contentPane.setStyle("-fx-padding: 0;");
+            }
+        }
+    }
+
     private void handleUserMenu() {
         try {
+            showNavbar(false);
+            setContentPanePadding(false);
             AppNavigator.show("/views/userMenu.fxml", (UserMenuController controller) ->
                     controller.setHomeController(this));
         } catch (IOException e) {
+            showNavbar(true);
+            setContentPanePadding(true);
             handleLogout();
         }
     }
@@ -200,6 +235,8 @@ public class HomeController implements Initializable {
      */
     private void loadDashboard() {
         try {
+            showNavbar(true);
+            setContentPanePadding(true);
             Role ruolo = utenteLoggato.getRuoloEnum();
             String viewPath = (ruolo == Role.CLIENTE)
                     ? "/views/dashboardCliente.fxml"
@@ -232,6 +269,8 @@ public class HomeController implements Initializable {
      */
     private void loadGuestContent() {
         try {
+            showNavbar(true);
+            setContentPanePadding(true);
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/esploraRistoranti.fxml"));
             Parent searchView = loader.load();
             
@@ -250,6 +289,8 @@ public class HomeController implements Initializable {
      * contenente il titolo, il sottotitolo e i pulsanti per accedere o continuare come ospite.
      */
     private void loadWelcomeContent() {
+        showNavbar(true);
+        setContentPanePadding(true);
         VBox panel = new VBox(18);
         panel.setAlignment(Pos.CENTER);
         panel.setMaxWidth(520);
