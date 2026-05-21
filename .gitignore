@@ -3,8 +3,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-#vscode
-/.dist/
+
+#github
+./github/
 
 #maven
 /.mvn/
@@ -39,6 +40,7 @@ build/
 
 ### VS Code ###
 .vscode/
+/.dist/
 
 ### Mac OS ###
 .DS_Store
