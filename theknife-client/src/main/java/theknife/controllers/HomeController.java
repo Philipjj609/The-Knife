@@ -226,14 +226,19 @@ public class HomeController implements Initializable {
     }
 
     /**
-     * Carica nel pannello centrale dell'interfaccia la vista ospite ({@code guestView.fxml}).
+     * Carica nel pannello centrale dell'interfaccia la vista di ricerca unificata ({@code esploraRistoranti.fxml})
+     * configurata in modalità ospite (senza utente loggato e con controlli dedicati nascosti).
      * Qualora il caricamento fallisca a causa di una {@link IOException}, mostra un alert di errore.
      */
     private void loadGuestContent() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/guestView.fxml"));
-            Parent guestView = loader.load();
-            contentPane.getChildren().setAll(guestView);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/esploraRistoranti.fxml"));
+            Parent searchView = loader.load();
+            
+            EsploraRistorantiController controller = loader.getController();
+            controller.setSessionState(false, null);
+
+            contentPane.getChildren().setAll(searchView);
             AppNavigator.clearHistory();
         } catch (IOException e) {
             showError("Impossibile caricare la vista principale.");

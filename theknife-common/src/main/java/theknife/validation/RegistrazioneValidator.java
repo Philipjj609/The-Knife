@@ -27,6 +27,9 @@ public class RegistrazioneValidator {
     /** Regex robusta per Nome e Cognome: consente lettere accentate, spazi interni, trattini e apostrofi. */
     private static final String REGEX_NOME_COGNOME = "^[\\p{L}]+([\\s'’-]+[\\p{L}]+)*$";
 
+    /** Regex per la validazione della password: minimo 8 caratteri, almeno una lettera e un numero. */
+    private static final String REGEX_PASSWORD = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
+
     /** Costruttore privato per evitare l'istanziazione di questa classe utility. */
     private RegistrazioneValidator() {}
 
@@ -100,14 +103,8 @@ public class RegistrazioneValidator {
         if (password == null || password.isEmpty()) {
             throw new IllegalArgumentException("La password è obbligatoria.");
         }
-        if (password.length() < 8) {
-            throw new IllegalArgumentException("La password deve contenere almeno 8 caratteri.");
-        }
-        if (!password.matches(".*[A-Za-z\\p{L}].*")) {
-            throw new IllegalArgumentException("La password deve contenere almeno una lettera.");
-        }
-        if (!password.matches(".*[0-9].*")) {
-            throw new IllegalArgumentException("La password deve contenere almeno un numero.");
+        if (!password.matches(REGEX_PASSWORD)) {
+            throw new IllegalArgumentException("La password deve essere lunga almeno 8 caratteri, contenere almeno una lettera e almeno un numero (sono ammessi solo caratteri alfanumerici).");
         }
     }
 }
