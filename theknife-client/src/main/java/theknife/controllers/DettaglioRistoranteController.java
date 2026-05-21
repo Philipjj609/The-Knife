@@ -13,6 +13,7 @@ import javafx.scene.text.Text;
 import theknife.Main;
 import theknife.models.Recensione;
 import theknife.models.Ristorante;
+import theknife.models.Risposta;
 
 import java.awt.Desktop;
 import java.io.IOException;
@@ -134,6 +135,9 @@ public class DettaglioRistoranteController implements Initializable {
     /** Riferimento opzionale al controller padre della dashboard cliente per favorire l'aggiornamento reciproco. */
     private DashboardClienteController dashboardClienteParentController;
 
+    /** Riferimento opzionale al controller padre della dashboard ristoratore per favorire l'aggiornamento reciproco. */
+    private DashboardRistoratoreController dashboardRistoratoreParentController;
+
     /**
      * Inizializza il controller JavaFX. Imposta la cella personalizzata della ListView delle recensioni.
      * Metodo richiamato automaticamente dopo il caricamento del file FXML.
@@ -190,6 +194,15 @@ public class DettaglioRistoranteController implements Initializable {
      */
     public void setDashboardClienteParentController(DashboardClienteController parentController) {
         this.dashboardClienteParentController = parentController;
+    }
+
+    /**
+     * Associa il controller genitore della dashboard ristoratore.
+     *
+     * @param parentController il {@link DashboardRistoratoreController} padre
+     */
+    public void setDashboardRistoratoreParentController(DashboardRistoratoreController parentController) {
+        this.dashboardRistoratoreParentController = parentController;
     }
 
     /**
@@ -298,7 +311,27 @@ public class DettaglioRistoranteController implements Initializable {
             rispostaTesto.setWrappingWidth(380);
 
             rispostaBox.getChildren().addAll(rispostaHeader, rispostaTesto);
+
+            if (isProprietario) {
+                HBox rispostaActions = new HBox(8);
+                Button modificaRispostaBtn = new Button("Modifica risposta");
+                modificaRispostaBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 11; -fx-padding: 4 10;");
+                modificaRispostaBtn.setOnAction(event -> apriModificaRisposta(recensione));
+
+                Button eliminaRispostaBtn = new Button("Elimina risposta");
+                eliminaRispostaBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 11; -fx-padding: 4 10;");
+                eliminaRispostaBtn.setOnAction(event -> confermaEliminaRisposta(recensione));
+
+                rispostaActions.getChildren().addAll(modificaRispostaBtn, eliminaRispostaBtn);
+                rispostaBox.getChildren().add(rispostaActions);
+            }
+
             card.getChildren().add(rispostaBox);
+        } else if (isProprietario) {
+            Button rispondiBtn = new Button("💬 Rispondi alla Recensione");
+            rispondiBtn.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-size: 11; -fx-padding: 4 10;");
+            rispondiBtn.setOnAction(event -> apriFinestraRisposta(recensione));
+            card.getChildren().add(rispondiBtn);
         }
 
         return card;
@@ -616,5 +649,72 @@ public class DettaglioRistoranteController implements Initializable {
         alert.setHeaderText(header);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void apriFinestraRisposta(Recensione recensione) {
+        try {
+            AppNavigator.show("/views/rispondiRecensione.fxml", (RispondiRecensioneController controller) -> {
+                controller.setRecensione(recensione);
+                controller.setCurrentUser(currentUser);
+                controller.setParentController(this);
+                if (dashboardRistoratoreParentController != null) {
+                    controller.setParentController(dashboardRistoratoreParentController);
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void apriModificaRisposta(Recensione recensione) {
+        Risposta risposta = recensione.getRisposta();
+        if (risposta == null) return;
+
+        try {
+            AppNavigator.show("/views/rispondiRecensione.fxml", (RispondiRecensioneController controller) -> {
+                controller.setRecensione(recensione);
+                controller.setCurrentUser(currentUser);
+                controller.setParentController(this);
+                controller.setRispostaEsistente(risposta);
+                if (dashboardRistoratoreParentController != null) {
+                    controller.setParentController(dashboardRistoratoreParentController);
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void confermaEliminaRisposta(Recensione recensione) {
+        Risposta risposta = recensione.getRisposta();
+        if (risposta == null) return;
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Elimina risposta");
+        confirm.setHeaderText("Eliminare la risposta a questa recensione?");
+        confirm.setContentText("La recensione restera visibile, ma la tua risposta verra rimossa.");
+        confirm.showAndWait()
+                .filter(button -> button == ButtonType.OK)
+                .ifPresent(button -> eliminaRisposta(risposta.getId()));
+    }
+
+    private void eliminaRisposta(long rispostaId) {
+        Task<Boolean> task = new Task<>() {
+            @Override
+            protected Boolean call() {
+                return Main.getClient().eliminaRisposta(rispostaId);
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            refreshRecensioni();
+            if (dashboardRistoratoreParentController != null) {
+                dashboardRistoratoreParentController.refreshData();
+            }
+        });
+        task.setOnFailed(event -> showAlert("Errore", "Impossibile eliminare la risposta",
+                task.getException().getMessage()));
+
+        new Thread(task).start();
     }
 }

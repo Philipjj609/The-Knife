@@ -414,6 +414,7 @@ public class DashboardRistoratoreController implements Initializable {
                 controller.setRistorante(ristorante);
                 controller.setCurrentUser(currentUser.getUsername());
                 controller.setIsProprietario(true);
+                controller.setDashboardRistoratoreParentController(this);
             });
         } catch (IOException e) {
             e.printStackTrace();

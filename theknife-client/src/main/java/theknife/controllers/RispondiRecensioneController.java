@@ -57,6 +57,9 @@ public class RispondiRecensioneController implements Initializable {
     /** Riferimento al controller padre del ristoratore per aggiornare la dashboard in tempo reale. */
     private DashboardRistoratoreController parentController;
 
+    /** Riferimento al controller padre del dettaglio ristorante per aggiornare le recensioni in tempo reale. */
+    private DettaglioRistoranteController dettaglioParentController;
+
     /**
      * Metodo di inizializzazione JavaFX.
      *
@@ -98,6 +101,13 @@ public class RispondiRecensioneController implements Initializable {
      * @param parent il controller {@link DashboardRistoratoreController}
      */
     public void setParentController(DashboardRistoratoreController parent) { this.parentController = parent; }
+
+    /**
+     * Imposta il controller di dettaglio del ristorante da aggiornare dopo l'invio.
+     *
+     * @param parent il controller {@link DettaglioRistoranteController}
+     */
+    public void setParentController(DettaglioRistoranteController parent) { this.dettaglioParentController = parent; }
 
     /**
      * Popola l'interfaccia con i dati relativi alla recensione selezionata.
@@ -146,6 +156,7 @@ public class RispondiRecensioneController implements Initializable {
 
         task.setOnSucceeded(e -> {
             if (parentController != null) parentController.refreshData();
+            if (dettaglioParentController != null) dettaglioParentController.refreshRecensioni();
             AppNavigator.goBackOrClose(rispostaArea);
         });
 
