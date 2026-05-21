@@ -80,6 +80,9 @@ public class DettaglioRistoranteController implements Initializable {
     /** Area di testo non modificabile per leggere la descrizione del ristorante. */
     @FXML private TextArea descriptionArea;
 
+    /** Contenitore principale per la card dei premi e riconoscimenti. */
+    @FXML private VBox premiCard;
+
     /** Contenitore grafico per i dettagli del premio Michelin (Bib Gourmand, stelle). */
     @FXML private VBox awardBox;
 
@@ -492,16 +495,24 @@ public class DettaglioRistoranteController implements Initializable {
         if (rico != null && !rico.trim().isEmpty() && !rico.equalsIgnoreCase("N/A")) {
             awardLabel.setText(rico);
             awardBox.setVisible(true);
+            awardBox.setManaged(true);
         } else {
             awardBox.setVisible(false);
+            awardBox.setManaged(false);
         }
 
         if (ristorante.isGreenStar()) {
             greenStarLabel.setText("Green Star");
             greenStarBox.setVisible(true);
+            greenStarBox.setManaged(true);
         } else {
             greenStarBox.setVisible(false);
+            greenStarBox.setManaged(false);
         }
+
+        boolean hasAwards = awardBox.isVisible() || greenStarBox.isVisible();
+        premiCard.setVisible(hasAwards);
+        premiCard.setManaged(hasAwards);
 
         updateServicesDisplay();
     }

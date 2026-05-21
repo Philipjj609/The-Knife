@@ -542,21 +542,28 @@
     -fx-font-weight: 500;
 }
 
-.badge.success {
+.badge.badge-success,
+.badge-success {
     -fx-background-color: #2e7d32;
     -fx-text-fill: white;
 }
 
-.badge.warning {
-    -fx-background-color: -fx-warning;
+.badge.badge-warning,
+.badge-warning {
+    -fx-background-color: #e65100; /* Darker orange for readable white text */
+    -fx-text-fill: white;
 }
 
-.badge.danger {
-    -fx-background-color: -fx-danger;
+.badge.badge-danger,
+.badge-danger {
+    -fx-background-color: #c0392b; /* Darker red for readable white text */
+    -fx-text-fill: white;
 }
 
-.badge.info {
-    -fx-background-color: -fx-info;
+.badge.badge-info,
+.badge-info {
+    -fx-background-color: #1565c0; /* Darker blue for readable white text */
+    -fx-text-fill: white;
 }
 
 /* Typography */

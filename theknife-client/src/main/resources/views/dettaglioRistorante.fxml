@@ -67,16 +67,16 @@
             </VBox>
 
             <!-- Premi e riconoscimenti -->
-            <VBox spacing="16" styleClass="card" style="-fx-padding: 32;">
+            <VBox fx:id="premiCard" spacing="16" styleClass="card" style="-fx-padding: 32;">
                 <Text text="Premi e Riconoscimenti" styleClass="heading"/>
                 <HBox spacing="32">
                     <VBox spacing="8" fx:id="awardBox" style="-fx-padding: 20; -fx-background-color: #ffd700; -fx-border-radius: 12; -fx-alignment: center;">
                         <Label text="🏆 Premio Michelin:" styleClass="body-text" style="-fx-font-weight: bold; -fx-text-fill: white;"/>
-                        <Text fx:id="awardLabel" styleClass="body-text" style="-fx-text-fill: white;"/>
+                        <Text fx:id="awardLabel" styleClass="body-text" style="-fx-fill: white;"/>
                     </VBox>
                     <VBox spacing="8" fx:id="greenStarBox" style="-fx-padding: 20; -fx-background-color: #4caf50; -fx-border-radius: 12; -fx-alignment: center;">
                         <Label text="🌟 Stella Verde:" styleClass="body-text" style="-fx-font-weight: bold; -fx-text-fill: white;"/>
-                        <Text fx:id="greenStarLabel" styleClass="body-text" style="-fx-text-fill: white;"/>
+                        <Text fx:id="greenStarLabel" styleClass="body-text" style="-fx-fill: white;"/>
                     </VBox>
                 </HBox>
             </VBox>
