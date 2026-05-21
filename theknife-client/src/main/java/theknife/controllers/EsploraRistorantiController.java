@@ -34,6 +34,10 @@ import java.util.stream.Collectors;
  * Controller JavaFX per la vista di esplorazione e filtraggio dei ristoranti.
  * Fa parte del pattern <b>MVC (Model-View-Controller)</b> nel ruolo di Controller.
  *
+ * <p>Questa classe agisce come un <b>Fragment</b> riutilizzabile all'interno della Shell principale (il layout base).
+ * Viene caricata dinamicamente all'interno del contenitore centrale della UI, sia in modalità Guest (tramite {@link HomeController})
+ * sia per i clienti autenticati (tramite {@link DashboardClienteController}).</p>
+ *
  * <p>Gestisce l'interazione utente per la ricerca avanzata e il filtraggio locale dei ristoranti.
  * All'inizializzazione, carica l'elenco completo dei ristoranti e i relativi metadati di filtro
  * (cucine, città, nazioni, servizi) dal server in modo asincrono tramite un thread secondario,
@@ -42,11 +46,15 @@ import java.util.stream.Collectors;
  * Supporta inoltre l'aggiunta/rimozione asincrona dei preferiti e l'apertura della visualizzazione
  * su mappa o del dettaglio del ristorante.</p>
  *
+ * <p>La UI viene adattata dinamicamente in base allo stato di sessione (Guest vs Cliente loggato).
+ * Se l'utente è Guest, le funzioni esclusive (es. Aggiunta ai Preferiti, pulsante Torna alla Dashboard
+ * e statistiche dei preferiti) vengono nascoste e rimosse dal layout.</p>
+ *
  * @author Philip Jon Ji Ciuca, 761446, Sede CO
  * @author Samuele Secchi, 761031, Sede CO
  * @author Flavio Marin, 759910, Sede CO
  * @author Davide Caccia, 760742, Sede CO
- * @version 3.0
+ * @version 4.0
  */
 public class EsploraRistorantiController implements Initializable {
 
@@ -94,6 +102,15 @@ public class EsploraRistorantiController implements Initializable {
 
     /** Pulsante per mostrare la posizione del ristorante selezionato sulla mappa. */
     @FXML private Button mapButton;
+
+    /** Pulsante per tornare alla dashboard (visibile solo per clienti loggati). */
+    @FXML private Button backButton;
+
+    /** Separatore statistico per la sezione dei preferiti. */
+    @FXML private Separator favSeparator;
+
+    /** Contenitore statistico per i preferiti. */
+    @FXML private VBox favStatBox;
 
     /** Testo che mostra il numero totale di ristoranti corrispondenti ai filtri correnti. */
     @FXML private Text totalRestaurantsLabel;
@@ -203,13 +220,42 @@ public class EsploraRistorantiController implements Initializable {
     }
 
     /**
-     * Imposta l'utente correntemente loggato e aggiorna le statistiche della schermata.
+     * Configura lo stato della UI e della sessione in base all'autenticazione dell'utente.
+     * Gestisce dinamicamente la visibilità e il calcolo del layout (visible e managed) per gli elementi
+     * riservati agli utenti registrati rispetto agli ospiti (guest).
+     *
+     * @param isLogged true se l'utente è autenticato come cliente, false per la modalità ospite (guest).
+     * @param user     l'oggetto Utente corrispondente, o null se l'utente è un ospite.
+     * @since 4.0
+     */
+    public void setSessionState(boolean isLogged, Utente user) {
+        this.currentUser = isLogged ? user : null;
+        boolean isUserLogged = isLogged && user != null;
+
+        aggiungiPreferitiButton.setVisible(isUserLogged);
+        aggiungiPreferitiButton.setManaged(isUserLogged);
+
+        backButton.setVisible(isUserLogged);
+        backButton.setManaged(isUserLogged);
+
+        favSeparator.setVisible(isUserLogged);
+        favSeparator.setManaged(isUserLogged);
+
+        favStatBox.setVisible(isUserLogged);
+        favStatBox.setManaged(isUserLogged);
+
+        updateStatistics();
+    }
+
+    /**
+     * Imposta l'utente correntemente loggato e aggiorna lo stato della sessione.
+     * Metodo mantenuto per compatibilità con i controller chiamanti, delega la configurazione a
+     * {@link #setSessionState(boolean, Utente)}.
      *
      * @param user l'utente autenticato correntemente.
      */
     public void setCurrentUser(Utente user) {
-        this.currentUser = user;
-        updateStatistics();
+        setSessionState(user != null, user);
     }
 
     /**

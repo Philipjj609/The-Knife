@@ -11,21 +11,7 @@
       fx:controller="theknife.controllers.EsploraRistorantiController"
       styleClass="main-container">
     
-    <!-- Header con logo come nel GuestView -->
-    <HBox alignment="CENTER_LEFT" spacing="20" styleClass="header-bar" 
-          style="-fx-background-color: #2e7d32; -fx-padding: 16 32; -fx-min-height: 80;">
-        <VBox spacing="4">
-            <HBox spacing="4" alignment="CENTER_LEFT">
-                <Text text="The" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif; -fx-fill: rgb(18, 19, 18); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 2, 0, 1, 1);"/>
-                <Text text="Knife" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif; -fx-fill:rgb(18, 19, 18); -fx-font-style: italic; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 2, 0, 1, 1);"/>
-            </HBox>
-            <Text text="Esplora Ristoranti Michelin" style="-fx-font-size: 14px; -fx-fill: #c8e6c9;"/>
-        </VBox>
-        <Region HBox.hgrow="ALWAYS"/>
-        <Button text="← Dashboard" onAction="#tornaDashboard" 
-                style="-fx-background-color: #388e3c; -fx-text-fill: white; -fx-border-radius: 5; -fx-background-radius: 5; -fx-font-size: 14px; -fx-padding: 10 20; -fx-border-color: transparent;"/>
-    </HBox>
-       <!-- ScrollPane principale per unire lo scorrimento di filtri, statistiche e ristoranti -->
+    <!-- ScrollPane principale per unire lo scorrimento di filtri, statistiche e ristoranti -->
     <ScrollPane fitToWidth="true" styleClass="modern-scroll" VBox.vgrow="ALWAYS">
         <VBox spacing="16" style="-fx-padding: 16 24 24 24;">
             
@@ -85,8 +71,8 @@
                           style="-fx-text-fill: #5cb85c; -fx-font-size: 20px;"/>
                     <Text text="Stelle Verdi" styleClass="small-text,text-muted"/>
                 </VBox>
-                <Separator orientation="VERTICAL" prefHeight="30"/>
-                <VBox alignment="CENTER" spacing="2">
+                <Separator fx:id="favSeparator" orientation="VERTICAL" prefHeight="30"/>
+                <VBox fx:id="favStatBox" alignment="CENTER" spacing="2">
                     <Text fx:id="favoritesLabel" text="0" styleClass="subtitle" 
                           style="-fx-text-fill: #e74c3c; -fx-font-size: 20px;"/>
                     <Text text="Nei Preferiti" styleClass="small-text,text-muted"/>
@@ -103,6 +89,9 @@
                             onAction="#handleAggiungiPreferiti" disable="true"/>
                     <Button fx:id="mapButton" text="Mappa" styleClass="button,outline" 
                             onAction="#handleMap" disable="true"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="backButton" text="← Dashboard" styleClass="button,outline" 
+                            onAction="#tornaDashboard" visible="false" managed="false"/>
                 </HBox>
                 
                 <!-- VBox per visualizzazione paginata ed evitare lag di rendering -->

@@ -361,7 +361,7 @@ public class DashboardClienteController implements Initializable {
     private void handleEsploraRistoranti() {
         try {
             AppNavigator.show("/views/esploraRistoranti.fxml", (EsploraRistorantiController controller) -> {
-                controller.setCurrentUser(currentUser);
+                controller.setSessionState(true, currentUser);
                 controller.setParentController(this);
             });
         } catch (IOException e) {
