@@ -31,12 +31,14 @@ public class GuestViewController implements Initializable {
 
     @FXML private TextField searchField;
     @FXML private ComboBox<String> cuisineComboBox;
-    @FXML private ComboBox<String> locationComboBox;
+    @FXML private ComboBox<String> cittaComboBox;
+    @FXML private ComboBox<String> nazioneComboBox;
     @FXML private ComboBox<String> priceRangeComboBox;
     @FXML private ComboBox<String> starsComboBox;
     @FXML private ComboBox<String> serviceComboBox;
     @FXML private CheckBox deliveryCheckBox;
     @FXML private CheckBox onlineBookingCheckBox;
+    @FXML private CheckBox greenStarCheckBox;
     @FXML private Button searchButton;
     @FXML private Button resetButton;
     @FXML private ListView<Ristorante> restaurantListView;
@@ -62,7 +64,8 @@ public class GuestViewController implements Initializable {
                 "Bib Gourmand", "Selezionato Michelin"));
 
         cuisineComboBox.setEditable(true);
-        locationComboBox.setEditable(true);
+        cittaComboBox.setEditable(true);
+        nazioneComboBox.setEditable(true);
 
         loadingLabel.setText("Caricamento ristoranti...");
         loadingLabel.setVisible(true);
@@ -76,14 +79,17 @@ public class GuestViewController implements Initializable {
 
                 List<String> servizi  = Main.getClient().getServizi();
                 List<String> cucine   = Main.getClient().getCucine();
-                List<String> localita = Main.getClient().getLocalita();
+                List<String> citta    = Main.getClient().getCitta();
+                List<String> nazioni  = Main.getClient().getNazioni();
 
                 javafx.application.Platform.runLater(() -> {
                     serviceComboBox.setItems(FXCollections.observableArrayList(servizi));
                     cuisineComboBox.setItems(FXCollections.observableArrayList(cucine));
-                    locationComboBox.setItems(FXCollections.observableArrayList(localita));
+                    cittaComboBox.setItems(FXCollections.observableArrayList(citta));
+                    nazioneComboBox.setItems(FXCollections.observableArrayList(nazioni));
                     cuisineComboBox.setEditable(true);
-                    locationComboBox.setEditable(true);
+                    cittaComboBox.setEditable(true);
+                    nazioneComboBox.setEditable(true);
                 });
                 return null;
             }
@@ -196,12 +202,14 @@ public class GuestViewController implements Initializable {
     private void handleReset() {
         searchField.clear();
         cuisineComboBox.setValue(null);
-        locationComboBox.setValue(null);
+        cittaComboBox.setValue(null);
+        nazioneComboBox.setValue(null);
         priceRangeComboBox.setValue(null);
         starsComboBox.setValue(null);
         serviceComboBox.setValue(null);
         deliveryCheckBox.setSelected(false);
         onlineBookingCheckBox.setSelected(false);
+        greenStarCheckBox.setSelected(false);
         filteredRestaurants.setAll(allRestaurants);
         updateStatistics();
     }
@@ -275,10 +283,16 @@ public class GuestViewController implements Initializable {
             p = p.and(r -> r.getCucine().stream().anyMatch(c -> c.toLowerCase().contains(lower)));
         }
 
-        String citta = locationComboBox.getValue();
+        String citta = cittaComboBox.getValue();
         if (citta != null && !citta.isBlank()) {
             String lower = citta.toLowerCase();
             p = p.and(r -> r.getCitta() != null && r.getCitta().toLowerCase().contains(lower));
+        }
+
+        String nazione = nazioneComboBox.getValue();
+        if (nazione != null && !nazione.isBlank()) {
+            String lower = nazione.toLowerCase();
+            p = p.and(r -> r.getNazione() != null && r.getNazione().toLowerCase().contains(lower));
         }
 
         if (priceRangeComboBox.getValue() != null) {
@@ -309,6 +323,7 @@ public class GuestViewController implements Initializable {
 
         if (deliveryCheckBox.isSelected())       p = p.and(Ristorante::isDelivery);
         if (onlineBookingCheckBox.isSelected())  p = p.and(Ristorante::isPrenotazioneOnline);
+        if (greenStarCheckBox.isSelected())      p = p.and(Ristorante::isGreenStar);
 
         return p;
     }

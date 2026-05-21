@@ -24,7 +24,8 @@ public enum Comando {
     GET_RISTORANTI_PROPRIETARIO,
     GET_SERVIZI,
     GET_CUCINE,
-    GET_LOCALITA,
+    GET_CITTA,
+    GET_NAZIONI,
 
     // Recensioni
     GET_RECENSIONI_RISTORANTE,

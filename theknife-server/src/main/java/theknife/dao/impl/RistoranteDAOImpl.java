@@ -285,7 +285,7 @@ public class RistoranteDAOImpl implements RistoranteDAO {
     }
 
     @Override
-    public List<String> findAllLocalita() {
+    public List<String> findAllCitta() {
         String sql = "SELECT DISTINCT citta FROM ristoranti WHERE citta IS NOT NULL ORDER BY citta";
         try (Connection conn = ConnectionPool.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -294,7 +294,21 @@ public class RistoranteDAOImpl implements RistoranteDAO {
             while (rs.next()) list.add(rs.getString("citta"));
             return list;
         } catch (SQLException e) {
-            throw new RuntimeException("Errore findAllLocalita", e);
+            throw new RuntimeException("Errore findAllCitta", e);
+        }
+    }
+
+    @Override
+    public List<String> findAllNazioni() {
+        String sql = "SELECT DISTINCT nazione FROM ristoranti WHERE nazione IS NOT NULL ORDER BY nazione";
+        try (Connection conn = ConnectionPool.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            List<String> list = new ArrayList<>();
+            while (rs.next()) list.add(rs.getString("nazione"));
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore findAllNazioni", e);
         }
     }
 

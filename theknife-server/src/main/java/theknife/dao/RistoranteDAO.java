@@ -34,5 +34,7 @@ public interface RistoranteDAO {
 
     List<String> findAllCucine();
 
-    List<String> findAllLocalita();
+    List<String> findAllCitta();
+
+    List<String> findAllNazioni();
 }

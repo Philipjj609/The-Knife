@@ -43,17 +43,19 @@
                 <VBox spacing="12">
                     <!-- Prima riga di filtri -->
                     <HBox spacing="12" alignment="CENTER">
-                        <ComboBox fx:id="cuisineComboBox" promptText="Tipo di cucina" prefWidth="150"/>
+                        <ComboBox fx:id="cuisineComboBox" promptText="Cucina" prefWidth="150"/>
                         <ComboBox fx:id="serviceComboBox" promptText="Servizio" prefWidth="150"/>
-                        <ComboBox fx:id="locationComboBox" promptText="Località" prefWidth="150"/>
-                        <ComboBox fx:id="priceRangeComboBox" promptText="Fascia di prezzo" prefWidth="120"/>
+                        <ComboBox fx:id="cittaComboBox" promptText="Città" prefWidth="150"/>
+                        <ComboBox fx:id="nazioneComboBox" promptText="Nazione" prefWidth="150"/>
+                        <ComboBox fx:id="priceRangeComboBox" promptText="Prezzo" prefWidth="120"/>
                         <ComboBox fx:id="starsComboBox" promptText="Stelle Michelin" prefWidth="120"/>
                     </HBox>
-                    
+
                     <!-- Seconda riga di filtri -->
                     <HBox spacing="12" alignment="CENTER">
                         <CheckBox fx:id="deliveryCheckBox" text="Delivery disponibile"/>
                         <CheckBox fx:id="onlineBookingCheckBox" text="Prenotazione online"/>
+                        <CheckBox fx:id="greenStarCheckBox" text="Green Star"/>
                         <Button fx:id="searchButton" text="Cerca" styleClass="button,primary" onAction="#handleSearch"/>
                         <Button fx:id="resetButton" text="Reset" styleClass="button,outline" onAction="#handleReset"/>
                         <Button text="↻ Aggiorna" styleClass="button,outline" onAction="#handleAggiorna"/>
