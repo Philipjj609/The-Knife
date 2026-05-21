@@ -28,7 +28,7 @@ public class RegistrazioneValidator {
     private static final String REGEX_NOME_COGNOME = "^[\\p{L}]+([\\s'’-]+[\\p{L}]+)*$";
 
     /** Regex per la validazione della password: minimo 8 caratteri, almeno una lettera e un numero. */
-    private static final String REGEX_PASSWORD = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
+    private static final String REGEX_PASSWORD = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&]{8,}$";
 
     /** Costruttore privato per evitare l'istanziazione di questa classe utility. */
     private RegistrazioneValidator() {}
