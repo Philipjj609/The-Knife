@@ -1,7 +1,9 @@
 package theknife.controllers;
 
+import javafx.animation.PauseTransition;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -10,16 +12,22 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 import theknife.Main;
+import theknife.client.ui.widgets.MultiSelectComboBox;
 import theknife.models.Ristorante;
 import theknife.models.Utente;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Controller JavaFX per la vista di esplorazione e filtraggio dei ristoranti.
@@ -44,23 +52,23 @@ public class EsploraRistorantiController implements Initializable {
     /** Campo di testo per la ricerca testuale libera (nome, città, cucina). */
     @FXML private TextField searchField;
 
-    /** ComboBox per filtrare i ristoranti in base al tipo di cucina. */
-    @FXML private ComboBox<String> cuisineComboBox;
+    /** Filtro multi-selezione per il tipo di cucina. */
+    @FXML private MultiSelectComboBox<String> cuisineComboBox;
 
-    /** ComboBox per filtrare i ristoranti in base alla città. */
-    @FXML private ComboBox<String> cittaComboBox;
+    /** Filtro multi-selezione per la città. */
+    @FXML private MultiSelectComboBox<String> cittaComboBox;
 
-    /** ComboBox per filtrare i ristoranti in base alla nazione. */
-    @FXML private ComboBox<String> nazioneComboBox;
+    /** Filtro multi-selezione per la nazione. */
+    @FXML private MultiSelectComboBox<String> nazioneComboBox;
 
-    /** ComboBox per filtrare in base alla fascia di prezzo (es. €, €€, etc.). */
-    @FXML private ComboBox<String> priceRangeComboBox;
+    /** Filtro multi-selezione per la fascia di prezzo. */
+    @FXML private MultiSelectComboBox<String> priceRangeComboBox;
 
-    /** ComboBox per filtrare in base ai riconoscimenti Michelin. */
-    @FXML private ComboBox<String> starsComboBox;
+    /** Filtro multi-selezione per i riconoscimenti Michelin. */
+    @FXML private MultiSelectComboBox<String> starsComboBox;
 
-    /** ComboBox per filtrare i ristoranti in base a un servizio specifico offerto. */
-    @FXML private ComboBox<String> serviceComboBox;
+    /** Filtro multi-selezione per i servizi offerti. */
+    @FXML private MultiSelectComboBox<String> serviceComboBox;
 
     /** Checkbox per filtrare solo i ristoranti che offrono servizio a domicilio. */
     @FXML private CheckBox deliveryCheckBox;
@@ -70,9 +78,6 @@ public class EsploraRistorantiController implements Initializable {
 
     /** Checkbox per filtrare solo i ristoranti con il riconoscimento Stella Verde Michelin. */
     @FXML private CheckBox greenStarCheckBox;
-
-    /** Pulsante per applicare i filtri di ricerca impostati. */
-    @FXML private Button searchButton;
 
     /** Pulsante per reimpostare tutti i filtri di ricerca ai valori iniziali. */
     @FXML private Button resetButton;
@@ -134,18 +139,13 @@ public class EsploraRistorantiController implements Initializable {
         restaurantListView.setItems(filteredRestaurants);
         setupUI();
 
-        priceRangeComboBox.setItems(FXCollections.observableArrayList("€", "€€", "€€€", "€€€€"));
-        starsComboBox.setItems(FXCollections.observableArrayList(
+        priceRangeComboBox.getItems().setAll("€", "€€", "€€€", "€€€€");
+        starsComboBox.getItems().setAll(
                 "1 Stella Michelin", "2 Stelle Michelin", "3 Stelle Michelin",
-                "Bib Gourmand", "Selezionato Michelin"));
-
-        cuisineComboBox.setEditable(true);
-        cittaComboBox.setEditable(true);
-        nazioneComboBox.setEditable(true);
+                "Bib Gourmand", "Selezionato Michelin");
 
         loadingLabel.setText("Caricamento ristoranti...");
         loadingLabel.setVisible(true);
-        searchButton.setDisable(true);
         resetButton.setDisable(true);
 
         Task<Void> initTask = new Task<>() {
@@ -159,13 +159,21 @@ public class EsploraRistorantiController implements Initializable {
                 List<String> nazioni  = Main.getClient().getNazioni();
 
                 javafx.application.Platform.runLater(() -> {
-                    serviceComboBox.setItems(FXCollections.observableArrayList(servizi));
-                    cuisineComboBox.setItems(FXCollections.observableArrayList(cucine));
-                    cittaComboBox.setItems(FXCollections.observableArrayList(citta));
-                    nazioneComboBox.setItems(FXCollections.observableArrayList(nazioni));
-                    cuisineComboBox.setEditable(true);
-                    cittaComboBox.setEditable(true);
-                    nazioneComboBox.setEditable(true);
+                    // Cattura selezioni prima di aggiornare le liste (diagnostica Raffinamento C)
+                    Set<String> preServizi = new HashSet<>(serviceComboBox.getSelectedItems());
+                    Set<String> preCucine  = new HashSet<>(cuisineComboBox.getSelectedItems());
+                    Set<String> preCitta   = new HashSet<>(cittaComboBox.getSelectedItems());
+                    Set<String> preNazioni = new HashSet<>(nazioneComboBox.getSelectedItems());
+
+                    serviceComboBox.getItems().setAll(servizi);
+                    cuisineComboBox.getItems().setAll(cucine);
+                    cittaComboBox.getItems().setAll(citta);
+                    nazioneComboBox.getItems().setAll(nazioni);
+
+                    logSelezioniPerse("servizi", preServizi, serviceComboBox.getSelectedItems());
+                    logSelezioniPerse("cucine",  preCucine,  cuisineComboBox.getSelectedItems());
+                    logSelezioniPerse("città",   preCitta,   cittaComboBox.getSelectedItems());
+                    logSelezioniPerse("nazioni", preNazioni, nazioneComboBox.getSelectedItems());
                 });
                 return null;
             }
@@ -173,10 +181,8 @@ public class EsploraRistorantiController implements Initializable {
 
         initTask.setOnSucceeded(e -> {
             loadingLabel.setVisible(false);
-            searchButton.setDisable(false);
             resetButton.setDisable(false);
-            filteredRestaurants.setAll(allRestaurants);
-            updateStatistics();
+            applyFilters();
         });
 
         initTask.setOnFailed(e -> {
@@ -191,6 +197,7 @@ public class EsploraRistorantiController implements Initializable {
         });
 
         new Thread(initTask).start();
+        setupFilterListeners();
     }
 
     /**
@@ -302,36 +309,29 @@ public class EsploraRistorantiController implements Initializable {
         return card;
     }
 
-    /**
-     * Gestisce l'evento di ricerca. Applica i filtri impostati dall'utente
-     * e aggiorna la lista dei ristoranti visualizzati in modo reattivo in locale.
-     */
-    @FXML
-    private void handleSearch() {
-        Predicate<Ristorante> predicate = buildPredicate();
-        filteredRestaurants.setAll(allRestaurants.stream().filter(predicate).toList());
+    /** Applica tutti i filtri correnti in locale e aggiorna la ListView. Eseguito sul FX thread. */
+    private void applyFilters() {
+        filteredRestaurants.setAll(allRestaurants.stream().filter(buildPredicate()).toList());
         updateStatistics();
     }
 
     /**
-     * Gestisce l'evento di reset dei filtri. Pulisce tutti i campi di input
-     * (testo, ComboBox e CheckBox) e ripristina la visualizzazione di tutti
-     * i ristoranti disponibili.
+     * Gestisce l'evento di reset dei filtri. Pulisce tutti i widget e ri-applica i filtri
+     * (che con tutto vuoto mostra tutti i ristoranti).
      */
     @FXML
     private void handleReset() {
         searchField.clear();
-        cuisineComboBox.setValue(null);
-        cittaComboBox.setValue(null);
-        nazioneComboBox.setValue(null);
-        priceRangeComboBox.setValue(null);
-        starsComboBox.setValue(null);
-        serviceComboBox.setValue(null);
+        cuisineComboBox.clear();
+        cittaComboBox.clear();
+        nazioneComboBox.clear();
+        priceRangeComboBox.clear();
+        starsComboBox.clear();
+        serviceComboBox.clear();
         deliveryCheckBox.setSelected(false);
         onlineBookingCheckBox.setSelected(false);
         greenStarCheckBox.setSelected(false);
-        filteredRestaurants.setAll(allRestaurants);
-        updateStatistics();
+        applyFilters();
     }
 
     /**
@@ -345,7 +345,6 @@ public class EsploraRistorantiController implements Initializable {
     private void handleAggiorna() {
         loadingLabel.setText("Aggiornamento ristoranti...");
         loadingLabel.setVisible(true);
-        searchButton.setDisable(true);
         resetButton.setDisable(true);
 
         Task<List<Ristorante>> aggiornaTask = new Task<>() {
@@ -358,14 +357,12 @@ public class EsploraRistorantiController implements Initializable {
         aggiornaTask.setOnSucceeded(e -> {
             allRestaurants = aggiornaTask.getValue();
             loadingLabel.setVisible(false);
-            searchButton.setDisable(false);
             resetButton.setDisable(false);
-            handleSearch();
+            applyFilters();
         });
 
         aggiornaTask.setOnFailed(e -> {
             loadingLabel.setText("Errore aggiornamento");
-            searchButton.setDisable(false);
             resetButton.setDisable(false);
             Throwable ex = aggiornaTask.getException();
             if (ex == null) {
@@ -419,58 +416,67 @@ public class EsploraRistorantiController implements Initializable {
     private Predicate<Ristorante> buildPredicate() {
         Predicate<Ristorante> p = r -> true;
 
+        // Ricerca testuale libera: OR su nome, città, cucine (contains, case-insensitive)
         String searchText = searchField.getText() != null ? searchField.getText().trim() : "";
         if (!searchText.isEmpty()) {
             String lower = searchText.toLowerCase();
             p = p.and(r ->
                 r.getNome().toLowerCase().contains(lower)
-                || r.getCitta().toLowerCase().contains(lower)
+                || (r.getCitta() != null && r.getCitta().toLowerCase().contains(lower))
                 || r.getCucine().stream().anyMatch(c -> c.toLowerCase().contains(lower))
             );
         }
 
-        String cucina = cuisineComboBox.getValue();
-        if (cucina != null && !cucina.isBlank()) {
-            String lower = cucina.toLowerCase();
-            p = p.and(r -> r.getCucine().stream().anyMatch(c -> c.toLowerCase().contains(lower)));
+        // Cucine: OR — almeno una cucina selezionata deve essere presente nel ristorante
+        Set<String> cucineSelezionate = cuisineComboBox.getSelectedItems();
+        if (!cucineSelezionate.isEmpty()) {
+            p = p.and(r -> cucineSelezionate.stream().anyMatch(sel -> r.getCucine().contains(sel)));
         }
 
-        String citta = cittaComboBox.getValue();
-        if (citta != null && !citta.isBlank()) {
-            String lower = citta.toLowerCase();
-            p = p.and(r -> r.getCitta() != null && r.getCitta().toLowerCase().contains(lower));
+        // Città: OR — corrispondenza esatta (i valori del widget provengono dal server)
+        Set<String> cittaSelezionate = cittaComboBox.getSelectedItems();
+        if (!cittaSelezionate.isEmpty()) {
+            p = p.and(r -> r.getCitta() != null && cittaSelezionate.contains(r.getCitta()));
         }
 
-        String nazione = nazioneComboBox.getValue();
-        if (nazione != null && !nazione.isBlank()) {
-            String lower = nazione.toLowerCase();
-            p = p.and(r -> r.getNazione() != null && r.getNazione().toLowerCase().contains(lower));
+        // Nazione: OR — corrispondenza esatta
+        Set<String> nazioniSelezionate = nazioneComboBox.getSelectedItems();
+        if (!nazioniSelezionate.isEmpty()) {
+            p = p.and(r -> r.getNazione() != null && nazioniSelezionate.contains(r.getNazione()));
         }
 
-        if (priceRangeComboBox.getValue() != null) {
-            int livello = priceRangeComboBox.getValue().length();
-            p = p.and(r -> r.getPrezzoLivello() == livello);
+        // Prezzo: OR sui livelli numerici (lunghezza stringa "€€" = 2)
+        Set<String> prezziSelezionati = priceRangeComboBox.getSelectedItems();
+        if (!prezziSelezionati.isEmpty()) {
+            Set<Integer> livelli = prezziSelezionati.stream()
+                    .map(String::length)
+                    .collect(Collectors.toSet());
+            p = p.and(r -> livelli.contains(r.getPrezzoLivello()));
         }
 
-        if (starsComboBox.getValue() != null) {
-            String riconoscimento = switch (starsComboBox.getValue()) {
-                case "1 Stella Michelin"    -> "1 Star";
-                case "2 Stelle Michelin"    -> "2 Stars";
-                case "3 Stelle Michelin"    -> "3 Stars";
-                case "Bib Gourmand"         -> "Bib Gourmand";
-                case "Selezionato Michelin" -> "Selected Restaurants";
-                default -> null;
-            };
-            if (riconoscimento != null) {
-                final String r2 = riconoscimento;
-                p = p.and(r -> r2.equals(r.getRiconoscimento()));
+        // Stelle Michelin: OR — mappa etichette italiane ai valori DB
+        Set<String> stelleSelezionate = starsComboBox.getSelectedItems();
+        if (!stelleSelezionate.isEmpty()) {
+            Set<String> riconoscimenti = stelleSelezionate.stream()
+                    .map(s -> switch (s) {
+                        case "1 Stella Michelin"    -> "1 Star";
+                        case "2 Stelle Michelin"    -> "2 Stars";
+                        case "3 Stelle Michelin"    -> "3 Stars";
+                        case "Bib Gourmand"         -> "Bib Gourmand";
+                        case "Selezionato Michelin" -> "Selected Restaurants";
+                        default -> null;
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+            if (!riconoscimenti.isEmpty()) {
+                p = p.and(r -> riconoscimenti.contains(r.getRiconoscimento()));
             }
         }
 
-        String servizio = serviceComboBox.getValue();
-        if (servizio != null && !servizio.isBlank()) {
-            String lower = servizio.toLowerCase();
-            p = p.and(r -> r.getServizi().stream().anyMatch(s -> s.toLowerCase().contains(lower)));
+        // Servizi: AND — il ristorante deve offrire TUTTI i servizi selezionati
+        Set<String> serviziSelezionati = serviceComboBox.getSelectedItems();
+        if (!serviziSelezionati.isEmpty()) {
+            p = p.and(r -> serviziSelezionati.stream().allMatch(sel -> r.getServizi().contains(sel)));
         }
 
         if (deliveryCheckBox.isSelected())       p = p.and(Ristorante::isDelivery);
@@ -593,5 +599,44 @@ public class EsploraRistorantiController implements Initializable {
     public void refreshView() {
         restaurantListView.refresh();
         updateStatistics();
+    }
+
+    /**
+     * Registra i listener reattivi su tutti i widget di filtro.
+     * I MultiSelectComboBox notificano tramite SetChangeListener, i CheckBox tramite selectedProperty,
+     * la searchField con un debounce di 150 ms per non filtrare a ogni singolo keystroke.
+     */
+    private void setupFilterListeners() {
+        SetChangeListener<String> widgetListener = change -> applyFilters();
+        cuisineComboBox.getSelectedItems().addListener(widgetListener);
+        serviceComboBox.getSelectedItems().addListener(widgetListener);
+        cittaComboBox.getSelectedItems().addListener(widgetListener);
+        nazioneComboBox.getSelectedItems().addListener(widgetListener);
+        starsComboBox.getSelectedItems().addListener(widgetListener);
+        priceRangeComboBox.getSelectedItems().addListener(widgetListener);
+
+        deliveryCheckBox.selectedProperty().addListener((obs, o, n) -> applyFilters());
+        onlineBookingCheckBox.selectedProperty().addListener((obs, o, n) -> applyFilters());
+        greenStarCheckBox.selectedProperty().addListener((obs, o, n) -> applyFilters());
+
+        PauseTransition debounce = new PauseTransition(Duration.millis(150));
+        debounce.setOnFinished(e -> applyFilters());
+        searchField.textProperty().addListener((obs, oldVal, newVal) -> {
+            debounce.stop();
+            debounce.playFromStart();
+        });
+    }
+
+    /**
+     * Logga le selezioni rimosse automaticamente quando la lista di un widget viene aggiornata
+     * (Raffinamento 3: retainAll). Utile per diagnosticare perdite di selezione dopo un aggiorna.
+     */
+    private void logSelezioniPerse(String filtro, Set<String> prima, Set<String> dopo) {
+        Set<String> perse = new HashSet<>(prima);
+        perse.removeAll(dopo);
+        if (!perse.isEmpty()) {
+            System.err.println("[Aggiorna] Selezioni rimosse perché non più disponibili in "
+                    + filtro + ": " + perse);
+        }
     }
 }

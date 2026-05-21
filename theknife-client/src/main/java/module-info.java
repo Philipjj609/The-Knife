@@ -11,5 +11,6 @@ module theknife.client {
 
     opens theknife to javafx.fxml;
     opens theknife.client to javafx.fxml;
+    opens theknife.client.ui.widgets to javafx.fxml;
     opens theknife.controllers to javafx.fxml;
 }

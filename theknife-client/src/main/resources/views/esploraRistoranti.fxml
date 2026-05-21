@@ -4,6 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<?import theknife.client.ui.widgets.MultiSelectComboBox?>
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="theknife.controllers.EsploraRistorantiController"
@@ -43,12 +44,12 @@
                 <VBox spacing="12">
                     <!-- Prima riga di filtri -->
                     <HBox spacing="12" alignment="CENTER">
-                        <ComboBox fx:id="cuisineComboBox" promptText="Cucina" prefWidth="150"/>
-                        <ComboBox fx:id="serviceComboBox" promptText="Servizio" prefWidth="150"/>
-                        <ComboBox fx:id="cittaComboBox" promptText="Città" prefWidth="150"/>
-                        <ComboBox fx:id="nazioneComboBox" promptText="Nazione" prefWidth="150"/>
-                        <ComboBox fx:id="priceRangeComboBox" promptText="Prezzo" prefWidth="120"/>
-                        <ComboBox fx:id="starsComboBox" promptText="Stelle Michelin" prefWidth="120"/>
+                        <MultiSelectComboBox fx:id="cuisineComboBox" promptText="Cucina" itemNamePlural="cucine" prefWidth="150"/>
+                        <MultiSelectComboBox fx:id="serviceComboBox" promptText="Servizio" itemNamePlural="servizi" prefWidth="150"/>
+                        <MultiSelectComboBox fx:id="cittaComboBox" promptText="Città" itemNamePlural="città" prefWidth="150"/>
+                        <MultiSelectComboBox fx:id="nazioneComboBox" promptText="Nazione" itemNamePlural="nazioni" prefWidth="150"/>
+                        <MultiSelectComboBox fx:id="priceRangeComboBox" promptText="Prezzo" itemNamePlural="prezzi" prefWidth="120"/>
+                        <MultiSelectComboBox fx:id="starsComboBox" promptText="Stelle Michelin" itemNamePlural="stelle" prefWidth="120"/>
                     </HBox>
 
                     <!-- Seconda riga di filtri -->
@@ -56,7 +57,6 @@
                         <CheckBox fx:id="deliveryCheckBox" text="Delivery disponibile"/>
                         <CheckBox fx:id="onlineBookingCheckBox" text="Prenotazione online"/>
                         <CheckBox fx:id="greenStarCheckBox" text="Green Star"/>
-                        <Button fx:id="searchButton" text="Cerca" styleClass="button,primary" onAction="#handleSearch"/>
                         <Button fx:id="resetButton" text="Reset" styleClass="button,outline" onAction="#handleReset"/>
                         <Button text="↻ Aggiorna" styleClass="button,outline" onAction="#handleAggiorna"/>
                     </HBox>
