@@ -7,17 +7,9 @@
 
 <?import theknife.client.ui.widgets.MultiSelectComboBox?>
 
-<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+<VBox id="esploraRistorantiRoot" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="theknife.controllers.EsploraRistorantiController"
       styleClass="main-container">
-    
-    <!-- Header sticky in alto con il pulsante Torna alla Dashboard -->
-    <HBox fx:id="stickyHeaderBox" alignment="CENTER_LEFT" spacing="12" 
-          style="-fx-padding: 10 24; -fx-background-color: -fx-surface-bg; -fx-border-color: -fx-border-light; -fx-border-width: 0 0 1 0;"
-          visible="false" managed="false">
-        <Button fx:id="backButton" text="← Torna alla Dashboard" styleClass="button,outline" 
-                onAction="#tornaDashboard"/>
-    </HBox>
     
     <!-- ScrollPane principale per unire lo scorrimento di filtri, statistiche e ristoranti -->
     <ScrollPane fitToWidth="true" styleClass="modern-scroll" VBox.vgrow="ALWAYS">
@@ -91,12 +83,6 @@
             <VBox spacing="10">
                 <HBox alignment="CENTER_LEFT" spacing="12">
                     <Text text="Ristoranti" styleClass="heading"/>
-                    <Button fx:id="detailsButton" text="Visualizza Dettagli" styleClass="button,primary" 
-                            onAction="#handleDetails" disable="true"/>
-                    <Button fx:id="aggiungiPreferitiButton" text="❤️ Aggiungi Preferito" styleClass="button,outline" 
-                            onAction="#handleAggiungiPreferiti" disable="true"/>
-                    <Button fx:id="mapButton" text="Mappa" styleClass="button,outline" 
-                            onAction="#handleMap" disable="true"/>
                 </HBox>
                 
                 <!-- VBox per visualizzazione paginata ed evitare lag di rendering -->

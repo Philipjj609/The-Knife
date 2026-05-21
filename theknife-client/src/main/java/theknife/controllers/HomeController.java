@@ -57,6 +57,10 @@ public class HomeController implements Initializable {
     @FXML
     private Button loginButton;
 
+    /** Pulsante per tornare alla dashboard dal flusso di esplorazione ristoranti. */
+    @FXML
+    private Button tornaDashboardButton;
+
     /** Oggetto contenente i dettagli dell'utente attualmente autenticato. Pari a null se non autenticato. */
     private Utente utenteLoggato;
 
@@ -73,6 +77,11 @@ public class HomeController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         AppNavigator.initialize(contentPane, this);
+
+        contentPane.getChildren().addListener((javafx.collections.ListChangeListener.Change<? extends javafx.scene.Node> c) -> {
+            updateTornaDashboardButtonVisibility();
+        });
+
         loadWelcomeContent();
     }
 
@@ -333,5 +342,43 @@ public class HomeController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    /**
+     * Aggiorna la visibilità del pulsante "Torna alla Dashboard" nella navbar in base al pannello visualizzato.
+     */
+    private void updateTornaDashboardButtonVisibility() {
+        if (contentPane == null || contentPane.getChildren().isEmpty()) {
+            setTornaDashboardButtonVisible(false);
+            return;
+        }
+        javafx.scene.Node currentView = contentPane.getChildren().get(0);
+        String id = currentView.getId();
+
+        boolean isClientLogged = (utenteLoggato != null && utenteLoggato.getRuoloEnum() == Role.CLIENTE);
+        boolean showButton = isClientLogged && 
+            ("esploraRistorantiRoot".equals(id) || "dettaglioRistoranteRoot".equals(id));
+
+        setTornaDashboardButtonVisible(showButton);
+    }
+
+    /**
+     * Mostra o nasconde il pulsante per tornare alla dashboard.
+     *
+     * @param visible true per mostrarlo, false altrimenti
+     */
+    public void setTornaDashboardButtonVisible(boolean visible) {
+        if (tornaDashboardButton != null) {
+            tornaDashboardButton.setVisible(visible);
+            tornaDashboardButton.setManaged(visible);
+        }
+    }
+
+    /**
+     * Gestisce l'azione di click sul pulsante "Torna alla Dashboard".
+     */
+    @FXML
+    private void handleTornaDashboard() {
+        loadDashboard();
     }
 }

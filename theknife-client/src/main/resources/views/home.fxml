@@ -16,6 +16,10 @@
                 <Text text="Knife" styleClass="logo-text logo-accent"/>
             </HBox>
 
+            <!-- Torna alla Dashboard -->
+            <Button fx:id="tornaDashboardButton" text="Torna alla Dashboard" styleClass="navbar-button"
+                    visible="false" managed="false" onAction="#handleTornaDashboard"/>
+
             <!-- Login Button -->
             <Button fx:id="loginButton" text="Accedi" styleClass="navbar-button primary"
                     onAction="#handleLogin"/>

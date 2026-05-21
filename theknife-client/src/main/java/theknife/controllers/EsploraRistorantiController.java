@@ -94,20 +94,9 @@ public class EsploraRistorantiController implements Initializable {
     /** Componente grafico per la visualizzazione dell'elenco dei ristoranti filtrati (VBox). */
     @FXML private VBox restaurantsContainer;
 
-    /** Pulsante per visualizzare la scheda di dettaglio del ristorante selezionato. */
-    @FXML private Button detailsButton;
 
-    /** Pulsante per aggiungere o rimuovere dai preferiti il ristorante selezionato. */
-    @FXML private Button aggiungiPreferitiButton;
 
-    /** Pulsante per mostrare la posizione del ristorante selezionato sulla mappa. */
-    @FXML private Button mapButton;
 
-    /** Pulsante per tornare alla dashboard (visibile solo per clienti loggati). */
-    @FXML private Button backButton;
-
-    /** Contenitore sticky in alto per il pulsante backButton. */
-    @FXML private HBox stickyHeaderBox;
 
     /** Separatore statistico per la sezione dei preferiti. */
     @FXML private Separator favSeparator;
@@ -235,15 +224,9 @@ public class EsploraRistorantiController implements Initializable {
         this.currentUser = isLogged ? user : null;
         boolean isUserLogged = isLogged && user != null;
 
-        aggiungiPreferitiButton.setVisible(isUserLogged);
-        aggiungiPreferitiButton.setManaged(isUserLogged);
 
-        backButton.setVisible(isUserLogged);
-        backButton.setManaged(isUserLogged);
-        if (stickyHeaderBox != null) {
-            stickyHeaderBox.setVisible(isUserLogged);
-            stickyHeaderBox.setManaged(isUserLogged);
-        }
+
+
 
         favSeparator.setVisible(isUserLogged);
         favSeparator.setManaged(isUserLogged);
@@ -291,10 +274,7 @@ public class EsploraRistorantiController implements Initializable {
         if (selectedVisualCard != null) {
             selectedVisualCard.getStyleClass().add("selected-card");
         }
-        boolean hasSelection = selectedRestaurant != null;
-        detailsButton.setDisable(!hasSelection);
-        aggiungiPreferitiButton.setDisable(!hasSelection);
-        mapButton.setDisable(!hasSelection);
+
     }
 
     /**
@@ -323,9 +303,7 @@ public class EsploraRistorantiController implements Initializable {
             
             card.setOnMouseClicked(event -> {
                 selectRestaurant(r, card);
-                if (event.getClickCount() == 2) {
-                    openRestaurantDetails(r);
-                }
+                openRestaurantDetails(r);
             });
             
             restaurantsContainer.getChildren().add(card);
@@ -473,37 +451,7 @@ public class EsploraRistorantiController implements Initializable {
         new Thread(aggiornaTask).start();
     }
 
-    /**
-     * Mostra la finestra di dettaglio del ristorante attualmente selezionato.
-     */
-    @FXML
-    private void handleDetails() {
-        if (selectedRestaurant != null) {
-            openRestaurantDetails(selectedRestaurant);
-        }
-    }
 
-    /**
-     * Aggiunge o rimuove dai preferiti dell'utente il ristorante selezionato.
-     * Richiede che ci sia sia un ristorante selezionato sia un utente autenticato.
-     */
-    @FXML
-    private void handleAggiungiPreferiti() {
-        if (selectedRestaurant != null && currentUser != null) {
-            toggleFavorite(selectedRestaurant);
-        }
-    }
-
-    /**
-     * Mostra la posizione del ristorante selezionato sulla mappa.
-     * Se le coordinate GPS sono nulle o pari a zero, mostra un avviso all'utente.
-     */
-    @FXML
-    private void handleMap() {
-        if (selectedRestaurant != null) {
-            showOnMap(selectedRestaurant);
-        }
-    }
 
     /**
      * Costruisce un predicato combinando tutti i filtri inseriti dall'utente.
@@ -604,62 +552,9 @@ public class EsploraRistorantiController implements Initializable {
         }
     }
 
-    /**
-     * Aggiunge o rimuove asincronamente un ristorante dai preferiti dell'utente.
-     * Interroga prima il server per verificare lo stato corrente del preferito,
-     * dopodiché invia la richiesta di aggiunta o rimozione.
-     * Al completamento, aggiorna la vista corrente e la dashboard cliente genitore
-     * sul thread grafico.
-     *
-     * @param restaurant il ristorante da inserire o rimuovere.
-     */
-    private void toggleFavorite(Ristorante restaurant) {
-        new Thread(() -> {
-            boolean isFav = Main.getClient().isPreferito(currentUser.getUsername(), restaurant.getId());
-            if (isFav) {
-                Main.getClient().rimuoviPreferito(currentUser.getUsername(), restaurant.getId());
-            } else {
-                Main.getClient().aggiungiPreferito(currentUser.getUsername(), restaurant.getId());
-            }
-            javafx.application.Platform.runLater(() -> {
-                refreshView();
-                if (parentController != null) parentController.refreshData();
-            });
-        }).start();
-    }
 
-    /**
-     * Mostra la mappa geografica con la posizione del ristorante.
-     * Se non è possibile caricare la finestra di dialogo FXML della mappa,
-     * tenta di mostrare un alert informativo contenente il link di Google Maps
-     * come meccanismo di fallback.
-     *
-     * @param restaurant il ristorante da visualizzare sulla mappa.
-     */
-    private void showOnMap(Ristorante restaurant) {
-        if (restaurant.getLatitudine() == 0.0 && restaurant.getLongitudine() == 0.0) {
-            showAlert("Info", "Posizione non disponibile",
-                    "Le coordinate GPS per questo ristorante non sono disponibili.");
-            return;
-        }
 
-        try {
-            AppNavigator.show("/views/mapDialog.fxml", (MapDialogController controller) ->
-                    controller.setRestaurant(restaurant));
-        } catch (IOException e) {
-            String mapUrl = String.format("https://www.google.com/maps?q=%f,%f",
-                    restaurant.getLatitudine(), restaurant.getLongitudine());
-            showAlert("Info", "Apri mappa", "URL: " + mapUrl);
-        }
-    }
 
-    /**
-     * Ritorna alla dashboard o chiude la schermata corrente.
-     */
-    @FXML
-    private void tornaDashboard() {
-        AppNavigator.goBackOrClose(searchField);
-    }
 
     /**
      * Ricalcola le statistiche riassuntive sui ristoranti correntemente

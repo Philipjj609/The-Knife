@@ -35,6 +35,9 @@ final class AppNavigator {
      */
     private AppNavigator() {}
 
+    /** Il controller principale della home. */
+    private static HomeController homeController;
+
     /**
      * Inizializza il navigatore associando il pannello contenitore e azzerando la cronologia.
      *
@@ -43,7 +46,17 @@ final class AppNavigator {
      */
     static void initialize(StackPane pane, HomeController controller) {
         contentPane = pane;
+        homeController = controller;
         history.clear();
+    }
+
+    /**
+     * Restituisce l'istanza del controller della home.
+     *
+     * @return il {@link HomeController} principale
+     */
+    static HomeController getHomeController() {
+        return homeController;
     }
 
     /**
