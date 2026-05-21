@@ -10,8 +10,9 @@ import theknife.models.Utente;
  *
  * <p>Le regole di validazione sono:</p>
  * <ul>
- *   <li><b>Nome e Cognome</b>: non vuoti, senza numeri o caratteri speciali. Ammettono
+ *   <li><b>Nome e cognome</b>: non vuoti, senza numeri o caratteri speciali. Ammettono
  *       lettere (anche accentate), apostrofi, trattini e spazi interni (es. "D'Angelo", "Rossi-Rossi").</li>
+*     <li><b>Data di nascita</b>: non futura, non oltre 120 anni fa.</li>
  *   <li><b>Username</b>: minimo 3 caratteri, non vuoto.</li>
  *   <li><b>Password</b>: minima robustezza (almeno 8 caratteri, almeno una lettera e un numero).</li>
  * </ul>
