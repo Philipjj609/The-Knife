@@ -1,19 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
 
-<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="theknife.controllers.UserMenuController"
-      spacing="10" style="-fx-padding: 20; -fx-alignment: center;">
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="theknife.controllers.UserMenuController"
+            style="-fx-background-color: -fx-primary-bg;">
+    
+    <!-- Sticky Header Top HBox -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="20" styleClass="navbar" style="-fx-padding: 15 25;">
+            <Button text="← Indietro" onAction="#handleBack" styleClass="navbar-button"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Text text="Il Mio Profilo" style="-fx-font-size: 20; -fx-font-weight: bold; -fx-fill: -fx-light-text;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Logout 🚪" onAction="#handleLogout" styleClass="navbar-button" style="-fx-background-color: -fx-danger; -fx-border-color: -fx-danger;"/>
+        </HBox>
+    </top>
 
-    <Label fx:id="usernameLabel" text="Username" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
-    <Label fx:id="roleLabel" text="Ruolo" style="-fx-font-size: 12; -fx-text-fill: #666;"/>
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 30;">
+                
+                <!-- Main Card Container -->
+                <VBox spacing="25" styleClass="card" style="-fx-max-width: 600; -fx-min-width: 600; -fx-padding: 30;">
+                    
+                    <!-- Header inside Card -->
+                    <VBox spacing="5" alignment="CENTER">
+                        <Label fx:id="usernameTitleLabel" text="username" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: -fx-primary-green;"/>
+                        <Label fx:id="roleTitleLabel" text="RUOLO" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: -fx-secondary-text; -fx-background-color: -fx-soft-green; -fx-padding: 4 12; -fx-background-radius: 12;"/>
+                    </VBox>
 
-    <Separator/>
+                    <Separator/>
 
-    <Button text="Logout" onAction="#handleLogout"
-            style="-fx-pref-width: 150; -fx-background-color: #e74c3c; -fx-text-fill: white;"/>
-    <Button text="Indietro" onAction="#handleBack" styleClass="button outline"
-            style="-fx-pref-width: 150;"/>
+                    <!-- Details GridPane -->
+                    <GridPane hgap="15" vgap="20">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="120" prefWidth="150" halignment="RIGHT"/>
+                            <ColumnConstraints hgrow="ALWAYS" minWidth="250"/>
+                        </columnConstraints>
 
-</VBox>
+                        <!-- Username (Read-Only) -->
+                        <Label text="Username:" style="-fx-font-weight: bold; -fx-font-size: 14;" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                        <TextField fx:id="usernameField" editable="false" style="-fx-background-color: -fx-secondary-bg; -fx-text-fill: -fx-secondary-text;" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                        <!-- Ruolo (Read-Only) -->
+                        <Label text="Ruolo:" style="-fx-font-weight: bold; -fx-font-size: 14;" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                        <TextField fx:id="ruoloField" editable="false" style="-fx-background-color: -fx-secondary-bg; -fx-text-fill: -fx-secondary-text;" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                        <!-- Nome -->
+                        <Label text="Nome *:" style="-fx-font-weight: bold; -fx-font-size: 14;" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                        <TextField fx:id="nomeField" promptText="Inserisci il tuo nome" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                        <!-- Cognome -->
+                        <Label text="Cognome *:" style="-fx-font-weight: bold; -fx-font-size: 14;" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                        <TextField fx:id="cognomeField" promptText="Inserisci il tuo cognome" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+                        <!-- Data di Nascita -->
+                        <Label text="Data di Nascita:" style="-fx-font-weight: bold; -fx-font-size: 14;" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+                        <DatePicker fx:id="dataNascitaPicker" promptText="GG/MM/AAAA" minWidth="180" prefWidth="250" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.fillWidth="true"/>
+
+                        <!-- Domicilio -->
+                        <Label text="Domicilio:" style="-fx-font-weight: bold; -fx-font-size: 14;" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+                        <TextField fx:id="domicilioField" promptText="Città o indirizzo completo" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+                    </GridPane>
+
+                    <Separator/>
+
+                    <!-- Actions -->
+                    <HBox spacing="15" alignment="CENTER">
+                        <Button fx:id="editButton" text="Modifica Profilo" onAction="#handleEdit" styleClass="button primary" style="-fx-pref-width: 180; -fx-font-size: 14; -fx-font-weight: bold;"/>
+                        <Button fx:id="saveButton" text="Salva Modifiche" onAction="#handleSave" styleClass="button success" style="-fx-pref-width: 180; -fx-font-size: 14; -fx-font-weight: bold;" visible="false" managed="false"/>
+                        <Button fx:id="cancelButton" text="Annulla" onAction="#handleCancel" styleClass="button outline" style="-fx-pref-width: 120; -fx-font-size: 14;" visible="false" managed="false"/>
+                    </HBox>
+
+                    <!-- Error/Success Feedback -->
+                    <VBox alignment="CENTER" spacing="5">
+                        <Label fx:id="errorLabel" style="-fx-text-fill: -fx-danger; -fx-font-weight: bold;" wrapText="true"/>
+                        <Label fx:id="successLabel" style="-fx-text-fill: -fx-success; -fx-font-weight: bold;" wrapText="true"/>
+                    </VBox>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

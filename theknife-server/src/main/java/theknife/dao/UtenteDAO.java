@@ -52,4 +52,22 @@ public interface UtenteDAO {
      * @throws RuntimeException se si verifica un errore durante l'inserimento nel database
      */
     Utente save(Utente utente);
+
+    /**
+     * Trova un utente in base al suo ID univoco.
+     *
+     * @param id l'ID dell'utente da cercare
+     * @return un {@link java.util.Optional} contenente l'utente se trovato, altrimenti vuoto
+     * @throws RuntimeException se si verifica un errore nel database
+     */
+    Optional<Utente> findById(long id);
+
+    /**
+     * Aggiorna i dati personali dell'utente (nome, cognome, data di nascita, domicilio) nel database.
+     *
+     * @param utente l'utente con i dati aggiornati
+     * @return true se l'aggiornamento ha successo, false altrimenti
+     * @throws RuntimeException se si verifica un errore nel database
+     */
+    boolean update(Utente utente);
 }

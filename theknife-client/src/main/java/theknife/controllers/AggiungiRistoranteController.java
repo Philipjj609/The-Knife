@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import theknife.Main;
+import theknife.client.ui.widgets.MultiSelectComboBox;
 import theknife.models.Ristorante;
 import theknife.models.Utente;
 
@@ -35,8 +36,8 @@ public class AggiungiRistoranteController implements Initializable {
     /** Campo di testo per l'inserimento del nome del ristorante. */
     @FXML private TextField nomeField;
 
-    /** ComboBox per la scelta della tipologia di cucina principale. */
-    @FXML private ComboBox<String> cucinaCombo;
+    /** ComboBox per la scelta delle tipologie di cucina. */
+    @FXML private MultiSelectComboBox<String> cucinaComboBox;
 
     /** ComboBox per la scelta della fascia di prezzo (es. €, €€, etc.). */
     @FXML private ComboBox<String> prezzoCombo;
@@ -44,14 +45,23 @@ public class AggiungiRistoranteController implements Initializable {
     /** Campo di testo per l'indirizzo stradale del ristorante. */
     @FXML private TextField indirizzoField;
 
-    /** Campo di testo per il comune/località del ristorante. */
-    @FXML private TextField localitaField;
+    /** Campo di testo per la città del ristorante. */
+    @FXML private TextField cittaField;
+
+    /** Campo di testo per la nazione del ristorante. */
+    @FXML private TextField nazioneField;
 
     /** Campo di testo per la latitudine geografica. */
     @FXML private TextField latitudineField;
 
+    /** Label errore inline per la latitudine. */
+    @FXML private Label latitudineErrorLabel;
+
     /** Campo di testo per la longitudine geografica. */
     @FXML private TextField longitudineField;
+
+    /** Label errore inline per la longitudine. */
+    @FXML private Label longitudineErrorLabel;
 
     /** Campo di testo per il numero di telefono del ristorante. */
     @FXML private TextField telefonoField;
@@ -62,8 +72,8 @@ public class AggiungiRistoranteController implements Initializable {
     /** Area di testo per una descrizione approfondita del ristorante (minimo 50 caratteri). */
     @FXML private TextArea descrizioneArea;
 
-    /** Area di testo per elencare servizi offerti e particolarità. */
-    @FXML private TextArea serviziArea;
+    /** ComboBox per la scelta dei servizi offerti. */
+    @FXML private MultiSelectComboBox<String> serviceComboBox;
 
     /** ComboBox per specificare un eventuale premio Michelin (es. stelle o Bib Gourmand). */
     @FXML private ComboBox<String> premioCombo;
@@ -99,16 +109,40 @@ public class AggiungiRistoranteController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        cucinaCombo.setItems(FXCollections.observableArrayList(
-                "Italiana", "Mediterranea", "Francese", "Giapponese", "Cinese",
-                "Indiana", "Messicana", "Americana", "Fusion", "Creative",
-                "Contemporary", "Seafood", "Vegetariana", "Pizza", "Altro"));
-
         prezzoCombo.setItems(FXCollections.observableArrayList("€", "€€", "€€€", "€€€€"));
 
         premioCombo.setItems(FXCollections.observableArrayList(
                 "Nessuno", "Bib Gourmand", "1 Star", "2 Stars", "3 Stars"));
         premioCombo.setValue("Nessuno");
+
+        // Load cuisines and services dynamically from database in background thread
+        Task<Void> loadDataTask = new Task<>() {
+            private List<String> cucineList;
+            private List<String> serviziList;
+
+            @Override
+            protected Void call() throws Exception {
+                cucineList = Main.getClient().getCucine();
+                serviziList = Main.getClient().getServizi();
+                return null;
+            }
+
+            @Override
+            protected void succeeded() {
+                if (cucineList != null) {
+                    cucinaComboBox.setItems(FXCollections.observableArrayList(cucineList));
+                }
+                if (serviziList != null) {
+                    serviceComboBox.setItems(FXCollections.observableArrayList(serviziList));
+                }
+            }
+
+            @Override
+            protected void failed() {
+                System.err.println("Errore nel caricamento di cucine e servizi: " + getException().getMessage());
+            }
+        };
+        new Thread(loadDataTask).start();
 
         latitudineField.textProperty().addListener((obs, o, n) -> {
             if (!n.matches("-?\\d*\\.?\\d*")) latitudineField.setText(o);
@@ -152,20 +186,15 @@ public class AggiungiRistoranteController implements Initializable {
             int prezzoLivello = prezzoCombo.getValue().length(); // €=1, €€=2, etc.
             String rico = premioCombo.getValue().equals("Nessuno") ? null : premioCombo.getValue();
 
-            List<String> cucine = new ArrayList<>();
-            cucine.add(cucinaCombo.getValue());
-
-            List<String> servizi = new ArrayList<>();
-            if (!serviziArea.getText().trim().isEmpty()) {
-                servizi.add(serviziArea.getText().trim());
-            }
+            List<String> cucine = new ArrayList<>(cucinaComboBox.getSelectedItems());
+            List<String> servizi = new ArrayList<>(serviceComboBox.getSelectedItems());
 
             Ristorante nuovo = new Ristorante(
                     0, // id generato dal server
                     nomeField.getText().trim(),
                     indirizzoField.getText().trim(),
-                    localitaField.getText().trim(),
-                    null, // nazione
+                    cittaField.getText().trim(),
+                    nazioneField.getText().trim(),
                     Double.parseDouble(latitudineField.getText().trim()),
                     Double.parseDouble(longitudineField.getText().trim()),
                     prezzoLivello,
@@ -213,29 +242,83 @@ public class AggiungiRistoranteController implements Initializable {
      * @return {@code true} se la validazione ha successo, {@code false} se ci sono errori
      */
     private boolean validaCampi() {
+        boolean ok = true;
         StringBuilder errori = new StringBuilder();
+
         if (nomeField.getText().trim().isEmpty()) errori.append("• Nome del ristorante è obbligatorio\n");
-        if (cucinaCombo.getValue() == null) errori.append("• Tipo di cucina è obbligatorio\n");
+        if (cucinaComboBox.getSelectedItems().isEmpty()) errori.append("• Tipo di cucina è obbligatorio\n");
         if (prezzoCombo.getValue() == null) errori.append("• Fascia di prezzo è obbligatoria\n");
         if (indirizzoField.getText().trim().isEmpty()) errori.append("• Indirizzo è obbligatorio\n");
-        if (localitaField.getText().trim().isEmpty()) errori.append("• Località è obbligatoria\n");
-        if (latitudineField.getText().trim().isEmpty()) errori.append("• Latitudine è obbligatoria\n");
-        if (longitudineField.getText().trim().isEmpty()) errori.append("• Longitudine è obbligatoria\n");
+        if (cittaField.getText().trim().isEmpty()) errori.append("• Città è obbligatoria\n");
+        if (nazioneField.getText().trim().isEmpty()) errori.append("• Nazione è obbligatoria\n");
         if (telefonoField.getText().trim().isEmpty()) errori.append("• Telefono è obbligatorio\n");
         if (descrizioneArea.getText().trim().isEmpty()) errori.append("• Descrizione è obbligatoria\n");
         else if (descrizioneArea.getText().trim().length() < 50) errori.append("• Descrizione: almeno 50 caratteri\n");
 
-        if (errori.length() > 0) {
-            errorLabel.setText("❌ Errori:\n" + errori);
-            return false;
+        // Validazione latitudine con errore inline
+        if (latitudineField.getText().trim().isEmpty()) {
+            setInlineError(latitudineErrorLabel, latitudineField, "Obbligatoria");
+            ok = false;
+        } else {
+            try {
+                double lat = Double.parseDouble(latitudineField.getText().trim());
+                if (lat < -90 || lat > 90) {
+                    setInlineError(latitudineErrorLabel, latitudineField, "Deve essere tra -90 e 90");
+                    ok = false;
+                }
+            } catch (NumberFormatException e) {
+                setInlineError(latitudineErrorLabel, latitudineField, "Numero non valido");
+                ok = false;
+            }
         }
-        return true;
+
+        // Validazione longitudine con errore inline
+        if (longitudineField.getText().trim().isEmpty()) {
+            setInlineError(longitudineErrorLabel, longitudineField, "Obbligatoria");
+            ok = false;
+        } else {
+            try {
+                double lon = Double.parseDouble(longitudineField.getText().trim());
+                if (lon < -180 || lon > 180) {
+                    setInlineError(longitudineErrorLabel, longitudineField, "Deve essere tra -180 e 180");
+                    ok = false;
+                }
+            } catch (NumberFormatException e) {
+                setInlineError(longitudineErrorLabel, longitudineField, "Numero non valido");
+                ok = false;
+            }
+        }
+
+        if (errori.length() > 0) {
+            errorLabel.setText("❌ " + errori.toString().trim());
+            ok = false;
+        }
+        return ok;
+    }
+
+    private void setInlineError(Label errorLbl, TextField field, String msg) {
+        errorLbl.setText("⚠ " + msg);
+        errorLbl.setVisible(true);
+        errorLbl.setManaged(true);
+        field.setStyle(field.getStyle() + "-fx-border-color: #e74c3c;");
+    }
+
+    private void clearInlineError(Label errorLbl, TextField field) {
+        errorLbl.setText("");
+        errorLbl.setVisible(false);
+        errorLbl.setManaged(false);
+        field.setStyle(field.getStyle().replace("-fx-border-color: #e74c3c;", ""));
     }
 
     /**
      * Pulisce i messaggi d'errore e di successo dalle relative label nella UI.
      */
-    private void clearMessages() { errorLabel.setText(""); successLabel.setText(""); }
+    private void clearMessages() {
+        errorLabel.setText("");
+        successLabel.setText("");
+        clearInlineError(latitudineErrorLabel, latitudineField);
+        clearInlineError(longitudineErrorLabel, longitudineField);
+    }
 
     /**
      * Gestisce l'annullamento dell'inserimento, tornando alla schermata precedente.

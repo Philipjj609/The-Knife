@@ -123,6 +123,9 @@ public class DettaglioRistoranteController implements Initializable {
     /** Lo username dell'utente attualmente loggato. */
     private String currentUser;
 
+    /** True se chi visualizza è il ristoratore proprietario: nasconde recensioni e preferiti. */
+    private boolean isProprietario = false;
+
     /** Riferimento opzionale al controller padre della dashboard cliente per favorire l'aggiornamento reciproco. */
     private DashboardClienteController dashboardClienteParentController;
 
@@ -169,6 +172,12 @@ public class DettaglioRistoranteController implements Initializable {
         updateFavoritesButton();
     }
 
+    public void setIsProprietario(boolean isProprietario) {
+        this.isProprietario = isProprietario;
+        updateRecensioneButton();
+        updateFavoritesButton();
+    }
+
     /**
      * Associa il controller genitore della dashboard cliente.
      *
@@ -183,8 +192,11 @@ public class DettaglioRistoranteController implements Initializable {
      * a seconda che l'utente sia registrato e autenticato (username non nullo).
      */
     private void updateRecensioneButton() {
-        aggiungiRecensione.setVisible(currentUser != null);
-        aggiungiPreferiti.setVisible(currentUser != null);
+        boolean show = currentUser != null && !isProprietario;
+        aggiungiRecensione.setVisible(show);
+        aggiungiRecensione.setManaged(show);
+        aggiungiPreferiti.setVisible(show);
+        aggiungiPreferiti.setManaged(show);
     }
 
     /**

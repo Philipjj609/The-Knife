@@ -29,6 +29,26 @@ public interface RispostaDAO {
     Risposta save(Risposta risposta, long proprietarioId);
 
     /**
+     * Aggiorna il testo di una risposta esistente, verificando che il ristoratore
+     * autenticato sia proprietario del ristorante recensito.
+     *
+     * @param risposta       la risposta con ID e testo aggiornato
+     * @param proprietarioId l'ID dell'utente ristoratore proprietario
+     * @return true se la risposta e stata aggiornata, false altrimenti
+     */
+    boolean update(Risposta risposta, long proprietarioId);
+
+    /**
+     * Elimina una risposta esistente, verificando che il ristoratore autenticato
+     * sia proprietario del ristorante recensito.
+     *
+     * @param rispostaId     l'ID della risposta da eliminare
+     * @param proprietarioId l'ID dell'utente ristoratore proprietario
+     * @return true se la risposta e stata eliminata, false altrimenti
+     */
+    boolean delete(long rispostaId, long proprietarioId);
+
+    /**
      * Recupera l'eventuale risposta associata a una determinata recensione.
      *
      * @param recensioneId l'identificativo univoco della recensione

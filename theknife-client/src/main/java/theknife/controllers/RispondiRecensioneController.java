@@ -4,6 +4,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.text.Text;
 import theknife.Main;
 import theknife.models.Recensione;
 import theknife.models.Risposta;
@@ -41,8 +42,14 @@ public class RispondiRecensioneController implements Initializable {
     /** Label per visualizzare eventuali messaggi di errore. */
     @FXML private Label errorLabel;
 
+    @FXML private Text titoloPaginaText;
+    @FXML private Button inviaRispostaButton;
+
     /** L'oggetto recensione a cui si sta rispondendo. */
     private Recensione recensione;
+
+    /** Risposta esistente quando la schermata viene usata in modalita modifica. */
+    private Risposta rispostaEsistente;
 
     /** Lo username del ristoratore corrente che risponde. */
     private String currentUser;
@@ -67,6 +74,15 @@ public class RispondiRecensioneController implements Initializable {
     public void setRecensione(Recensione recensione) {
         this.recensione = recensione;
         popolaCampiRecensione();
+    }
+
+    public void setRispostaEsistente(Risposta risposta) {
+        this.rispostaEsistente = risposta;
+        if (risposta == null) return;
+
+        rispostaArea.setText(risposta.getTesto());
+        titoloPaginaText.setText("Modifica Risposta");
+        inviaRispostaButton.setText("Salva Modifiche");
     }
 
     /**
@@ -111,12 +127,20 @@ public class RispondiRecensioneController implements Initializable {
             return;
         }
 
-        Risposta nuova = new Risposta(currentUser, recensione.getId(), rispostaArea.getText().trim());
+        Risposta rispostaDaSalvare = new Risposta(currentUser, recensione.getId(), rispostaArea.getText().trim());
+        boolean isModifica = rispostaEsistente != null;
+        if (isModifica) {
+            rispostaDaSalvare.setId(rispostaEsistente.getId());
+        }
 
         Task<Risposta> task = new Task<>() {
             @Override
             protected Risposta call() {
-                return Main.getClient().rispondiRecensione(nuova);
+                if (isModifica) {
+                    Main.getClient().modificaRisposta(rispostaDaSalvare);
+                    return rispostaDaSalvare;
+                }
+                return Main.getClient().rispondiRecensione(rispostaDaSalvare);
             }
         };
 
@@ -125,7 +149,7 @@ public class RispondiRecensioneController implements Initializable {
             AppNavigator.goBackOrClose(rispostaArea);
         });
 
-        task.setOnFailed(e -> errorLabel.setText("Errore nell'inviare la risposta: " + task.getException().getMessage()));
+        task.setOnFailed(e -> errorLabel.setText("Errore nel salvare la risposta: " + task.getException().getMessage()));
 
         new Thread(task).start();
     }

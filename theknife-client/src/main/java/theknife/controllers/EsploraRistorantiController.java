@@ -106,6 +106,9 @@ public class EsploraRistorantiController implements Initializable {
     /** Pulsante per tornare alla dashboard (visibile solo per clienti loggati). */
     @FXML private Button backButton;
 
+    /** Contenitore sticky in alto per il pulsante backButton. */
+    @FXML private HBox stickyHeaderBox;
+
     /** Separatore statistico per la sezione dei preferiti. */
     @FXML private Separator favSeparator;
 
@@ -237,6 +240,10 @@ public class EsploraRistorantiController implements Initializable {
 
         backButton.setVisible(isUserLogged);
         backButton.setManaged(isUserLogged);
+        if (stickyHeaderBox != null) {
+            stickyHeaderBox.setVisible(isUserLogged);
+            stickyHeaderBox.setManaged(isUserLogged);
+        }
 
         favSeparator.setVisible(isUserLogged);
         favSeparator.setManaged(isUserLogged);

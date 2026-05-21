@@ -50,6 +50,49 @@ public class RispostaDAOImpl implements RispostaDAO {
     }
 
     @Override
+    public boolean update(Risposta risposta, long proprietarioId) {
+        String sql = """
+            UPDATE risposte risp
+            SET testo = ?, data_risposta = ?
+            FROM recensioni rec
+            JOIN ristoranti r ON r.id = rec.ristorante_id
+            WHERE risp.recensione_id = rec.id
+              AND risp.id = ?
+              AND r.proprietario_id = ?
+            """;
+        try (Connection conn = ConnectionPool.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, risposta.getTesto());
+            ps.setTimestamp(2, Timestamp.valueOf(risposta.getDataRisposta()));
+            ps.setLong(3, risposta.getId());
+            ps.setLong(4, proprietarioId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(messaggioErroreRisposta(e), e);
+        }
+    }
+
+    @Override
+    public boolean delete(long rispostaId, long proprietarioId) {
+        String sql = """
+            DELETE FROM risposte risp
+            USING recensioni rec
+            JOIN ristoranti r ON r.id = rec.ristorante_id
+            WHERE risp.recensione_id = rec.id
+              AND risp.id = ?
+              AND r.proprietario_id = ?
+            """;
+        try (Connection conn = ConnectionPool.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, rispostaId);
+            ps.setLong(2, proprietarioId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore delete risposta: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
     public Optional<Risposta> findByRecensione(long recensioneId) {
         String sql = """
             SELECT id, recensione_id, username_ristoratore, testo, data_risposta

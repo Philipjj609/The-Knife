@@ -10,6 +10,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import theknife.Main;
 import theknife.models.Recensione;
+import theknife.models.Risposta;
 import theknife.models.Ristorante;
 import theknife.models.Utente;
 
@@ -92,6 +93,19 @@ public class DashboardRistoratoreController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         setupRistorantiListView();
         setupRecensioniListView();
+        setupFiltroRistoranteCombo();
+    }
+
+    private void setupFiltroRistoranteCombo() {
+        filtroRistoranteCombo.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null || item.isBlank()
+                        ? filtroRistoranteCombo.getPromptText()
+                        : item);
+            }
+        });
     }
 
     /**
@@ -182,6 +196,15 @@ public class DashboardRistoratoreController implements Initializable {
      */
     private void updateStatistiche(List<Ristorante> ristoranti, List<Recensione> recensioni) {
         numRistorantiLabel.setText(String.valueOf(ristoranti.size()));
+        updateStatisticheRecensioni(recensioni);
+    }
+
+    /**
+     * Aggiorna le statistiche basate sulle recensioni attualmente visualizzate.
+     *
+     * @param recensioni la lista di recensioni da rappresentare nelle statistiche
+     */
+    private void updateStatisticheRecensioni(List<Recensione> recensioni) {
         totalRecensioniLabel.setText(String.valueOf(recensioni.size()));
 
         if (recensioni.isEmpty()) {
@@ -314,7 +337,17 @@ public class DashboardRistoratoreController implements Initializable {
             rispostaTesto.setStyle("-fx-font-size: 11; -fx-fill: #2e7d32;");
             rispostaTesto.setWrappingWidth(480);
 
-            rispostaBox.getChildren().addAll(rispostaHeader, rispostaTesto);
+            HBox rispostaActions = new HBox(10);
+            Button modificaRispostaBtn = new Button("Modifica risposta");
+            modificaRispostaBtn.setStyle("-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-size: 11;");
+            modificaRispostaBtn.setOnAction(event -> apriModificaRisposta(recensione));
+
+            Button eliminaRispostaBtn = new Button("Elimina risposta");
+            eliminaRispostaBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 11;");
+            eliminaRispostaBtn.setOnAction(event -> confermaEliminaRisposta(recensione));
+
+            rispostaActions.getChildren().addAll(modificaRispostaBtn, eliminaRispostaBtn);
+            rispostaBox.getChildren().addAll(rispostaHeader, rispostaTesto, rispostaActions);
             card.getChildren().add(rispostaBox);
         } else {
             Button rispondiBtn = new Button("💬 Rispondi alla Recensione");
@@ -353,6 +386,8 @@ public class DashboardRistoratoreController implements Initializable {
                 .filter(r -> r.getNomeRistorante().equals(ristoranteSelezionato))
                 .collect(Collectors.toList());
         recensioniListView.setItems(FXCollections.observableArrayList(filtrate));
+        updateStatisticheRecensioni(filtrate);
+        nessueRecensioniRistoratoreLabel.setVisible(filtrate.isEmpty());
     }
 
     /**
@@ -360,8 +395,12 @@ public class DashboardRistoratoreController implements Initializable {
      */
     @FXML
     private void handleMostraTutte() {
+        filtroRistoranteCombo.getSelectionModel().clearSelection();
         filtroRistoranteCombo.setValue(null);
+        filtroRistoranteCombo.setPromptText("Filtra per ristorante");
         recensioniListView.setItems(FXCollections.observableArrayList(tutteRecensioni));
+        updateStatisticheRecensioni(tutteRecensioni);
+        nessueRecensioniRistoratoreLabel.setVisible(tutteRecensioni.isEmpty());
     }
 
     /**
@@ -374,6 +413,7 @@ public class DashboardRistoratoreController implements Initializable {
             AppNavigator.show("/views/dettaglioRistorante.fxml", (DettaglioRistoranteController controller) -> {
                 controller.setRistorante(ristorante);
                 controller.setCurrentUser(currentUser.getUsername());
+                controller.setIsProprietario(true);
             });
         } catch (IOException e) {
             e.printStackTrace();
@@ -395,6 +435,50 @@ public class DashboardRistoratoreController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void apriModificaRisposta(Recensione recensione) {
+        Risposta risposta = recensione.getRisposta();
+        if (risposta == null) return;
+
+        try {
+            AppNavigator.show("/views/rispondiRecensione.fxml", (RispondiRecensioneController controller) -> {
+                controller.setRecensione(recensione);
+                controller.setCurrentUser(currentUser.getUsername());
+                controller.setParentController(this);
+                controller.setRispostaEsistente(risposta);
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void confermaEliminaRisposta(Recensione recensione) {
+        Risposta risposta = recensione.getRisposta();
+        if (risposta == null) return;
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Elimina risposta");
+        confirm.setHeaderText("Eliminare la risposta a questa recensione?");
+        confirm.setContentText("La recensione restera visibile, ma la tua risposta verra rimossa.");
+        confirm.showAndWait()
+                .filter(button -> button == ButtonType.OK)
+                .ifPresent(button -> eliminaRisposta(risposta.getId()));
+    }
+
+    private void eliminaRisposta(long rispostaId) {
+        Task<Boolean> task = new Task<>() {
+            @Override
+            protected Boolean call() {
+                return Main.getClient().eliminaRisposta(rispostaId);
+            }
+        };
+
+        task.setOnSucceeded(event -> refreshData());
+        task.setOnFailed(event -> showAlert("Errore", "Impossibile eliminare la risposta",
+                task.getException().getMessage()));
+
+        new Thread(task).start();
     }
 
     /**

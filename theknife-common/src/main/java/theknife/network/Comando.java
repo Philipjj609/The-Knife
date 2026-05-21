@@ -142,6 +142,20 @@ public enum Comando {
     RISPONDI_RECENSIONE,
 
     /**
+     * Consente ad un ristoratore proprietario di modificare una risposta gia inserita.
+     * Parametri attesi: "risposta" (Risposta).
+     * Ritorna: {@link Boolean} (esito dell'operazione).
+     */
+    MODIFICA_RISPOSTA,
+
+    /**
+     * Consente ad un ristoratore proprietario di eliminare una risposta gia inserita.
+     * Parametri attesi: "id" (Long).
+     * Ritorna: {@link Boolean} (esito dell'operazione).
+     */
+    ELIMINA_RISPOSTA,
+
+    /**
      * Recupera tutti i ristoranti salvati come preferiti da un utente cliente.
      * Parametri attesi: "username" (String).
      * Ritorna: {@link java.util.List} di {@link theknife.models.Ristorante}.
@@ -167,5 +181,12 @@ public enum Comando {
      * Parametri attesi: "username" (String), "ristoranteId" (Long).
      * Ritorna: {@link Boolean} (true se preferito, false altrimenti).
      */
-    IS_PREFERITO
+    IS_PREFERITO,
+
+    /**
+     * Consente ad un utente registrato di aggiornare i propri dati anagrafici.
+     * Parametri attesi: "utente" (Utente).
+     * Ritorna: {@link theknife.models.Utente} (l'utente aggiornato dal database).
+     */
+    MODIFICA_UTENTE
 }

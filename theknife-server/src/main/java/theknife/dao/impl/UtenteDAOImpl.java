@@ -108,6 +108,52 @@ public class UtenteDAOImpl implements UtenteDAO {
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * Recupera un utente dal database tramite il suo ID primario.
+     */
+    @Override
+    public Optional<Utente> findById(long id) {
+        try (Connection conn = ConnectionPool.getConnection();
+             PreparedStatement ps = conn.prepareStatement(SELECT_BASE + "WHERE id = ?")) {
+            ps.setLong(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Optional.of(mapRow(rs)) : Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore findById: " + id, e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Aggiorna nome, cognome, data di nascita e domicilio per l'utente corrispondente.
+     */
+    @Override
+    public boolean update(Utente utente) {
+        String sql = """
+            UPDATE utenti
+            SET nome = ?, cognome = ?, data_nascita = ?, domicilio = ?
+            WHERE id = ?
+            """;
+        try (Connection conn = ConnectionPool.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, utente.getNome());
+            ps.setString(2, utente.getCognome());
+            if (utente.getDataNascita() != null)
+                ps.setDate(3, Date.valueOf(utente.getDataNascita()));
+            else
+                ps.setNull(3, Types.DATE);
+            ps.setString(4, utente.getDomicilio());
+            ps.setLong(5, utente.getId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore update utente: " + utente.getUsername(), e);
+        }
+    }
+
+    /**
      * Mappa una riga del ResultSet correntemente posizionato in un oggetto Utente.
      *
      * @param rs il ResultSet posizionato sulla riga da estrarre

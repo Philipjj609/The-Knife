@@ -11,6 +11,14 @@
       fx:controller="theknife.controllers.EsploraRistorantiController"
       styleClass="main-container">
     
+    <!-- Header sticky in alto con il pulsante Torna alla Dashboard -->
+    <HBox fx:id="stickyHeaderBox" alignment="CENTER_LEFT" spacing="12" 
+          style="-fx-padding: 10 24; -fx-background-color: -fx-surface-bg; -fx-border-color: -fx-border-light; -fx-border-width: 0 0 1 0;"
+          visible="false" managed="false">
+        <Button fx:id="backButton" text="← Torna alla Dashboard" styleClass="button,outline" 
+                onAction="#tornaDashboard"/>
+    </HBox>
+    
     <!-- ScrollPane principale per unire lo scorrimento di filtri, statistiche e ristoranti -->
     <ScrollPane fitToWidth="true" styleClass="modern-scroll" VBox.vgrow="ALWAYS">
         <VBox spacing="16" style="-fx-padding: 16 24 24 24;">
@@ -89,9 +97,6 @@
                             onAction="#handleAggiungiPreferiti" disable="true"/>
                     <Button fx:id="mapButton" text="Mappa" styleClass="button,outline" 
                             onAction="#handleMap" disable="true"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="backButton" text="← Dashboard" styleClass="button,outline" 
-                            onAction="#tornaDashboard" visible="false" managed="false"/>
                 </HBox>
                 
                 <!-- VBox per visualizzazione paginata ed evitare lag di rendering -->

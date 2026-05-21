@@ -4,10 +4,19 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<?import theknife.client.ui.widgets.MultiSelectComboBox?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="theknife.controllers.AggiungiRistoranteController"
             style="-fx-background-color: #f8f9fa;">
+
+    <!-- Sticky header con pulsante indietro -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 10 24; -fx-background-color: white; -fx-border-color: #dee2e6; -fx-border-width: 0 0 1 0;">
+            <Button text="← Indietro" onAction="#handleAnnulla"
+                    style="-fx-background-color: transparent; -fx-border-color: #6c757d; -fx-border-radius: 5; -fx-padding: 6 14; -fx-font-size: 13;"/>
+        </HBox>
+    </top>
 
     <center>
         <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
@@ -17,6 +26,11 @@
                     <Text text="Aggiungi il Tuo Ristorante" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-fill: #2c3e50; -fx-text-alignment: center;"/>
                     <Label text="Compila tutti i campi per aggiungere il tuo ristorante al sistema"
                           style="-fx-font-size: 14; -fx-text-fill: #6c757d; -fx-alignment: center;"/>
+
+                    <Label fx:id="errorLabel" wrapText="true"
+                           style="-fx-text-fill: #e74c3c; -fx-font-weight: bold;"/>
+                    <Label fx:id="successLabel" wrapText="true"
+                           style="-fx-text-fill: #27ae60; -fx-font-weight: bold;"/>
 
                     <!-- Informazioni Base -->
                     <VBox spacing="15" style="-fx-background-color: white; -fx-padding: 20; -fx-border-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);">
@@ -30,7 +44,7 @@
 
                         <VBox spacing="8">
                             <Label text="Tipo di Cucina *" style="-fx-font-weight: bold;"/>
-                            <ComboBox fx:id="cucinaCombo" promptText="Seleziona tipo di cucina"
+                            <MultiSelectComboBox fx:id="cucinaComboBox" promptText="Seleziona tipo di cucina" itemNamePlural="cucine"
                                      style="-fx-pref-width: 100%; -fx-padding: 8;"/>
                         </VBox>
 
@@ -50,22 +64,33 @@
                                       style="-fx-padding: 12; -fx-border-radius: 5; -fx-font-size: 14;"/>
                         </VBox>
 
-                        <VBox spacing="8">
-                            <Label text="Località/Città *" style="-fx-font-weight: bold;"/>
-                            <TextField fx:id="localitaField" promptText="Es. Milano, Italia"
-                                      style="-fx-padding: 12; -fx-border-radius: 5; -fx-font-size: 14;"/>
-                        </VBox>
-
                         <HBox spacing="15">
                             <VBox spacing="8" HBox.hgrow="ALWAYS">
-                                <Label text="Latitudine" style="-fx-font-weight: bold;"/>
-                                <TextField fx:id="latitudineField" promptText="Es. 45.4642"
+                                <Label text="Città *" style="-fx-font-weight: bold;"/>
+                                <TextField fx:id="cittaField" promptText="Es. Milano"
                                           style="-fx-padding: 12; -fx-border-radius: 5; -fx-font-size: 14;"/>
                             </VBox>
                             <VBox spacing="8" HBox.hgrow="ALWAYS">
-                                <Label text="Longitudine" style="-fx-font-weight: bold;"/>
+                                <Label text="Nazione *" style="-fx-font-weight: bold;"/>
+                                <TextField fx:id="nazioneField" promptText="Es. Italia"
+                                          style="-fx-padding: 12; -fx-border-radius: 5; -fx-font-size: 14;"/>
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="15">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Latitudine *" style="-fx-font-weight: bold;"/>
+                                <TextField fx:id="latitudineField" promptText="Es. 45.4642"
+                                          style="-fx-padding: 12; -fx-border-radius: 5; -fx-font-size: 14;"/>
+                                <Label fx:id="latitudineErrorLabel" wrapText="true"
+                                       style="-fx-text-fill: #e74c3c; -fx-font-size: 12;" managed="false" visible="false"/>
+                            </VBox>
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label text="Longitudine *" style="-fx-font-weight: bold;"/>
                                 <TextField fx:id="longitudineField" promptText="Es. 9.1900"
                                           style="-fx-padding: 12; -fx-border-radius: 5; -fx-font-size: 14;"/>
+                                <Label fx:id="longitudineErrorLabel" wrapText="true"
+                                       style="-fx-text-fill: #e74c3c; -fx-font-size: 12;" managed="false" visible="false"/>
                             </VBox>
                         </HBox>
 
@@ -104,12 +129,10 @@
 
                         <VBox spacing="8">
                             <Label text="Servizi e Strutture" style="-fx-font-weight: bold;"/>
-                            <TextArea fx:id="serviziArea" promptText="Es. Aria condizionata, Parcheggio, Terrazza, WiFi gratuito, Accessibile ai disabili..."
-                                     prefRowCount="3" wrapText="true"
-                                     style="-fx-padding: 12; -fx-border-radius: 5; -fx-font-size: 14;"/>
+                            <MultiSelectComboBox fx:id="serviceComboBox" promptText="Seleziona servizi disponibili" itemNamePlural="servizi"
+                                     style="-fx-pref-width: 100%; -fx-padding: 8;"/>
                         </VBox>
 
-                        <!-- Nuovi servizi specifici -->
                         <VBox spacing="12">
                             <Label text="Servizi Aggiuntivi" style="-fx-font-weight: bold; -fx-font-size: 16;"/>
                             <HBox spacing="20">
@@ -143,9 +166,6 @@
                         <Button text="Annulla" onAction="#handleAnnulla"
                                 style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 12 25; -fx-font-size: 16;"/>
                     </HBox>
-
-                    <Label fx:id="errorLabel" style="-fx-text-fill: #e74c3c; -fx-font-weight: bold; -fx-alignment: center;"/>
-                    <Label fx:id="successLabel" style="-fx-text-fill: #27ae60; -fx-font-weight: bold; -fx-alignment: center;"/>
 
                 </VBox>
             </HBox>

@@ -151,6 +151,28 @@ public class GestoreClient implements Runnable {
                 }
                 case USERNAME_ESISTE ->
                     Esito.ok(utenteDAO.existsByUsername(r.get("username")));
+                case MODIFICA_UTENTE -> {
+                    Utente u = r.get("utente");
+                    if (utenteAutenticato == null || utenteAutenticato.getId() != u.getId()) {
+                        yield Esito.errore("Operazione non autorizzata");
+                    }
+                    java.util.Optional<Utente> oDbUser = utenteDAO.findById(u.getId());
+                    if (oDbUser.isEmpty()) {
+                        yield Esito.errore("Utente non trovato");
+                    }
+                    Utente dbUser = oDbUser.get();
+                    dbUser.setNome(u.getNome());
+                    dbUser.setCognome(u.getCognome());
+                    dbUser.setDataNascita(u.getDataNascita());
+                    dbUser.setDomicilio(u.getDomicilio());
+                    
+                    if (utenteDAO.update(dbUser)) {
+                        utenteAutenticato = senzaPassword(dbUser);
+                        yield Esito.ok(utenteAutenticato);
+                    } else {
+                        yield Esito.errore("Impossibile salvare le modifiche dell'utente");
+                    }
+                }
 
                 // --- Ristoranti ---
                 case CERCA_RISTORANTI -> {
@@ -237,6 +259,21 @@ public class GestoreClient implements Runnable {
                             !utenteAutenticato.getUsername().equals(risposta.getUsernameRistoratore()))
                         yield Esito.errore("Operazione non autorizzata");
                     yield Esito.ok(rispostaDAO.save(risposta, utenteAutenticato.getId()));
+                }
+                case MODIFICA_RISPOSTA -> {
+                    Risposta risposta = r.get("risposta");
+                    if (!isRistoratoreAutenticato() ||
+                            !utenteAutenticato.getUsername().equals(risposta.getUsernameRistoratore()))
+                        yield Esito.errore("Operazione non autorizzata");
+                    boolean aggiornata = rispostaDAO.update(risposta, utenteAutenticato.getId());
+                    yield aggiornata ? Esito.ok(true) : Esito.errore("Risposta non trovata o non autorizzata");
+                }
+                case ELIMINA_RISPOSTA -> {
+                    long id = r.get("id");
+                    if (!isRistoratoreAutenticato())
+                        yield Esito.errore("Operazione non autorizzata");
+                    boolean eliminata = rispostaDAO.delete(id, utenteAutenticato.getId());
+                    yield eliminata ? Esito.ok(true) : Esito.errore("Risposta non trovata o non autorizzata");
                 }
 
                 // --- Preferiti ---

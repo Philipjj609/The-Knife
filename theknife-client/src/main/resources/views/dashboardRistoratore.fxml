@@ -63,8 +63,9 @@
                     <HBox spacing="15" alignment="CENTER_LEFT">
                         <Text text="Recensioni per i Tuoi Ristoranti" style="-fx-font-size: 18; -fx-font-weight: bold;"/>
                         <ComboBox fx:id="filtroRistoranteCombo" promptText="Filtra per ristorante"
-                                 onAction="#handleFiltroRistorante" prefWidth="200"/>
-                        <Button text="Mostra Tutte" onAction="#handleMostraTutte"
+                                 onAction="#handleFiltroRistorante" prefWidth="240"
+                                 styleClass="combo-box-neutral"/>
+                        <Button text="Mostra tutte" onAction="#handleMostraTutte"
                                 styleClass="button outline"/>
                     </HBox>
 

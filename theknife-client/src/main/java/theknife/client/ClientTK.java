@@ -104,6 +104,19 @@ public class ClientTK implements Closeable {
                 Map.of("username", username)));
     }
 
+    /**
+     * Modifica i dati anagrafici dell'utente registrato.
+     * Questo metodo è bloccante per la rete; deve essere eseguito al di fuori del thread della UI.
+     *
+     * @param utente l'utente con i dati aggiornati
+     * @return l'utente aggiornato dal database
+     * @throws RuntimeException se si verifica un errore di rete o se l'operazione fallisce
+     */
+    public Utente modificaUtente(Utente utente) {
+        return richiediDato(new Richiesta(Comando.MODIFICA_UTENTE,
+                Map.of("utente", utente)));
+    }
+
     // -------------------------------------------------------------------------
     // Ristoranti
     // -------------------------------------------------------------------------
@@ -316,6 +329,32 @@ public class ClientTK implements Closeable {
     public Risposta rispondiRecensione(Risposta risposta) {
         return richiediDato(new Richiesta(Comando.RISPONDI_RECENSIONE,
                 Map.of("risposta", risposta)));
+    }
+
+    /**
+     * Modifica una risposta esistente del ristoratore autenticato.
+     * Questo metodo e bloccante per la rete; deve essere eseguito al di fuori del thread della UI.
+     *
+     * @param risposta la risposta con ID e testo aggiornato
+     * @return true se la modifica e avvenuta con successo, false altrimenti
+     * @throws RuntimeException se si verifica un errore di rete
+     */
+    public boolean modificaRisposta(Risposta risposta) {
+        return richiediDato(new Richiesta(Comando.MODIFICA_RISPOSTA,
+                Map.of("risposta", risposta)));
+    }
+
+    /**
+     * Elimina una risposta esistente del ristoratore autenticato.
+     * Questo metodo e bloccante per la rete; deve essere eseguito al di fuori del thread della UI.
+     *
+     * @param id l'ID della risposta da eliminare
+     * @return true se l'eliminazione e avvenuta con successo, false altrimenti
+     * @throws RuntimeException se si verifica un errore di rete
+     */
+    public boolean eliminaRisposta(long id) {
+        return richiediDato(new Richiesta(Comando.ELIMINA_RISPOSTA,
+                Map.of("id", id)));
     }
 
     // -------------------------------------------------------------------------
