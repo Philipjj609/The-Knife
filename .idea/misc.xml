@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="JavadocGenerationManager">
+    <option name="OUTPUT_DIRECTORY" value="$USER_HOME$/Downloads/jd" />
+    <option name="OTHER_OPTIONS" value="--module-source-path theknife.common=$PROJECT_DIR$/theknife-common/src/main/java --module-source-path theknife.server=$PROJECT_DIR$/theknife-server/src/main/java --module-source-path theknife.client=$PROJECT_DIR$/theknife-client/src/main/java" />
+  </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
