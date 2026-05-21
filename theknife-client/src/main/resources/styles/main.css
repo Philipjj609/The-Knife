@@ -265,6 +265,131 @@
     -fx-background-color: -fx-secondary-bg;
 }
 
+/* ==========================================================================
+   MultiSelectComboBox & Dropdown Filter Styling
+   ========================================================================== */
+
+/* Allinea l'aspetto grafico del MultiSelectComboBox alle ComboBox standard */
+.multi-select-combo-box .multi-select-menu-button {
+    -fx-background-color: -fx-tertiary-bg;
+    -fx-border-color: -fx-border-light;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 8 12;
+    -fx-text-fill: -fx-primary-text;
+}
+
+.multi-select-combo-box .multi-select-menu-button:hover {
+    -fx-border-color: -fx-accent-green;
+    -fx-background-color: -fx-soft-green;
+}
+
+.multi-select-combo-box .multi-select-menu-button:focused {
+    -fx-border-color: -fx-accent-green;
+    -fx-border-width: 2;
+    -fx-background-color: -fx-tertiary-bg;
+}
+
+/* Rimuove l'evidenziazione blu standard di JavaFX sull'intero CustomMenuItem */
+.context-menu .menu-item.custom-menu-item,
+.context-menu .menu-item.custom-menu-item:focused,
+.context-menu .menu-item.custom-menu-item:hover,
+.context-menu .menu-item.custom-menu-item:armed,
+.context-menu .menu-item.custom-menu-item:selected,
+.context-menu .menu-item.multi-select-custom-menu-item,
+.context-menu .menu-item.multi-select-custom-menu-item:focused,
+.context-menu .menu-item.multi-select-custom-menu-item:hover,
+.context-menu .menu-item.multi-select-custom-menu-item:armed,
+.context-menu .menu-item.multi-select-custom-menu-item:selected {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-background-insets: 0;
+}
+
+/* Styling del popup (ContextMenu) del dropdown */
+.context-menu {
+    -fx-background-color: -fx-tertiary-bg;
+    -fx-border-color: -fx-border-light;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, -fx-shadow-dark, 8, 0, 0, 2);
+}
+
+/* Styling interno al popup per la lista di selezione multipla */
+.multi-select-popup-content .list-view {
+    -fx-background-color: -fx-tertiary-bg;
+    -fx-background-radius: 6;
+    -fx-border-color: -fx-border-light;
+    -fx-border-width: 1;
+    -fx-border-radius: 6;
+}
+
+.multi-select-popup-content .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-primary-text;
+    -fx-padding: 6 12;
+}
+
+.multi-select-popup-content .list-cell:hover {
+    -fx-background-color: -fx-soft-green;
+    -fx-text-fill: -fx-primary-green;
+}
+
+.multi-select-popup-content .list-cell:selected {
+    -fx-background-color: -fx-accent-green;
+    -fx-text-fill: -fx-light-text;
+}
+
+.multi-select-popup-content .list-cell:selected:hover {
+    -fx-background-color: -fx-primary-green;
+    -fx-text-fill: -fx-light-text;
+}
+
+/* Styling del CheckBox all'interno della cella per garantire contrasto e leggibilità */
+.multi-select-popup-content .list-cell .check-box,
+.multi-select-popup-content .list-cell .check-box .text {
+    -fx-text-fill: -fx-primary-text;
+}
+
+.multi-select-popup-content .list-cell:hover .check-box,
+.multi-select-popup-content .list-cell:hover .check-box .text {
+    -fx-text-fill: -fx-primary-green;
+}
+
+.multi-select-popup-content .list-cell:selected .check-box,
+.multi-select-popup-content .list-cell:selected .check-box .text {
+    -fx-text-fill: -fx-light-text;
+}
+
+.multi-select-popup-content .list-cell:selected:hover .check-box,
+.multi-select-popup-content .list-cell:selected:hover .check-box .text {
+    -fx-text-fill: -fx-light-text;
+}
+
+/* Design Premium per il Box Checkbox */
+.multi-select-popup-content .list-cell .check-box .box {
+    -fx-background-color: -fx-tertiary-bg;
+    -fx-border-color: -fx-border-medium;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+}
+
+.multi-select-popup-content .list-cell:hover .check-box .box {
+    -fx-border-color: -fx-accent-green;
+}
+
+.multi-select-popup-content .list-cell .check-box:selected .box {
+    -fx-background-color: -fx-accent-green;
+    -fx-border-color: -fx-accent-green;
+}
+
+.multi-select-popup-content .list-cell .check-box:selected .mark {
+    -fx-background-color: -fx-light-text;
+}
+
 /* Tab styling */
 .tab-pane {
     -fx-background-color: transparent;

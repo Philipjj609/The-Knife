@@ -42,6 +42,8 @@ class MultiSelectComboBoxSkin<T> extends SkinBase<MultiSelectComboBox<T>> {
     MultiSelectComboBoxSkin(MultiSelectComboBox<T> control) {
         super(control);
 
+        menuButton.getStyleClass().add("multi-select-menu-button");
+
         // --- ListView con FilteredList ---
         filteredItems = new FilteredList<>(control.getItems());
         listView = new ListView<>(filteredItems);
@@ -67,9 +69,11 @@ class MultiSelectComboBoxSkin<T> extends SkinBase<MultiSelectComboBox<T>> {
 
         // --- Contenuto popup ---
         VBox popupContent = new VBox(8, filterBar, listView);
+        popupContent.getStyleClass().add("multi-select-popup-content");
         popupContent.setPadding(new Insets(8));
 
         CustomMenuItem menuItem = new CustomMenuItem(popupContent, false);
+        menuItem.getStyleClass().add("multi-select-custom-menu-item");
         menuButton.getItems().add(menuItem);
 
         getChildren().add(menuButton);
