@@ -9,6 +9,7 @@ import theknife.models.Risposta;
 import theknife.models.Ristorante;
 import theknife.models.Role;
 import theknife.models.Utente;
+import theknife.network.Comando;
 import theknife.network.Esito;
 import theknife.network.Richiesta;
 import theknife.validation.RegistrazioneValidator;
@@ -90,7 +91,9 @@ public class GestoreClient implements Runnable {
 
             while (!socket.isClosed()) {
                 Richiesta richiesta = (Richiesta) ois.readObject();
-                log("← " + richiesta.getComando());
+                if (richiesta.getComando() != Comando.PING) {
+                    log("← " + richiesta.getComando());
+                }
 
                 Esito esito = dispatch(richiesta);
 
@@ -124,6 +127,8 @@ public class GestoreClient implements Runnable {
     private Esito dispatch(Richiesta r) {
         try {
             return switch (r.getComando()) {
+
+                case PING -> Esito.ok();
 
                 // --- Autenticazione e utenti ---
                 case LOGIN -> {

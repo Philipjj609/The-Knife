@@ -13,6 +13,12 @@ package theknife.network;
 public enum Comando {
 
     /**
+     * Verifica che la connessione con il server sia ancora attiva.
+     * Non richiede parametri e non interroga il database.
+     */
+    PING,
+
+    /**
      * Esegue l'autenticazione di un utente nel sistema.
      * Parametri attesi: "username" (String), "password" (String).
      * Ritorna: {@link theknife.models.Utente} se le credenziali sono valide.

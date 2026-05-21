@@ -16,6 +16,9 @@ import theknife.client.ClientTK;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Entry point dell'applicazione client TheKnife.
@@ -34,7 +37,9 @@ import java.io.InputStream;
 public class Main extends Application {
 
     /** Istanza globale del client di rete — accessibile da tutti i controller. */
-    private static ClientTK client;
+    private static volatile ClientTK client;
+    private ScheduledExecutorService monitorConnessione;
+    private boolean riconnessioneInCorso;
 
     @Override
     public void start(Stage primaryStage) {
@@ -50,6 +55,10 @@ public class Main extends Application {
      * @param primaryStage lo Stage principale dell'applicazione
      */
     private void mostraDialogoConnessione(Stage primaryStage) {
+        mostraDialogoConnessione(primaryStage, null);
+    }
+
+    private void mostraDialogoConnessione(Stage primaryStage, String messaggio) {
         Stage dialogStage = new Stage();
         dialogStage.setTitle("Connessione al Server — The Knife");
         setApplicationIcon(dialogStage);
@@ -70,6 +79,16 @@ public class Main extends Application {
         Label errorLabel = new Label();
         errorLabel.setStyle("-fx-text-fill: red;");
         errorLabel.setWrapText(true);
+        errorLabel.setPrefWidth(340);
+        errorLabel.setMinHeight(Label.USE_PREF_SIZE);
+
+        Label infoLabel = new Label(messaggio == null ? "" : messaggio);
+        infoLabel.setStyle("-fx-text-fill: #c0392b; -fx-font-weight: bold;");
+        infoLabel.setWrapText(true);
+        infoLabel.setPrefWidth(340);
+        infoLabel.setMinHeight(Label.USE_PREF_SIZE);
+        infoLabel.setVisible(messaggio != null && !messaggio.isBlank());
+        infoLabel.setManaged(infoLabel.isVisible());
 
         Button connectButton = new Button("Connetti");
         connectButton.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; " +
@@ -106,9 +125,14 @@ public class Main extends Application {
                 try {
                     ClientTK nuovoClient = new ClientTK(host, port);
                     Platform.runLater(() -> {
+                        riconnessioneInCorso = false;
                         client = nuovoClient;
+                        client.setOnDisconnected(() -> Platform.runLater(() ->
+                                tornaAlDialogoConnessione(primaryStage,
+                                        "Connessione al server persa. Inserisci host e porta per riconnetterti.")));
                         dialogStage.close();
                         caricaHome(primaryStage);
+                        avviaMonitorConnessione();
                     });
                 } catch (IOException ex) {
                     Platform.runLater(() -> {
@@ -121,7 +145,7 @@ public class Main extends Application {
             }).start();
         });
 
-        VBox layout = new VBox(15, titleLabel,
+        VBox layout = new VBox(15, titleLabel, infoLabel,
                 new Label("Host:"), hostField,
                 new Label("Porta:"), portField,
                 buttonBox, errorLabel);
@@ -156,6 +180,7 @@ public class Main extends Application {
             primaryStage.setMinWidth(900);
             primaryStage.setMinHeight(600);
             primaryStage.setOnCloseRequest(e -> {
+                fermaMonitorConnessione();
                 try { if (client != null) client.close(); } catch (IOException ignored) {}
                 Platform.exit();
             });
@@ -167,6 +192,69 @@ public class Main extends Application {
             alert.showAndWait();
             Platform.exit();
         }
+    }
+
+    /**
+     * Avvia un controllo periodico leggero della connessione con il server.
+     */
+    private void avviaMonitorConnessione() {
+        fermaMonitorConnessione();
+
+        monitorConnessione = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "TheKnife-ConnectionMonitor");
+            t.setDaemon(true);
+            return t;
+        });
+
+        monitorConnessione.scheduleWithFixedDelay(() -> {
+            ClientTK clientCorrente = client;
+            if (clientCorrente == null) {
+                return;
+            }
+
+            try {
+                clientCorrente.ping();
+            } catch (RuntimeException ignored) {
+                // ClientTK notifica la disconnessione tramite callback.
+            }
+        }, 2, 2, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Ferma il monitor periodico della connessione.
+     */
+    private void fermaMonitorConnessione() {
+        if (monitorConnessione != null) {
+            monitorConnessione.shutdownNow();
+            monitorConnessione = null;
+        }
+    }
+
+    /**
+     * Resetta lo stato del client e riapre il dialogo per host e porta.
+     *
+     * @param primaryStage lo Stage principale dell'applicazione
+     * @param messaggio messaggio da mostrare nel dialogo
+     */
+    private void tornaAlDialogoConnessione(Stage primaryStage, String messaggio) {
+        if (riconnessioneInCorso) {
+            return;
+        }
+
+        riconnessioneInCorso = true;
+        fermaMonitorConnessione();
+
+        ClientTK clientDaChiudere = client;
+        client = null;
+        if (clientDaChiudere != null) {
+            clientDaChiudere.setOnDisconnected(null);
+            try {
+                clientDaChiudere.close();
+            } catch (IOException ignored) {}
+        }
+
+        primaryStage.hide();
+        mostraDialogoConnessione(primaryStage, messaggio);
     }
 
     // -------------------------------------------------------------------------

@@ -40,6 +40,8 @@ public class ClientTK implements Closeable {
     private final Socket             socket;
     private final ObjectOutputStream oos;
     private final ObjectInputStream  ois;
+    private volatile Runnable onDisconnected;
+    private volatile boolean disconnectionNotified;
 
     /**
      * Inizializza il client di rete aprendo una connessione socket verso l'host e la porta specificati.
@@ -56,6 +58,15 @@ public class ClientTK implements Closeable {
         oos = new ObjectOutputStream(socket.getOutputStream());
         oos.flush();
         ois = new ObjectInputStream(socket.getInputStream());
+    }
+
+    /**
+     * Imposta un callback invocato quando viene rilevata la perdita della connessione.
+     *
+     * @param onDisconnected azione da eseguire alla disconnessione, oppure null per rimuoverla
+     */
+    public void setOnDisconnected(Runnable onDisconnected) {
+        this.onDisconnected = onDisconnected;
     }
 
     // -------------------------------------------------------------------------
@@ -421,6 +432,19 @@ public class ClientTK implements Closeable {
     // -------------------------------------------------------------------------
 
     /**
+     * Esegue un controllo leggero per verificare che la connessione sia ancora attiva.
+     * Non richiede accessi al database.
+     *
+     * @throws RuntimeException se il server non risponde o la connessione e interrotta
+     */
+    public void ping() {
+        Esito esito = invia(new Richiesta(Comando.PING));
+        if (!esito.isSuccesso()) {
+            throw new RuntimeException("Ping al server fallito");
+        }
+    }
+
+    /**
      * Invia una richiesta al server e riceve la risposta (Esito).
      * Questo metodo è sincronizzato per impedire a thread concorrenti (es. differenti Task JavaFX)
      * di accavallare i propri messaggi sullo stream di input/output.
@@ -436,7 +460,23 @@ public class ClientTK implements Closeable {
             oos.reset();
             return (Esito) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
+            notificaDisconnessione();
             throw new RuntimeException("Errore di rete durante " + richiesta.getComando(), e);
+        }
+    }
+
+    /**
+     * Avvisa una sola volta l'applicazione che la connessione e caduta.
+     */
+    private void notificaDisconnessione() {
+        if (disconnectionNotified) {
+            return;
+        }
+
+        disconnectionNotified = true;
+        Runnable callback = onDisconnected;
+        if (callback != null) {
+            callback.run();
         }
     }
 
