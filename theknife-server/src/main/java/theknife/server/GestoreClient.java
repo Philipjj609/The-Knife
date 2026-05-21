@@ -11,6 +11,7 @@ import theknife.models.Role;
 import theknife.models.Utente;
 import theknife.network.Esito;
 import theknife.network.Richiesta;
+import theknife.validation.RegistrazioneValidator;
 
 import java.io.*;
 import java.net.Socket;
@@ -138,8 +139,11 @@ public class GestoreClient implements Runnable {
                 case REGISTRA_UTENTE -> {
                     Utente u = r.get("utente");
                     String password = r.get("password");
-                    if (isBlank(password) || password.length() < 6)
-                        yield Esito.errore("La password deve contenere almeno 6 caratteri");
+                    try {
+                        RegistrazioneValidator.valida(u, password);
+                    } catch (IllegalArgumentException e) {
+                        throw new InvalidRegistrationException(e.getMessage());
+                    }
                     if (utenteDAO.existsByUsername(u.getUsername()))
                         yield Esito.errore("Username già in uso");
                     u.setPasswordHash(BCrypt.hashpw(password, BCrypt.gensalt()));

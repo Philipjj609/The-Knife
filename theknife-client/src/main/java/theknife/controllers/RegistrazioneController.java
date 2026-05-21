@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import theknife.Main;
 import theknife.models.Utente;
+import theknife.validation.RegistrazioneValidator;
 
 import java.time.LocalDate;
 
@@ -22,12 +23,6 @@ import java.time.LocalDate;
  * @author Davide Caccia, 760742, Sede CO
  */
 public class RegistrazioneController {
-
-    /** Lunghezza minima richiesta per lo username. */
-    private static final int MIN_USERNAME_LENGTH = 3;
-
-    /** Lunghezza minima richiesta per la password. */
-    private static final int MIN_PASSWORD_LENGTH = 6;
 
     /** Campo di testo per l'inserimento del nome dell'utente. */
     @FXML private TextField nomeField;
@@ -78,33 +73,29 @@ public class RegistrazioneController {
      */
     @FXML
     private void handleRegistrati() {
-        if (!requireNonEmpty(nomeField.getText(), "Il nome è obbligatorio!")) return;
-        if (!requireNonEmpty(cognomeField.getText(), "Il cognome è obbligatorio!")) return;
-        if (!requireNonEmpty(usernameField.getText(), "Il nome utente è obbligatorio!")) return;
-        if (!requireMinLength(usernameField.getText().trim(), MIN_USERNAME_LENGTH,
-                "Il nome utente deve contenere almeno " + MIN_USERNAME_LENGTH + " caratteri!")) return;
-        if (!requireNonEmpty(passwordField.getText(), "La password è obbligatoria!")) return;
-        if (!requireMinLength(passwordField.getText(), MIN_PASSWORD_LENGTH,
-                "La password deve contenere almeno " + MIN_PASSWORD_LENGTH + " caratteri!")) return;
-        if (!requireNonEmpty(domicilioField.getText(), "Il domicilio è obbligatorio!")) return;
-
-        if (ruoloComboBox.getValue() == null) {
-            showError("Seleziona il tipo di account!");
-            return;
-        }
-
-        String username = usernameField.getText().trim();
-        String password = passwordField.getText();
+        String nome = nomeField.getText() == null ? "" : nomeField.getText().trim();
+        String cognome = cognomeField.getText() == null ? "" : cognomeField.getText().trim();
+        String username = usernameField.getText() == null ? "" : usernameField.getText().trim();
+        String password = passwordField.getText() == null ? "" : passwordField.getText();
         LocalDate dataNascita = dataNascitaPicker.getValue();
+        String domicilio = domicilioField.getText() == null ? "" : domicilioField.getText().trim();
+        String ruolo = ruoloComboBox.getValue();
 
         Utente nuovoUtente = new Utente(
-                nomeField.getText().trim(),
-                cognomeField.getText().trim(),
+                nome,
+                cognome,
                 username,
                 null,
                 dataNascita,
-                domicilioField.getText().trim(),
-                ruoloComboBox.getValue());
+                domicilio,
+                ruolo);
+
+        try {
+            RegistrazioneValidator.valida(nuovoUtente, password);
+        } catch (IllegalArgumentException e) {
+            showError(e.getMessage());
+            return;
+        }
 
         Task<Utente> task = new Task<>() {
             @Override
@@ -141,30 +132,6 @@ public class RegistrazioneController {
     /** Gestore vuoto per l'evento di uscita del puntatore del mouse (se configurato in FXML). */
     @FXML private void handleMouseExited() {}
 
-    /**
-     * Verifica che il valore testuale non sia vuoto, altrimenti visualizza l'errore.
-     *
-     * @param value il valore testuale
-     * @param errorMsg il messaggio d'errore da mostrare
-     * @return true se non vuoto, false altrimenti
-     */
-    private boolean requireNonEmpty(String value, String errorMsg) {
-        if (value == null || value.trim().isEmpty()) { showError(errorMsg); return false; }
-        return true;
-    }
-
-    /**
-     * Verifica che il valore testuale rispetti la lunghezza minima indicata.
-     *
-     * @param value il valore testuale
-     * @param min la lunghezza minima
-     * @param errorMsg il messaggio d'errore da mostrare
-     * @return true se rispetta la lunghezza, false altrimenti
-     */
-    private boolean requireMinLength(String value, int min, String errorMsg) {
-        if (value.length() < min) { showError(errorMsg); return false; }
-        return true;
-    }
 
     /**
      * Mostra il messaggio di errore impostando lo stato visivo della label.
