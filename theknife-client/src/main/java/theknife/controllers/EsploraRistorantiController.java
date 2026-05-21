@@ -278,14 +278,6 @@ public class EsploraRistorantiController implements Initializable {
     }
 
     /**
-     * Gestisce l'evento di ricerca al click sul bottone Cerca.
-     */
-    @FXML
-    private void handleSearch() {
-        applyFilters();
-    }
-
-    /**
      * Popola dinamicamente il contenitore VBox dei ristoranti con paginazione locale
      * per evitare lag di rendering con liste estese.
      */

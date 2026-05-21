@@ -44,7 +44,6 @@
                         <CheckBox fx:id="deliveryCheckBox" text="Delivery disponibile"/>
                         <CheckBox fx:id="onlineBookingCheckBox" text="Prenotazione online"/>
                         <CheckBox fx:id="greenStarCheckBox" text="Green Star"/>
-                        <Button fx:id="searchButton" text="Cerca" styleClass="button,primary" onAction="#handleSearch"/>
                         <Button fx:id="resetButton" text="Reset" styleClass="button,outline" onAction="#handleReset"/>
                         <Button text="↻ Aggiorna" styleClass="button,outline" onAction="#handleAggiorna"/>
                     </HBox>
