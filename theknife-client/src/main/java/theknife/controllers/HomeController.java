@@ -1,5 +1,24 @@
 package theknife.controllers;
 
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import theknife.models.Role;
+import theknife.models.Utente;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
+
 /*
  * @author Philip Jon Ji Ciuca
  * @numero_matricola 761446
@@ -24,26 +43,13 @@ package theknife.controllers;
  * @author Davide Caccia, 760742, Sede CO
  * @version 1.0
  */
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
-import javafx.scene.Parent;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import theknife.models.Role;
-import theknife.models.Utente;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
-
 public class HomeController implements Initializable {
+
+    /**
+     * Costruttore di default per {@link HomeController}.
+     * Necessario per l'inizializzazione tramite FXML loader.
+     */
+    public HomeController() {}
 
     /** Contenitore StackPane principale in cui vengono caricate dinamicamente le varie viste dell'applicazione. */
     @FXML

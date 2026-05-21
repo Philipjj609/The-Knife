@@ -28,6 +28,9 @@ public class UtenteDAOImpl implements UtenteDAO {
      * {@inheritDoc}
      *
      * Esegue una query SELECT filtrando per lo username fornito.
+     *
+     * @param username lo username dell'utente da cercare
+     * @return un Optional contenente l'utente se trovato, altrimenti vuoto
      */
     @Override
     public Optional<Utente> findByUsername(String username) {
@@ -46,6 +49,10 @@ public class UtenteDAOImpl implements UtenteDAO {
      * {@inheritDoc}
      *
      * Verifica la password dell'utente confrontandola con l'hash memorizzato tramite BCrypt.
+     *
+     * @param username lo username dell'utente
+     * @param password la password in chiaro dell'utente
+     * @return un Optional contenente l'utente autenticato se le credenziali sono corrette, altrimenti vuoto
      */
     @Override
     public Optional<Utente> authenticate(String username, String password) {
@@ -57,6 +64,9 @@ public class UtenteDAOImpl implements UtenteDAO {
      * {@inheritDoc}
      *
      * Controlla la presenza dello username a livello case-insensitive.
+     *
+     * @param username lo username da controllare
+     * @return true se lo username esiste già, false altrimenti
      */
     @Override
     public boolean existsByUsername(String username) {
@@ -77,6 +87,9 @@ public class UtenteDAOImpl implements UtenteDAO {
      *
      * Inserisce un record nella tabella utenti, con hashing della password già avvenuto a monte.
      * Restituisce l'utente con l'ID autogenerato.
+     *
+     * @param utente l'utente da salvare
+     * @return l'utente salvato comprensivo del nuovo ID generato
      */
     @Override
     public Utente save(Utente utente) {
@@ -111,6 +124,9 @@ public class UtenteDAOImpl implements UtenteDAO {
      * {@inheritDoc}
      *
      * Recupera un utente dal database tramite il suo ID primario.
+     *
+     * @param id l'id dell'utente da cercare
+     * @return un Optional contenente l'utente se trovato, altrimenti vuoto
      */
     @Override
     public Optional<Utente> findById(long id) {
@@ -129,6 +145,9 @@ public class UtenteDAOImpl implements UtenteDAO {
      * {@inheritDoc}
      *
      * Aggiorna nome, cognome, data di nascita e domicilio per l'utente corrispondente.
+     *
+     * @param utente l'utente con i dati aggiornati
+     * @return true se l'aggiornamento ha avuto successo, false altrimenti
      */
     @Override
     public boolean update(Utente utente) {

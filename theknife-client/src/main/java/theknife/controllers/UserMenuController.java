@@ -22,6 +22,12 @@ import java.util.ResourceBundle;
  */
 public class UserMenuController implements Initializable {
 
+    /**
+     * Costruttore di default per {@link UserMenuController}.
+     * Necessario per l'inizializzazione tramite FXML loader.
+     */
+    public UserMenuController() {}
+
     @FXML private Label usernameTitleLabel;
     @FXML private Label roleTitleLabel;
     @FXML private TextField usernameField;
@@ -46,6 +52,9 @@ public class UserMenuController implements Initializable {
 
     /**
      * Metodo di inizializzazione richiamato automaticamente da JavaFX dopo il caricamento del file FXML.
+     *
+     * @param location la locazione utilizzata per risolvere i percorsi relativi dell'oggetto radice, o null
+     * @param resources le risorse utilizzate per localizzare l'oggetto radice, o null
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -148,6 +157,12 @@ public class UserMenuController implements Initializable {
         cancelButton.setDisable(true);
 
         Task<Utente> task = new Task<>() {
+            /**
+             * Esegue la richiesta asincrona di modifica del profilo utente sul server.
+             *
+             * @return l'oggetto {@link Utente} aggiornato restituito dal server
+             * @throws Exception in caso di errore durante la comunicazione di rete
+             */
             @Override
             protected Utente call() throws Exception {
                 return Main.getClient().modificaUtente(updated);

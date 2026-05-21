@@ -29,6 +29,12 @@ import java.util.Optional;
  */
 public class LoginController {
 
+    /**
+     * Costruttore di default per {@link LoginController}.
+     * Necessario per l'inizializzazione tramite FXML loader.
+     */
+    public LoginController() {}
+
     /** Campo di testo per l'inserimento dello username. */
     @FXML private TextField usernameField;
 
@@ -52,7 +58,7 @@ public class LoginController {
 
     /**
      * Gestisce l'evento di pressione del pulsante Accedi.
-     * Valida l'input locale ed esegue il tentativo di login sul server tramite {@link ClientTK#login(String, String)}
+     * Valida l'input locale ed esegue il tentativo di login sul server tramite {@link theknife.client.ClientTK#login(String, String)}
      * all'interno di un thread separato. I risultati vengono poi applicati sul JavaFX Application Thread.
      */
     @FXML
@@ -66,6 +72,11 @@ public class LoginController {
         }
 
         Task<Optional<Utente>> task = new Task<>() {
+            /**
+             * Esegue il tentativo di autenticazione sul server in un thread separato.
+             *
+             * @return un Optional contenente l'utente se il login ha successo, altrimenti vuoto
+             */
             @Override
             protected Optional<Utente> call() {
                 return Main.getClient().login(username, password);

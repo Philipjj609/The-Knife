@@ -106,14 +106,7 @@ public class Ristorante implements Serializable {
         return 0;
     }
 
-    /**
-     * Verifica se il ristorante ha almeno una stella Michelin rossa.
-     *
-     * @return true se il ristorante ha una o più stelle Michelin, false altrimenti
-     */
-    public boolean hasMichelinStar() {
-        return getStarCount() > 0;
-    }
+
 
     /**
      * Restituisce la stringa di simboli valuta (€) corrispondente alla fascia di prezzo.

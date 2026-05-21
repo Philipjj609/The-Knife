@@ -36,11 +36,22 @@ import java.util.concurrent.TimeUnit;
 
 public class Main extends Application {
 
+    /**
+     * Costruttore di default per {@link Main}.
+     * Inizializza l'istanza principale dell'applicazione client.
+     */
+    public Main() {}
+
     /** Istanza globale del client di rete — accessibile da tutti i controller. */
     private static volatile ClientTK client;
     private ScheduledExecutorService monitorConnessione;
     private boolean riconnessioneInCorso;
 
+    /**
+     * Avvia l'applicazione principale JavaFX caricando lo stage.
+     *
+     * @param primaryStage lo Stage principale dell'applicazione
+     */
     @Override
     public void start(Stage primaryStage) {
         mostraDialogoConnessione(primaryStage);

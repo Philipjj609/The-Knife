@@ -1,3 +1,7 @@
+/**
+ * Modulo client dell'applicazione The Knife.
+ * Contiene la GUI JavaFX, le viste FXML, i fogli di stile e i controller di presentazione.
+ */
 module theknife.client {
     requires theknife.common;
     requires javafx.controls;

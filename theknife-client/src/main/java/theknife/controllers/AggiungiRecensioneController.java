@@ -25,6 +25,12 @@ import java.util.ResourceBundle;
  */
 public class AggiungiRecensioneController implements Initializable {
 
+    /**
+     * Costruttore di default per {@link AggiungiRecensioneController}.
+     * Necessario per l'inizializzazione tramite FXML loader.
+     */
+    public AggiungiRecensioneController() {}
+
     /** Etichetta di testo che mostra il nome del ristorante destinatario della recensione. */
     @FXML private Text ristoranteLabel;
 

@@ -8,27 +8,12 @@ import theknife.server.DBCheck;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-/**
- * Entry point del server TheKnife.
- *
- * Al lancio chiede le credenziali del database (con valori di default da db.properties).
- * Se il database non esiste lo crea e applica lo schema automaticamente.
- *
- * Avvio: java -cp theknife-server-shaded.jar theknife.server.ServerTK
- *
- * @author Philip Jon Ji Ciuca, 761446, Sede CO
- * @author Samuele Secchi, 761031, Sede CO
- * @author Flavio Marin, 759910, Sede CO
- * @author Davide Caccia, 760742, Sede CO
- */
 
 /**
  * Entry-point principale dell'applicazione server per <i>The Knife</i>.
@@ -146,78 +131,6 @@ public class ServerTK {
         return props;
     }
 
-    /**
-     * Tenta una connessione e se il database non esiste, effettua la chiamata per crearlo
-     * ed applicare lo script SQL schema.sql.
-     *
-     * @param props le proprietà con le credenziali del database
-     * @throws Exception in caso di errore di connessione SQL o fallimento I/O
-     */
-    private static void assicuraDatabase(Properties props) throws Exception {
-        String url      = props.getProperty("db.url");
-        String user     = props.getProperty("db.user");
-        String password = props.getProperty("db.password");
-
-        try (Connection c = DriverManager.getConnection(url, user, password)) {
-            System.out.println("Database trovato.");
-            return;
-        } catch (SQLException e) {
-            if (e.getMessage() == null || !e.getMessage().toLowerCase().contains("does not exist")) {
-                System.err.println("ERRORE connessione DB: " + e.getMessage());
-                System.err.println("Verifica che PostgreSQL sia avviato e le credenziali siano corrette.");
-                throw e;
-            }
-        }
-
-        String dbName      = estraiNomeDb(url);
-        String postgresUrl = url.substring(0, url.lastIndexOf('/') + 1) + "postgres";
-
-        System.out.printf("Database '%s' non trovato. Creazione in corso...%n", dbName);
-
-        try (Connection c = DriverManager.getConnection(postgresUrl, user, password);
-             Statement  s = c.createStatement()) {
-            s.execute("CREATE DATABASE \"" + dbName + "\"");
-        }
-
-        System.out.println("Applicazione schema...");
-        try (Connection c = DriverManager.getConnection(url, user, password)) {
-            applicaSchema(c);
-        }
-        System.out.printf("Database '%s' creato e schema applicato.%n%n", dbName);
-    }
-
-    /**
-     * Estrae il nome del database relazionale analizzando l'URL di connessione JDBC PostgreSQL.
-     *
-     * @param jdbcUrl stringa dell'URL di connessione JDBC
-     * @return il nome del database
-     */
-    private static String estraiNomeDb(String jdbcUrl) {
-        String path = jdbcUrl.substring(jdbcUrl.lastIndexOf('/') + 1);
-        int q = path.indexOf('?');
-        return q >= 0 ? path.substring(0, q) : path;
-    }
-
-    /**
-     * Legge ed esegue lo script SQL schema.sql caricandolo dal classpath.
-     *
-     * @param conn la connessione JDBC attiva su cui applicare lo schema
-     * @throws Exception in caso di errore SQL o problemi di lettura I/O del file
-     */
-    private static void applicaSchema(Connection conn) throws Exception {
-        try (InputStream in = ServerTK.class.getResourceAsStream("/schema.sql")) {
-            if (in == null) throw new IOException("schema.sql non trovato nel classpath del server");
-            String schema = new String(in.readAllBytes(), StandardCharsets.UTF_8);
-            try (Statement stmt = conn.createStatement()) {
-                for (String chunk : schema.split(";")) {
-                    String senzaCommenti = chunk.replaceAll("(?m)^\\s*--.*$", "").trim();
-                    if (!senzaCommenti.isEmpty()) {
-                        stmt.execute(chunk.trim());
-                    }
-                }
-            }
-        }
-    }
 
     /**
      * Carica il file `db.properties` contenente i parametri di configurazione del server.

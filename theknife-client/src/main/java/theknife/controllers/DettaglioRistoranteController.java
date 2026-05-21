@@ -24,18 +24,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * Controller per la vista dettagliata di un ristorante.
- * Usa ClientTK per recensioni e preferiti.
- *
- * @author Philip Jon Ji Ciuca, 761446, Sede CO
- * @author Samuele Secchi, 761031, Sede CO
- * @author Flavio Marin, 759910, Sede CO
- * @author Davide Caccia, 760742, Sede CO
- * @version 2.0
- */
-/**
  * Controller JavaFX per la vista di dettaglio di un ristorante.
  * Fa parte del pattern <b>MVC (Model-View-Controller)</b> nel ruolo di Controller.
+ * Usa {@link theknife.client.ClientTK} per recensioni e preferiti.
  *
  * <p>Gestisce la visualizzazione di tutte le informazioni dettagliate di un ristorante
  * (nome, cucina, stelle Michelin, fascia di prezzo, contatti, descrizione, servizi aggiuntivi),
@@ -53,6 +44,12 @@ import java.util.ResourceBundle;
  * @version 2.1
  */
 public class DettaglioRistoranteController implements Initializable {
+
+    /**
+     * Costruttore di default per {@link DettaglioRistoranteController}.
+     * Necessario per l'inizializzazione tramite FXML loader.
+     */
+    public DettaglioRistoranteController() {}
 
     /** Label per mostrare il nome del ristorante. */
     @FXML private Text nameLabel;
@@ -148,6 +145,12 @@ public class DettaglioRistoranteController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         recensioniListView.setCellFactory(lv -> new ListCell<>() {
+            /**
+             * Aggiorna l'elemento grafico della cella associando la card della recensione.
+             *
+             * @param r l'oggetto recensione
+             * @param empty true se la cella è vuota
+             */
             @Override
             protected void updateItem(Recensione r, boolean empty) {
                 super.updateItem(r, empty);
@@ -181,6 +184,11 @@ public class DettaglioRistoranteController implements Initializable {
         updateFavoritesButton();
     }
 
+    /**
+     * Imposta se l'utente corrente visualizzatore coincide con il proprietario del ristorante.
+     *
+     * @param isProprietario {@code true} se è il proprietario, {@code false} altrimenti
+     */
     public void setIsProprietario(boolean isProprietario) {
         this.isProprietario = isProprietario;
         updateRecensioneButton();
@@ -218,13 +226,18 @@ public class DettaglioRistoranteController implements Initializable {
     }
 
     /**
-     * Avvia un thread secondario che richiede al server (tramite {@link ClientTK}) l'elenco delle recensioni
-     * associate al ristorante. All'ottenimento, riempie la ListView e calcola la media stelle nella UI.
-     */
+      * Avvia un thread secondario che richiede al server (tramite {@link theknife.client.ClientTK}) l'elenco delle recensioni
+      * associate al ristorante. All'ottenimento, riempie la ListView e calcola la media stelle nella UI.
+      */
     private void loadRecensioni() {
         if (ristorante == null) return;
 
         Task<List<Recensione>> task = new Task<>() {
+            /**
+             * Esegue la richiesta asincrona per scaricare le recensioni dal server.
+             *
+             * @return la lista delle recensioni del ristorante
+             */
             @Override
             protected List<Recensione> call() {
                 return Main.getClient().getRecensioniRistorante(ristorante.getId());
@@ -700,6 +713,11 @@ public class DettaglioRistoranteController implements Initializable {
 
     private void eliminaRisposta(long rispostaId) {
         Task<Boolean> task = new Task<>() {
+            /**
+             * Esegue la richiesta asincrona di eliminazione della risposta sul server.
+             *
+             * @return true se l'operazione è completata
+             */
             @Override
             protected Boolean call() {
                 return Main.getClient().eliminaRisposta(rispostaId);

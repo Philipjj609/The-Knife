@@ -58,6 +58,12 @@ import java.util.stream.Collectors;
  */
 public class EsploraRistorantiController implements Initializable {
 
+    /**
+     * Costruttore di default per {@link EsploraRistorantiController}.
+     * Necessario per l'inizializzazione tramite FXML loader.
+     */
+    public EsploraRistorantiController() {}
+
     /** Campo di testo per la ricerca testuale libera (nome, città, cucina). */
     @FXML private TextField searchField;
 
@@ -140,7 +146,7 @@ public class EsploraRistorantiController implements Initializable {
      *
      * <p>Utilizza un {@link Task} asincrono eseguito su un thread separato per effettuare
      * le chiamate socket bloccanti verso il server. Una volta ottenuti i dati, aggiorna la UI
-     * sul JavaFX Application Thread tramite {@link Platform#runLater(Runnable)} e i callback
+     * sul JavaFX Application Thread tramite {@link javafx.application.Platform#runLater(Runnable)} e i callback
      * del task ({@code setOnSucceeded} e {@code setOnFailed}).</p>
      *
      * @param location  l'URL utilizzato per risolvere i percorsi relativi dell'oggetto radice, o null.
@@ -160,6 +166,11 @@ public class EsploraRistorantiController implements Initializable {
         resetButton.setDisable(true);
 
         Task<Void> initTask = new Task<>() {
+            /**
+             * Esegue il caricamento iniziale dei dati dei ristoranti e dei filtri dal server.
+             *
+             * @return null come richiesto dal tipo Void
+             */
             @Override
             protected Void call() {
                 allRestaurants = Main.getClient().cercaRistoranti(null);
@@ -420,6 +431,11 @@ public class EsploraRistorantiController implements Initializable {
         resetButton.setDisable(true);
 
         Task<List<Ristorante>> aggiornaTask = new Task<>() {
+            /**
+             * Esegue il recupero dell'elenco aggiornato dei ristoranti dal server.
+             *
+             * @return la lista dei ristoranti aggiornata
+             */
             @Override
             protected List<Ristorante> call() {
                 return Main.getClient().cercaRistoranti(null);

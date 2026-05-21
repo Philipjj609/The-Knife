@@ -8,10 +8,6 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.text.Text;
 import theknife.models.Ristorante;
 
-import java.awt.Desktop;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -30,6 +26,12 @@ import java.util.ResourceBundle;
  * @author Davide Caccia, 760742, Sede CO
  */
 public class MapDialogController implements Initializable {
+
+    /**
+     * Costruttore di default per {@link MapDialogController}.
+     * Necessario per l'inizializzazione tramite FXML loader.
+     */
+    public MapDialogController() {}
 
     /** Label per il titolo del dialogo che riporta il nome del ristorante. */
     @FXML private Text titleLabel;
@@ -109,22 +111,7 @@ public class MapDialogController implements Initializable {
         copyToClipboard(urlField.getText());
     }
 
-    /**
-     * Apre l'URL di Google Maps all'interno del browser web predefinito di sistema.
-     * Utilizza la classe {@link Desktop} se supportata dal sistema operativo ospite.
-     */
-    @FXML
-    private void openInBrowser() {
-        if (mapUrl != null && !mapUrl.isEmpty()) {
-            try {
-                if (Desktop.isDesktopSupported()) {
-                    Desktop.getDesktop().browse(new URI(mapUrl));
-                }
-            } catch (IOException | URISyntaxException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+
 
     /**
      * Chiude la finestra di dialogo ritornando alla vista principale.

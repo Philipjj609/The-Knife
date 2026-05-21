@@ -26,7 +26,7 @@ import java.util.ResourceBundle;
  * <p>Gestisce la visualizzazione delle informazioni sul profilo dell'utente loggato,
  * il riepilogo delle sue statistiche personali (numero recensioni, media valutazioni, numero preferiti),
  * e gli elenchi personali di recensioni scritte e ristoranti preferiti tramite componenti {@link ListView}.
- * Interagisce asincronamente con la Facade {@link ClientTK} per l'ottenimento dei dati e la gestione delle
+ * Interagisce asincronamente con la Facade {@link theknife.client.ClientTK} per l'ottenimento dei dati e la gestione delle
  * operazioni di modifica ed eliminazione recensioni o rimozione dai preferiti, impiegando thread in background
  * e {@link Platform#runLater(Runnable)} per garantire l'aggiornamento sicuro e reattivo dell'interfaccia utente.</p>
  *
@@ -37,6 +37,12 @@ import java.util.ResourceBundle;
  * @version 2.0
  */
 public class DashboardClienteController implements Initializable {
+
+    /**
+     * Costruttore di default per {@link DashboardClienteController}.
+     * Necessario per l'inizializzazione tramite FXML loader.
+     */
+    public DashboardClienteController() {}
 
     /** Testo di benvenuto personalizzato con il nome dell'utente. */
     @FXML private Text benvenutoLabel;
@@ -94,6 +100,12 @@ public class DashboardClienteController implements Initializable {
      */
     private void setupRecensioniListView() {
         recensioniListView.setCellFactory(lv -> new ListCell<>() {
+            /**
+             * Aggiorna l'elemento grafico della cella associando la card della recensione.
+             *
+             * @param r l'oggetto recensione
+             * @param empty true se la cella è vuota
+             */
             @Override
             protected void updateItem(Recensione r, boolean empty) {
                 super.updateItem(r, empty);
@@ -107,6 +119,12 @@ public class DashboardClienteController implements Initializable {
      */
     private void setupPreferitiListView() {
         preferitiListView.setCellFactory(lv -> new ListCell<>() {
+            /**
+             * Aggiorna l'elemento grafico della cella associando la card del ristorante preferito.
+             *
+             * @param r l'oggetto ristorante
+             * @param empty true se la cella è vuota
+             */
             @Override
             protected void updateItem(Ristorante r, boolean empty) {
                 super.updateItem(r, empty);
@@ -116,7 +134,7 @@ public class DashboardClienteController implements Initializable {
     }
 
     /**
-     * Avvia un thread in background per scaricare in modo asincrono dal server (tramite {@link ClientTK})
+     * Avvia un thread in background per scaricare in modo asincrono dal server (tramite {@link theknife.client.ClientTK})
      * l'elenco delle recensioni e dei preferiti associati all'utente corrente.
      * I dati ottenuti vengono poi impostati sulle rispettive ListView e utilizzati per calcolare
      * le statistiche nel JavaFX Application Thread.
@@ -130,6 +148,11 @@ public class DashboardClienteController implements Initializable {
             private List<Recensione> recensioni = List.of();
             private List<Ristorante> preferiti  = List.of();
 
+            /**
+             * Esegue il caricamento asincrono di recensioni e preferiti dal server.
+             *
+             * @return null
+             */
             @Override
             protected Void call() {
                 try {
@@ -145,6 +168,9 @@ public class DashboardClienteController implements Initializable {
                 return null;
             }
 
+            /**
+             * Aggiorna le liste grafiche e le statistiche al completamento del caricamento dati.
+             */
             @Override
             protected void succeeded() {
                 recensioniListView.setItems(FXCollections.observableArrayList(recensioni));

@@ -45,6 +45,8 @@ public class RistoranteDAOImpl implements RistoranteDAO {
      *
      * Esegue una query SELECT base ordinando per nome del ristorante.
      * Recupera le cucine e i servizi aggregandoli come array nativi PostgreSQL.
+     *
+     * @return la lista di tutti i ristoranti trovati
      */
     @Override
     public List<Ristorante> findAll() {
@@ -63,6 +65,9 @@ public class RistoranteDAOImpl implements RistoranteDAO {
      *
      * Cerca il ristorante tramite ID primario eseguendo la query SELECT_BASE
      * filtrata per "r.id = ?".
+     *
+     * @param id l'id del ristorante da cercare
+     * @return un Optional contenente il ristorante se trovato, altrimenti vuoto
      */
     @Override
     public Optional<Ristorante> findById(long id) {
@@ -82,6 +87,9 @@ public class RistoranteDAOImpl implements RistoranteDAO {
      * {@inheritDoc}
      *
      * Recupera i ristoranti registrati da uno specifico utente con ruolo di ristoratore.
+     *
+     * @param proprietarioId l'id dell'utente proprietario dei ristoranti
+     * @return la lista dei ristoranti associati al proprietario
      */
     @Override
     public List<Ristorante> findByProprietario(long proprietarioId) {
@@ -104,6 +112,9 @@ public class RistoranteDAOImpl implements RistoranteDAO {
      * ai filtri non vuoti presenti nell'oggetto {@link FiltriRicerca}.
      * Supporta la ricerca testuale case-insensitive sia per nome/città/nazione che
      * per cucine e servizi associati tramite sottoquery EXISTS.
+     *
+     * @param filtri l'oggetto contenente i filtri di ricerca
+     * @return la lista dei ristoranti corrispondenti ai criteri impostati
      */
     @Override
     public List<Ristorante> search(FiltriRicerca filtri) {
@@ -223,6 +234,9 @@ public class RistoranteDAOImpl implements RistoranteDAO {
      * Salva il ristorante e gestisce la persistenza delle relazioni N:M con le tabelle
      * "cucine" e "servizi" inserendo o recuperando le chiavi esterne tramite tabelle di giunzione.
      * L'operazione è eseguita all'interno di una transazione atomica con rollback in caso di errore.
+     *
+     * @param ristorante il ristorante da salvare
+     * @return il ristorante salvato con l'ID autogenerato
      */
     @Override
     public Ristorante save(Ristorante ristorante) {
@@ -292,6 +306,8 @@ public class RistoranteDAOImpl implements RistoranteDAO {
      * {@inheritDoc}
      *
      * Recupera l'elenco completo dei servizi in ordine alfabetico.
+     *
+     * @return la lista di tutti i nomi dei servizi
      */
     @Override
     public List<String> findAllServizi() {
@@ -311,6 +327,8 @@ public class RistoranteDAOImpl implements RistoranteDAO {
      * {@inheritDoc}
      *
      * Recupera l'elenco completo dei tipi di cucina in ordine alfabetico.
+     *
+     * @return la lista di tutti i nomi delle cucine
      */
     @Override
     public List<String> findAllCucine() {
@@ -330,6 +348,8 @@ public class RistoranteDAOImpl implements RistoranteDAO {
      * {@inheritDoc}
      *
      * Recupera tutte le città distinte in cui sono ubicati i ristoranti.
+     *
+     * @return la lista di tutti i nomi delle città
      */
     @Override
     public List<String> findAllCitta() {
@@ -349,6 +369,8 @@ public class RistoranteDAOImpl implements RistoranteDAO {
      * {@inheritDoc}
      *
      * Recupera tutte le nazioni distinte in cui sono ubicati i ristoranti.
+     *
+     * @return la lista di tutti i nomi delle nazioni
      */
     @Override
     public List<String> findAllNazioni() {
@@ -369,6 +391,10 @@ public class RistoranteDAOImpl implements RistoranteDAO {
      *
      * Esegue un controllo di unicità a livello logico (nome + indirizzo) ignorando la distinzione
      * tra maiuscole e minuscole.
+     *
+     * @param nome il nome del ristorante
+     * @param indirizzo l'indirizzo del ristorante
+     * @return true se esiste già un ristorante con lo stesso nome e indirizzo, false altrimenti
      */
     @Override
     public boolean existsByNomeAndIndirizzo(String nome, String indirizzo) {

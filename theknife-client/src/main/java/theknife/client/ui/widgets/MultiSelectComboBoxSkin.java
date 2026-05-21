@@ -24,6 +24,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * Skin predefinita per il controllo {@link MultiSelectComboBox}.
+ * Gestisce la rappresentazione visiva composta da un pulsante {@link MenuButton} e da un popup
+ * contenente un campo di testo per filtrare e una lista {@link ListView} con caselle di spunta (checkbox).
+ *
+ * @param <T> il tipo degli elementi
+ *
+ * @author Philip Jon Ji Ciuca, 761446, Sede CO
+ * @author Samuele Secchi, 761031, Sede CO
+ * @author Flavio Marin, 759910, Sede CO
+ * @author Davide Caccia, 760742, Sede CO
+ */
 class MultiSelectComboBoxSkin<T> extends SkinBase<MultiSelectComboBox<T>> {
 
     private final MenuButton menuButton = new MenuButton();
@@ -39,6 +51,11 @@ class MultiSelectComboBoxSkin<T> extends SkinBase<MultiSelectComboBox<T>> {
      */
     private final Map<T, BooleanProperty> propMap = new HashMap<>();
 
+    /**
+     * Costruisce la skin associandola al rispettivo controllo.
+     *
+     * @param control il controllo {@link MultiSelectComboBox} associato
+     */
     MultiSelectComboBoxSkin(MultiSelectComboBox<T> control) {
         super(control);
 
@@ -165,17 +182,45 @@ class MultiSelectComboBoxSkin<T> extends SkinBase<MultiSelectComboBox<T>> {
     // Layout: il menuButton riempie l'area del control
     // -------------------------------------------------------------------------
 
+    /**
+     * Posiziona e dimensiona il pulsante MenuButton all'interno della skin.
+     *
+     * @param x coordinata X di partenza
+     * @param y coordinata Y di partenza
+     * @param w larghezza disponibile
+     * @param h altezza disponibile
+     */
     @Override
     protected void layoutChildren(double x, double y, double w, double h) {
         menuButton.resizeRelocate(x, y, w, h);
     }
 
+    /**
+     * Calcola la larghezza preferita per questa skin delegandola al MenuButton interno.
+     *
+     * @param height l'altezza di riferimento
+     * @param topInset l'incurvatura superiore
+     * @param rightInset l'incurvatura destra
+     * @param bottomInset l'incurvatura inferiore
+     * @param leftInset l'incurvatura sinistra
+     * @return la larghezza preferita calcolata
+     */
     @Override
     protected double computePrefWidth(double height, double topInset, double rightInset,
                                       double bottomInset, double leftInset) {
         return menuButton.prefWidth(height);
     }
 
+    /**
+     * Calcola l'altezza preferita per questa skin delegandola al MenuButton interno.
+     *
+     * @param width la larghezza di riferimento
+     * @param topInset l'incurvatura superiore
+     * @param rightInset l'incurvatura destra
+     * @param bottomInset l'incurvatura inferiore
+     * @param leftInset l'incurvatura sinistra
+     * @return l'altezza preferita calcolata
+     */
     @Override
     protected double computePrefHeight(double width, double topInset, double rightInset,
                                        double bottomInset, double leftInset) {

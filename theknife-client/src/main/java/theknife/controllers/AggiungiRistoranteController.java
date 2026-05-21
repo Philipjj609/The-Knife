@@ -20,10 +20,10 @@ import java.util.ResourceBundle;
  * Fa parte del pattern <b>MVC (Model-View-Controller)</b> nel ruolo di Controller.
  *
  * <p>Gestisce la convalida locale dei campi del modulo (nome, cucina, prezzo, coordinate, ecc.)
- * e invia la richiesta di salvataggio al server tramite la Facade {@link ClientTK} (esposta da {@code Main.getClient()})
+ * e invia la richiesta di salvataggio al server tramite la Facade {@link theknife.client.ClientTK} (esposta da {@code Main.getClient()})
  * all'interno di un thread secondario tramite {@link Task}. Al termine dell'inserimento con successo,
  * aggiorna i dati del controller genitore {@link DashboardRistoratoreController} e pianifica la chiusura
- * automatica della vista tramite un thread temporizzato che richiama {@link Platform#runLater(Runnable)}.</p>
+ * automatica della vista tramite un thread temporizzato che richiama {@link javafx.application.Platform#runLater(Runnable)}.</p>
  *
  * @author Philip Jon Ji Ciuca, 761446, Sede CO
  * @author Samuele Secchi, 761031, Sede CO
@@ -32,6 +32,12 @@ import java.util.ResourceBundle;
  * @version 2.0
  */
 public class AggiungiRistoranteController implements Initializable {
+
+    /**
+     * Costruttore di default per {@link AggiungiRistoranteController}.
+     * Necessario per l'inizializzazione tramite FXML loader.
+     */
+    public AggiungiRistoranteController() {}
 
     /** Campo di testo per l'inserimento del nome del ristorante. */
     @FXML private TextField nomeField;
@@ -120,6 +126,12 @@ public class AggiungiRistoranteController implements Initializable {
             private List<String> cucineList;
             private List<String> serviziList;
 
+            /**
+             * Esegue il caricamento asincrono di cucine e servizi dal server.
+             *
+             * @return null
+             * @throws Exception in caso di errore di rete
+             */
             @Override
             protected Void call() throws Exception {
                 cucineList = Main.getClient().getCucine();
@@ -127,6 +139,9 @@ public class AggiungiRistoranteController implements Initializable {
                 return null;
             }
 
+            /**
+             * Gestisce il successo del caricamento popolando le combo box.
+             */
             @Override
             protected void succeeded() {
                 if (cucineList != null) {
@@ -137,6 +152,9 @@ public class AggiungiRistoranteController implements Initializable {
                 }
             }
 
+            /**
+             * Gestisce il fallimento del caricamento stampando l'errore.
+             */
             @Override
             protected void failed() {
                 System.err.println("Errore nel caricamento di cucine e servizi: " + getException().getMessage());
@@ -211,6 +229,11 @@ public class AggiungiRistoranteController implements Initializable {
                     servizi);
 
             Task<Ristorante> task = new Task<>() {
+                /**
+                 * Esegue la richiesta asincrona di aggiunta del ristorante al server.
+                 *
+                 * @return il Ristorante salvato
+                 */
                 @Override
                 protected Ristorante call() {
                     return Main.getClient().aggiungiRistorante(nuovo);

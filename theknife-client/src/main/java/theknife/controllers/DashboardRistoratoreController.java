@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * e di tutte le recensioni ad essi collegate. Fornisce statistiche aggregate (numero ristoranti,
  * totale recensioni ricevute, media stelle generale, risposte ancora da inviare), consente
  * di filtrare le recensioni per singolo ristorante e permette di rispondere direttamente alle recensioni
- * o inserire un nuovo ristorante. Le chiamate di rete al server avvengono tramite la Facade {@link ClientTK}
+ * o inserire un nuovo ristorante. Le chiamate di rete al server avvengono tramite la Facade {@link theknife.client.ClientTK}
  * in modo asincrono su un thread secondario, aggiornando successivamente la UI nel JavaFX Application Thread.</p>
  *
  * @author Philip Jon Ji Ciuca, 761446, Sede CO
@@ -38,6 +38,12 @@ import java.util.stream.Collectors;
  * @version 2.0
  */
 public class DashboardRistoratoreController implements Initializable {
+
+    /**
+     * Costruttore di default per {@link DashboardRistoratoreController}.
+     * Necessario per l'inizializzazione tramite FXML loader.
+     */
+    public DashboardRistoratoreController() {}
 
     /** Testo di benvenuto personalizzato con il nome del ristoratore. */
     @FXML private Text benvenutoLabel;
@@ -98,6 +104,12 @@ public class DashboardRistoratoreController implements Initializable {
 
     private void setupFiltroRistoranteCombo() {
         filtroRistoranteCombo.setButtonCell(new ListCell<>() {
+            /**
+             * Aggiorna l'elemento grafico della cella associando il nome del ristorante o il prompt text.
+             *
+             * @param item la stringa
+             * @param empty true se la cella è vuota
+             */
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -123,6 +135,12 @@ public class DashboardRistoratoreController implements Initializable {
      */
     private void setupRistorantiListView() {
         ristorantiListView.setCellFactory(lv -> new ListCell<>() {
+            /**
+             * Aggiorna l'elemento grafico della cella associando la card del ristorante.
+             *
+             * @param r l'oggetto ristorante
+             * @param empty true se la cella è vuota
+             */
             @Override
             protected void updateItem(Ristorante r, boolean empty) {
                 super.updateItem(r, empty);
@@ -136,6 +154,12 @@ public class DashboardRistoratoreController implements Initializable {
      */
     private void setupRecensioniListView() {
         recensioniListView.setCellFactory(lv -> new ListCell<>() {
+            /**
+             * Aggiorna l'elemento grafico della cella associando la card della recensione per il ristoratore.
+             *
+             * @param r l'oggetto recensione
+             * @param empty true se la cella è vuota
+             */
             @Override
             protected void updateItem(Recensione r, boolean empty) {
                 super.updateItem(r, empty);
@@ -146,7 +170,7 @@ public class DashboardRistoratoreController implements Initializable {
 
     /**
      * Avvia un thread in background che richiede asincronamente al server i ristoranti di proprietà dell'utente
-     * e tutte le recensioni a loro collegate tramite {@link ClientTK}. Al successo, inserisce gli elementi
+     * e tutte le recensioni a loro collegate tramite {@link theknife.client.ClientTK}. Al successo, inserisce gli elementi
      * nelle relative liste e aggiorna le statistiche aggregate e i filtri di selezione nella UI.
      */
     private void loadUserData() {
@@ -155,6 +179,11 @@ public class DashboardRistoratoreController implements Initializable {
         benvenutoLabel.setText("Benvenuto, " + currentUser.getNome() + "!");
 
         Task<Void> task = new Task<>() {
+            /**
+             * Esegue il caricamento asincrono dei ristoranti e delle recensioni associate dal server.
+             *
+             * @return null
+             */
             @Override
             protected Void call() {
                 ristorantiUtente = Main.getClient().getRistorantiProprietario(currentUser.getId());
@@ -169,6 +198,9 @@ public class DashboardRistoratoreController implements Initializable {
                 return null;
             }
 
+            /**
+             * Aggiorna le liste grafiche e le statistiche aggregate al completamento del caricamento dati.
+             */
             @Override
             protected void succeeded() {
                 ristorantiListView.setItems(FXCollections.observableArrayList(ristorantiUtente));
@@ -469,6 +501,11 @@ public class DashboardRistoratoreController implements Initializable {
 
     private void eliminaRisposta(long rispostaId) {
         Task<Boolean> task = new Task<>() {
+            /**
+             * Esegue la richiesta asincrona di eliminazione della risposta sul server.
+             *
+             * @return true se l'operazione è completata
+             */
             @Override
             protected Boolean call() {
                 return Main.getClient().eliminaRisposta(rispostaId);

@@ -24,6 +24,12 @@ import java.time.LocalDate;
  */
 public class RegistrazioneController {
 
+    /**
+     * Costruttore di default per {@link RegistrazioneController}.
+     * Necessario per l'inizializzazione tramite FXML loader.
+     */
+    public RegistrazioneController() {}
+
     /** Campo di testo per l'inserimento del nome dell'utente. */
     @FXML private TextField nomeField;
 
@@ -108,6 +114,11 @@ public class RegistrazioneController {
         }
 
         Task<Utente> task = new Task<>() {
+            /**
+             * Esegue la verifica di unicità dello username e la registrazione dell'utente in background.
+             *
+             * @return l'utente appena registrato restituito dal server
+             */
             @Override
             protected Utente call() {
                 if (Main.getClient().usernameEsiste(username))

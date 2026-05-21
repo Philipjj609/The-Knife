@@ -19,6 +19,13 @@ import java.util.Optional;
  */
 public class RispostaDAOImpl implements RispostaDAO {
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param risposta la risposta da salvare
+     * @param proprietarioId l'ID del proprietario del ristorante
+     * @return la risposta salvata con l'ID generato dal database
+     */
     @Override
     public Risposta save(Risposta risposta, long proprietarioId) {
         String sql = """
@@ -49,6 +56,13 @@ public class RispostaDAOImpl implements RispostaDAO {
         return risposta;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param risposta la risposta da aggiornare
+     * @param proprietarioId l'ID del proprietario del ristorante
+     * @return true se l'aggiornamento ha avuto successo, false altrimenti
+     */
     @Override
     public boolean update(Risposta risposta, long proprietarioId) {
         String sql = """
@@ -72,6 +86,13 @@ public class RispostaDAOImpl implements RispostaDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param rispostaId l'ID della risposta da eliminare
+     * @param proprietarioId l'ID del proprietario del ristorante
+     * @return true se l'eliminazione ha avuto successo, false altrimenti
+     */
     @Override
     public boolean delete(long rispostaId, long proprietarioId) {
         String sql = """
@@ -92,6 +113,12 @@ public class RispostaDAOImpl implements RispostaDAO {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param recensioneId l'ID della recensione di cui cercare la risposta
+     * @return un Optional contenente la risposta se presente, altrimenti vuoto
+     */
     @Override
     public Optional<Risposta> findByRecensione(long recensioneId) {
         String sql = """

@@ -27,6 +27,12 @@ import java.util.ResourceBundle;
  */
 public class RispondiRecensioneController implements Initializable {
 
+    /**
+     * Costruttore di default per {@link RispondiRecensioneController}.
+     * Necessario per l'inizializzazione tramite FXML loader.
+     */
+    public RispondiRecensioneController() {}
+
     /** Label che mostra informazioni riassuntive del ristorante e della recensione (nome, stelle, data). */
     @FXML private Label recensioneInfoLabel;
 
@@ -79,6 +85,11 @@ public class RispondiRecensioneController implements Initializable {
         popolaCampiRecensione();
     }
 
+    /**
+     * Associa una risposta già esistente per la modifica, popolando l'area di testo.
+     *
+     * @param risposta la {@link Risposta} esistente da modificare
+     */
     public void setRispostaEsistente(Risposta risposta) {
         this.rispostaEsistente = risposta;
         if (risposta == null) return;
@@ -123,7 +134,7 @@ public class RispondiRecensioneController implements Initializable {
     /**
      * Gestisce l'invio della risposta.
      * Valida la lunghezza e la presenza del testo della risposta,
-     * quindi effettua una chiamata di rete asincrona tramite {@link ClientTK#rispondiRecensione(Risposta)}.
+     * quindi effettua una chiamata di rete asincrona tramite {@link theknife.client.ClientTK#rispondiRecensione(Risposta)}.
      * All'avvenuta risposta riuscita, rinfresca la dashboard del proprietario e chiude la finestra.
      */
     @FXML
@@ -144,6 +155,11 @@ public class RispondiRecensioneController implements Initializable {
         }
 
         Task<Risposta> task = new Task<>() {
+            /**
+             * Esegue l'operazione di invio o modifica della risposta sul server.
+             *
+             * @return la risposta salvata o modificata
+             */
             @Override
             protected Risposta call() {
                 if (isModifica) {
