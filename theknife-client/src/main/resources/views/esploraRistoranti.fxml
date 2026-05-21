@@ -4,6 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+
 <?import theknife.client.ui.widgets.MultiSelectComboBox?>
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
@@ -24,39 +25,40 @@
         <Button text="← Dashboard" onAction="#tornaDashboard" 
                 style="-fx-background-color: #388e3c; -fx-text-fill: white; -fx-border-radius: 5; -fx-background-radius: 5; -fx-font-size: 14px; -fx-padding: 10 20; -fx-border-color: transparent;"/>
     </HBox>
-    
-    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;">
-        <VBox spacing="24" style="-fx-padding: 0 24 24 24;">
+       <!-- ScrollPane principale per unire lo scorrimento di filtri, statistiche e ristoranti -->
+    <ScrollPane fitToWidth="true" styleClass="modern-scroll" VBox.vgrow="ALWAYS">
+        <VBox spacing="16" style="-fx-padding: 16 24 24 24;">
             
             <!-- Hero Section -->
-            <VBox alignment="CENTER" spacing="12" style="-fx-padding: 40 0 20 0;">
+            <VBox alignment="CENTER" spacing="6" style="-fx-padding: 10 0 5 0;">
                 <Text text="Scopri e Esplora i Migliori Ristoranti" styleClass="title,text-center"/>
                 <Text text="Cerca tra i ristoranti stellati Michelin con filtri avanzati" 
                       styleClass="body-text,text-center,text-muted"/>
             </VBox>
             
             <!-- Search Section -->
-            <VBox styleClass="search-container" spacing="16">
+            <VBox styleClass="search-container" spacing="12">
                 <TextField fx:id="searchField" promptText="Cerca ristorante, cucina o località..." 
                            styleClass="search-field" prefWidth="600"/>
                 
                 <!-- Filtri di ricerca avanzati -->
-                <VBox spacing="12">
+                <VBox spacing="10">
                     <!-- Prima riga di filtri -->
-                    <HBox spacing="12" alignment="CENTER">
-                        <MultiSelectComboBox fx:id="cuisineComboBox" promptText="Cucina" itemNamePlural="cucine" prefWidth="150"/>
-                        <MultiSelectComboBox fx:id="serviceComboBox" promptText="Servizio" itemNamePlural="servizi" prefWidth="150"/>
-                        <MultiSelectComboBox fx:id="cittaComboBox" promptText="Città" itemNamePlural="città" prefWidth="150"/>
-                        <MultiSelectComboBox fx:id="nazioneComboBox" promptText="Nazione" itemNamePlural="nazioni" prefWidth="150"/>
-                        <MultiSelectComboBox fx:id="priceRangeComboBox" promptText="Prezzo" itemNamePlural="prezzi" prefWidth="120"/>
+                    <HBox spacing="10" alignment="CENTER">
+                        <MultiSelectComboBox fx:id="cuisineComboBox" promptText="Cucina" itemNamePlural="cucine" prefWidth="140"/>
+                        <MultiSelectComboBox fx:id="serviceComboBox" promptText="Servizio" itemNamePlural="servizi" prefWidth="140"/>
+                        <MultiSelectComboBox fx:id="cittaComboBox" promptText="Città" itemNamePlural="città" prefWidth="140"/>
+                        <MultiSelectComboBox fx:id="nazioneComboBox" promptText="Nazione" itemNamePlural="nazioni" prefWidth="140"/>
+                        <MultiSelectComboBox fx:id="priceRangeComboBox" promptText="Prezzo" itemNamePlural="prezzi" prefWidth="100"/>
                         <MultiSelectComboBox fx:id="starsComboBox" promptText="Stelle Michelin" itemNamePlural="stelle" prefWidth="120"/>
                     </HBox>
-
+     
                     <!-- Seconda riga di filtri -->
                     <HBox spacing="12" alignment="CENTER">
                         <CheckBox fx:id="deliveryCheckBox" text="Delivery disponibile"/>
                         <CheckBox fx:id="onlineBookingCheckBox" text="Prenotazione online"/>
                         <CheckBox fx:id="greenStarCheckBox" text="Green Star"/>
+                        <Button fx:id="searchButton" text="Cerca" styleClass="button,primary" onAction="#handleSearch"/>
                         <Button fx:id="resetButton" text="Reset" styleClass="button,outline" onAction="#handleReset"/>
                         <Button text="↻ Aggiorna" styleClass="button,outline" onAction="#handleAggiorna"/>
                     </HBox>
@@ -66,33 +68,33 @@
             </VBox>
             
             <!-- Statistics -->
-            <HBox spacing="32" alignment="CENTER" styleClass="card" style="-fx-padding: 20;">
-                <VBox alignment="CENTER" spacing="4">
-                    <Text fx:id="totalRestaurantsLabel" text="0" styleClass="subtitle,text-accent"/>
+            <HBox spacing="32" alignment="CENTER" styleClass="card" style="-fx-padding: 12 20;">
+                <VBox alignment="CENTER" spacing="2">
+                    <Text fx:id="totalRestaurantsLabel" text="0" styleClass="subtitle,text-accent" style="-fx-font-size: 20px;"/>
                     <Text text="Ristoranti" styleClass="small-text,text-muted"/>
                 </VBox>
-                <Separator orientation="VERTICAL" prefHeight="40"/>
-                <VBox alignment="CENTER" spacing="4">
+                <Separator orientation="VERTICAL" prefHeight="30"/>
+                <VBox alignment="CENTER" spacing="2">
                     <Text fx:id="michelinStarsLabel" text="0" styleClass="subtitle" 
-                          style="-fx-text-fill: #ffd700;"/>
+                          style="-fx-text-fill: #ffd700; -fx-font-size: 20px;"/>
                     <Text text="Stelle Michelin" styleClass="small-text,text-muted"/>
                 </VBox>
-                <Separator orientation="VERTICAL" prefHeight="40"/>
-                <VBox alignment="CENTER" spacing="4">
+                <Separator orientation="VERTICAL" prefHeight="30"/>
+                <VBox alignment="CENTER" spacing="2">
                     <Text fx:id="greenStarsLabel" text="0" styleClass="subtitle" 
-                          style="-fx-text-fill: #5cb85c;"/>
+                          style="-fx-text-fill: #5cb85c; -fx-font-size: 20px;"/>
                     <Text text="Stelle Verdi" styleClass="small-text,text-muted"/>
                 </VBox>
-                <Separator orientation="VERTICAL" prefHeight="40"/>
-                <VBox alignment="CENTER" spacing="4">
+                <Separator orientation="VERTICAL" prefHeight="30"/>
+                <VBox alignment="CENTER" spacing="2">
                     <Text fx:id="favoritesLabel" text="0" styleClass="subtitle" 
-                          style="-fx-text-fill: #e74c3c;"/>
+                          style="-fx-text-fill: #e74c3c; -fx-font-size: 20px;"/>
                     <Text text="Nei Preferiti" styleClass="small-text,text-muted"/>
                 </VBox>
             </HBox>
             
             <!-- Restaurant List Section -->
-            <VBox spacing="16">
+            <VBox spacing="10">
                 <HBox alignment="CENTER_LEFT" spacing="12">
                     <Text text="Ristoranti" styleClass="heading"/>
                     <Button fx:id="detailsButton" text="Visualizza Dettagli" styleClass="button,primary" 
@@ -103,12 +105,8 @@
                             onAction="#handleMap" disable="true"/>
                 </HBox>
                 
-                <!-- Restaurant Grid with ScrollPane -->
-                <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;" 
-                            prefHeight="600" maxHeight="600">
-                    <ListView fx:id="restaurantListView" styleClass="list-view" 
-                              prefHeight="600"/>
-                </ScrollPane>
+                <!-- VBox per visualizzazione paginata ed evitare lag di rendering -->
+                <VBox fx:id="restaurantsContainer" spacing="12"/>
             </VBox>
         </VBox>
     </ScrollPane>

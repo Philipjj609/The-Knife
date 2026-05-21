@@ -13,6 +13,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import javafx.geometry.Insets;
 import theknife.Main;
 import theknife.client.ui.widgets.MultiSelectComboBox;
 import theknife.models.Ristorante;
@@ -82,8 +83,8 @@ public class EsploraRistorantiController implements Initializable {
     /** Pulsante per reimpostare tutti i filtri di ricerca ai valori iniziali. */
     @FXML private Button resetButton;
 
-    /** Componente grafico per la visualizzazione dell'elenco dei ristoranti filtrati. */
-    @FXML private ListView<Ristorante> restaurantListView;
+    /** Componente grafico per la visualizzazione dell'elenco dei ristoranti filtrati (VBox). */
+    @FXML private VBox restaurantsContainer;
 
     /** Pulsante per visualizzare la scheda di dettaglio del ristorante selezionato. */
     @FXML private Button detailsButton;
@@ -103,14 +104,17 @@ public class EsploraRistorantiController implements Initializable {
     /** Testo che mostra il conteggio dei ristoranti con stelle verdi Michelin correntemente visualizzati. */
     @FXML private Text greenStarsLabel;
 
-    /** Testo segnaposto/contatore per i preferiti (attualmente non utilizzato direttamente). */
+    /** Testo segnaposto/contatore per i preferiti. */
     @FXML private Text favoritesLabel;
 
     /** Etichetta di stato per indicare il caricamento in corso dei dati dal server. */
     @FXML private Label loadingLabel;
 
-    /** Lista osservabile contenente i ristoranti attualmente filtrati e mostrati nella ListView. */
-    private ObservableList<Ristorante> filteredRestaurants;
+    private static final int ITEMS_PER_PAGE = 20;
+    private int currentLimit = ITEMS_PER_PAGE;
+    private Ristorante selectedRestaurant = null;
+    private VBox selectedVisualCard = null;
+    private final List<Ristorante> filteredList = new ArrayList<>();
 
     /** Lista completa dei ristoranti scaricata dal server, usata come base per i filtri locali. */
     private List<Ristorante> allRestaurants = new ArrayList<>();
@@ -135,8 +139,6 @@ public class EsploraRistorantiController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        filteredRestaurants = FXCollections.observableArrayList();
-        restaurantListView.setItems(filteredRestaurants);
         setupUI();
 
         priceRangeComboBox.getItems().setAll("€", "€€", "€€€", "€€€€");
@@ -220,39 +222,74 @@ public class EsploraRistorantiController implements Initializable {
         this.parentController = parent;
     }
 
-    /**
-     * Configura gli elementi della ListView, impostando la cell factory personalizzata
-     * per le card dei ristoranti e gli eventi di selezione e doppio click.
-     */
     private void setupUI() {
-        restaurantListView.setCellFactory(lv -> new ListCell<>() {
-            @Override
-            protected void updateItem(Ristorante r, boolean empty) {
-                super.updateItem(r, empty);
-                if (empty || r == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    setText(null);
-                    setGraphic(createRestaurantCard(r));
+        selectRestaurant(null, null);
+    }
+
+    /**
+     * Gestisce graficamente la selezione di una card ristorante e aggiorna lo stato dei bottoni.
+     */
+    private void selectRestaurant(Ristorante restaurant, VBox card) {
+        if (selectedVisualCard != null) {
+            selectedVisualCard.getStyleClass().remove("selected-card");
+        }
+        selectedRestaurant = restaurant;
+        selectedVisualCard = card;
+        if (selectedVisualCard != null) {
+            selectedVisualCard.getStyleClass().add("selected-card");
+        }
+        boolean hasSelection = selectedRestaurant != null;
+        detailsButton.setDisable(!hasSelection);
+        aggiungiPreferitiButton.setDisable(!hasSelection);
+        mapButton.setDisable(!hasSelection);
+    }
+
+    /**
+     * Gestisce l'evento di ricerca al click sul bottone Cerca.
+     */
+    @FXML
+    private void handleSearch() {
+        applyFilters();
+    }
+
+    /**
+     * Popola dinamicamente il contenitore VBox dei ristoranti con paginazione locale
+     * per evitare lag di rendering con liste estese.
+     */
+    private void updateRestaurantList() {
+        restaurantsContainer.getChildren().clear();
+        int limit = Math.min(currentLimit, filteredList.size());
+        for (int i = 0; i < limit; i++) {
+            Ristorante r = filteredList.get(i);
+            VBox card = createRestaurantCard(r);
+            
+            if (r.equals(selectedRestaurant)) {
+                card.getStyleClass().add("selected-card");
+                selectedVisualCard = card;
+            }
+            
+            card.setOnMouseClicked(event -> {
+                selectRestaurant(r, card);
+                if (event.getClickCount() == 2) {
+                    openRestaurantDetails(r);
                 }
-            }
-        });
-
-        restaurantListView.getSelectionModel().selectedItemProperty().addListener(
-                (obs, oldVal, newVal) -> {
-                    boolean hasSelection = newVal != null;
-                    detailsButton.setDisable(!hasSelection);
-                    aggiungiPreferitiButton.setDisable(!hasSelection);
-                    mapButton.setDisable(!hasSelection);
-                });
-
-        restaurantListView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                Ristorante selected = restaurantListView.getSelectionModel().getSelectedItem();
-                if (selected != null) openRestaurantDetails(selected);
-            }
-        });
+            });
+            
+            restaurantsContainer.getChildren().add(card);
+        }
+        
+        if (filteredList.size() > limit) {
+            int remaining = filteredList.size() - limit;
+            Button loadMoreBtn = new Button("Mostra altri ristoranti (" + remaining + " rimanenti)");
+            loadMoreBtn.getStyleClass().addAll("button", "outline");
+            loadMoreBtn.setMaxWidth(Double.MAX_VALUE);
+            loadMoreBtn.setOnAction(e -> {
+                currentLimit += ITEMS_PER_PAGE;
+                updateRestaurantList();
+            });
+            VBox.setMargin(loadMoreBtn, new Insets(10, 0, 0, 0));
+            restaurantsContainer.getChildren().add(loadMoreBtn);
+        }
     }
 
     /**
@@ -309,9 +346,16 @@ public class EsploraRistorantiController implements Initializable {
         return card;
     }
 
-    /** Applica tutti i filtri correnti in locale e aggiorna la ListView. Eseguito sul FX thread. */
+    /**
+     * Applica tutti i filtri correnti in locale e aggiorna la visualizzazione dei ristoranti.
+     * Eseguito sul JavaFX Application Thread.
+     */
     private void applyFilters() {
-        filteredRestaurants.setAll(allRestaurants.stream().filter(buildPredicate()).toList());
+        filteredList.clear();
+        filteredList.addAll(allRestaurants.stream().filter(buildPredicate()).collect(Collectors.toList()));
+        currentLimit = ITEMS_PER_PAGE;
+        selectRestaurant(null, null);
+        updateRestaurantList();
         updateStatistics();
     }
 
@@ -381,8 +425,9 @@ public class EsploraRistorantiController implements Initializable {
      */
     @FXML
     private void handleDetails() {
-        Ristorante selected = restaurantListView.getSelectionModel().getSelectedItem();
-        if (selected != null) openRestaurantDetails(selected);
+        if (selectedRestaurant != null) {
+            openRestaurantDetails(selectedRestaurant);
+        }
     }
 
     /**
@@ -391,8 +436,9 @@ public class EsploraRistorantiController implements Initializable {
      */
     @FXML
     private void handleAggiungiPreferiti() {
-        Ristorante selected = restaurantListView.getSelectionModel().getSelectedItem();
-        if (selected != null && currentUser != null) toggleFavorite(selected);
+        if (selectedRestaurant != null && currentUser != null) {
+            toggleFavorite(selectedRestaurant);
+        }
     }
 
     /**
@@ -401,8 +447,9 @@ public class EsploraRistorantiController implements Initializable {
      */
     @FXML
     private void handleMap() {
-        Ristorante selected = restaurantListView.getSelectionModel().getSelectedItem();
-        if (selected != null) showOnMap(selected);
+        if (selectedRestaurant != null) {
+            showOnMap(selectedRestaurant);
+        }
     }
 
     /**
@@ -567,14 +614,27 @@ public class EsploraRistorantiController implements Initializable {
      * le relative etichette testuali.
      */
     private void updateStatistics() {
-        int total = filteredRestaurants.size();
-        long michelin = filteredRestaurants.stream().filter(r -> r.getStarCount() > 0).count();
-        long green = filteredRestaurants.stream().filter(Ristorante::isGreenStar).count();
+        int total = filteredList.size();
+        long michelin = filteredList.stream().filter(r -> r.getStarCount() > 0).count();
+        long green = filteredList.stream().filter(Ristorante::isGreenStar).count();
 
         totalRestaurantsLabel.setText(String.valueOf(total));
         michelinStarsLabel.setText(String.valueOf(michelin));
         greenStarsLabel.setText(String.valueOf(green));
-        favoritesLabel.setText("0");
+        
+        if (currentUser != null) {
+            new Thread(() -> {
+                try {
+                    List<Ristorante> favs = Main.getClient().getPreferiti(currentUser.getUsername());
+                    int favCount = favs != null ? favs.size() : 0;
+                    javafx.application.Platform.runLater(() -> favoritesLabel.setText(String.valueOf(favCount)));
+                } catch (Exception ex) {
+                    System.err.println("[EsploraRistoranti] Errore nel recupero dei preferiti per le statistiche: " + ex.getMessage());
+                }
+            }).start();
+        } else {
+            favoritesLabel.setText("0");
+        }
     }
 
     /**
@@ -593,11 +653,11 @@ public class EsploraRistorantiController implements Initializable {
     }
 
     /**
-     * Rinfresca graficamente la ListView dei ristoranti e aggiorna
+     * Rinfresca graficamente la visualizzazione dei ristoranti e aggiorna
      * i contatori statistici in base ai filtri attuali.
      */
     public void refreshView() {
-        restaurantListView.refresh();
+        updateRestaurantList();
         updateStatistics();
     }
 

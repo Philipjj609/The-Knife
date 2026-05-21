@@ -13,6 +13,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import javafx.geometry.Insets;
 import theknife.Main;
 import theknife.client.ui.widgets.MultiSelectComboBox;
 import theknife.models.Ristorante;
@@ -78,8 +79,8 @@ public class GuestViewController implements Initializable {
     /** Pulsante per ripulire tutti i parametri di filtro. */
     @FXML private Button resetButton;
 
-    /** ListView per mostrare l'elenco dei ristoranti filtrati. */
-    @FXML private ListView<Ristorante> restaurantListView;
+    /** Componente grafico per la visualizzazione dell'elenco dei ristoranti filtrati (VBox). */
+    @FXML private VBox restaurantsContainer;
 
     /** Pulsante per accedere al dettaglio del ristorante selezionato. */
     @FXML private Button detailsButton;
@@ -99,8 +100,11 @@ public class GuestViewController implements Initializable {
     /** Etichetta di caricamento che indica l'avanzamento delle operazioni di rete. */
     @FXML private Label loadingLabel;
 
-    /** Lista osservabile contenente l'elenco dei ristoranti correntemente filtrati. */
-    private ObservableList<Ristorante> filteredRestaurants;
+    private static final int ITEMS_PER_PAGE = 20;
+    private int currentLimit = ITEMS_PER_PAGE;
+    private Ristorante selectedRestaurant = null;
+    private VBox selectedVisualCard = null;
+    private final List<Ristorante> filteredList = new ArrayList<>();
 
     /** Lista completa di tutti i ristoranti caricata all'avvio dal server. */
     private List<Ristorante> allRestaurants = new ArrayList<>();
@@ -115,8 +119,6 @@ public class GuestViewController implements Initializable {
      */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        filteredRestaurants = FXCollections.observableArrayList();
-        restaurantListView.setItems(filteredRestaurants);
         setupUI();
 
         priceRangeComboBox.getItems().setAll("€", "€€", "€€€", "€€€€");
@@ -181,35 +183,75 @@ public class GuestViewController implements Initializable {
     }
 
     /**
-     * Configura la ListView impostando la cell factory personalizzata per renderizzare
-     * ciascun ristorante tramite una card visiva, e configura i listener di selezione.
+     * Inizializza i controlli e lo stato iniziale per la selezione.
      */
     private void setupUI() {
-        restaurantListView.setCellFactory(lv -> new ListCell<>() {
-            @Override
-            protected void updateItem(Ristorante r, boolean empty) {
-                super.updateItem(r, empty);
-                if (empty || r == null) {
-                    setText(null); setGraphic(null);
-                } else {
-                    setText(null);
-                    setGraphic(createRestaurantCard(r));
+        selectRestaurant(null, null);
+    }
+
+    /**
+     * Gestisce graficamente la selezione di una card ristorante e aggiorna lo stato dei bottoni.
+     */
+    private void selectRestaurant(Ristorante restaurant, VBox card) {
+        if (selectedVisualCard != null) {
+            selectedVisualCard.getStyleClass().remove("selected-card");
+        }
+        selectedRestaurant = restaurant;
+        selectedVisualCard = card;
+        if (selectedVisualCard != null) {
+            selectedVisualCard.getStyleClass().add("selected-card");
+        }
+        boolean hasSelection = selectedRestaurant != null;
+        detailsButton.setDisable(!hasSelection);
+        mapButton.setDisable(!hasSelection);
+    }
+
+    /**
+     * Gestisce l'evento di ricerca al click sul bottone Cerca.
+     */
+    @FXML
+    private void handleSearch() {
+        applyFilters();
+    }
+
+    /**
+     * Popola dinamicamente il contenitore VBox dei ristoranti con paginazione locale
+     * per evitare lag di rendering con liste estese.
+     */
+    private void updateRestaurantList() {
+        restaurantsContainer.getChildren().clear();
+        int limit = Math.min(currentLimit, filteredList.size());
+        for (int i = 0; i < limit; i++) {
+            Ristorante r = filteredList.get(i);
+            VBox card = createRestaurantCard(r);
+            
+            if (r.equals(selectedRestaurant)) {
+                card.getStyleClass().add("selected-card");
+                selectedVisualCard = card;
+            }
+            
+            card.setOnMouseClicked(event -> {
+                selectRestaurant(r, card);
+                if (event.getClickCount() == 2) {
+                    openRestaurantDetails(r);
                 }
-            }
-        });
-
-        restaurantListView.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
-            boolean sel = n != null;
-            detailsButton.setDisable(!sel);
-            mapButton.setDisable(!sel);
-        });
-
-        restaurantListView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                Ristorante selected = restaurantListView.getSelectionModel().getSelectedItem();
-                if (selected != null) openRestaurantDetails(selected);
-            }
-        });
+            });
+            
+            restaurantsContainer.getChildren().add(card);
+        }
+        
+        if (filteredList.size() > limit) {
+            int remaining = filteredList.size() - limit;
+            Button loadMoreBtn = new Button("Mostra altri ristoranti (" + remaining + " rimanenti)");
+            loadMoreBtn.getStyleClass().addAll("button", "outline");
+            loadMoreBtn.setMaxWidth(Double.MAX_VALUE);
+            loadMoreBtn.setOnAction(e -> {
+                currentLimit += ITEMS_PER_PAGE;
+                updateRestaurantList();
+            });
+            VBox.setMargin(loadMoreBtn, new Insets(10, 0, 0, 0));
+            restaurantsContainer.getChildren().add(loadMoreBtn);
+        }
     }
 
     /**
@@ -266,9 +308,16 @@ public class GuestViewController implements Initializable {
         return card;
     }
 
-    /** Applica tutti i filtri correnti in locale e aggiorna la ListView. Eseguito sul FX thread. */
+    /**
+     * Applica tutti i filtri correnti in locale e aggiorna la visualizzazione dei ristoranti.
+     * Eseguito sul JavaFX Application Thread.
+     */
     private void applyFilters() {
-        filteredRestaurants.setAll(allRestaurants.stream().filter(buildPredicate()).toList());
+        filteredList.clear();
+        filteredList.addAll(allRestaurants.stream().filter(buildPredicate()).collect(Collectors.toList()));
+        currentLimit = ITEMS_PER_PAGE;
+        selectRestaurant(null, null);
+        updateRestaurantList();
         updateStatistics();
     }
 
@@ -336,8 +385,9 @@ public class GuestViewController implements Initializable {
      */
     @FXML
     private void handleDetails() {
-        Ristorante sel = restaurantListView.getSelectionModel().getSelectedItem();
-        if (sel != null) openRestaurantDetails(sel);
+        if (selectedRestaurant != null) {
+            openRestaurantDetails(selectedRestaurant);
+        }
     }
 
     /**
@@ -345,8 +395,9 @@ public class GuestViewController implements Initializable {
      */
     @FXML
     private void handleMap() {
-        Ristorante sel = restaurantListView.getSelectionModel().getSelectedItem();
-        if (sel != null) showOnMap(sel);
+        if (selectedRestaurant != null) {
+            showOnMap(selectedRestaurant);
+        }
     }
 
     /**
@@ -501,11 +552,13 @@ public class GuestViewController implements Initializable {
      * Aggiorna le etichette di testo con i conteggi statistici relativi all'elenco dei ristoranti filtrati.
      */
     private void updateStatistics() {
-        totalRestaurantsLabel.setText(String.valueOf(filteredRestaurants.size()));
-        michelinStarsLabel.setText(String.valueOf(
-                filteredRestaurants.stream().filter(r -> r.getStarCount() > 0).count()));
-        greenStarsLabel.setText(String.valueOf(
-                filteredRestaurants.stream().filter(Ristorante::isGreenStar).count()));
+        int total = filteredList.size();
+        long michelin = filteredList.stream().filter(r -> r.getStarCount() > 0).count();
+        long green = filteredList.stream().filter(Ristorante::isGreenStar).count();
+
+        totalRestaurantsLabel.setText(String.valueOf(total));
+        michelinStarsLabel.setText(String.valueOf(michelin));
+        greenStarsLabel.setText(String.valueOf(green));
     }
 
     /**

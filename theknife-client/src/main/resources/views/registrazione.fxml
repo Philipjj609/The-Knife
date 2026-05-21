@@ -72,7 +72,13 @@
                                 <Label text="Password *" styleClass="body-text" style="-fx-font-weight: bold;"/>
                                 <PasswordField fx:id="passwordField" promptText="Crea una password sicura"
                                               style="-fx-font-size: 16px; -fx-padding: 12 16;"/>
-                                <Label text="Minimo 6 caratteri, consigliati numeri e caratteri speciali" styleClass="small-text"/>
+                                <Label text="Minimo 8 caratteri, almeno una lettera e un numero" styleClass="small-text"/>
+                            </VBox>
+
+                            <VBox spacing="8">
+                                <Label text="Conferma Password *" styleClass="body-text" style="-fx-font-weight: bold;"/>
+                                <PasswordField fx:id="confermaPasswordField" promptText="Ripeti la password inserita"
+                                              style="-fx-font-size: 16px; -fx-padding: 12 16;"/>
                             </VBox>
 
                             <VBox spacing="8">

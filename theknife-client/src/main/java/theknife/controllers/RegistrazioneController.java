@@ -36,6 +36,9 @@ public class RegistrazioneController {
     /** Campo per l'inserimento della password. */
     @FXML private PasswordField passwordField;
 
+    /** Campo per la conferma della password. */
+    @FXML private PasswordField confermaPasswordField;
+
     /** Picker per la selezione della data di nascita. */
     @FXML private DatePicker dataNascitaPicker;
 
@@ -61,6 +64,7 @@ public class RegistrazioneController {
         cognomeField.textProperty().addListener((obs, o, n) -> hideError());
         usernameField.textProperty().addListener((obs, o, n) -> hideError());
         passwordField.textProperty().addListener((obs, o, n) -> hideError());
+        confermaPasswordField.textProperty().addListener((obs, o, n) -> hideError());
         domicilioField.textProperty().addListener((obs, o, n) -> hideError());
         ruoloComboBox.valueProperty().addListener((obs, o, n) -> hideError());
     }
@@ -77,6 +81,12 @@ public class RegistrazioneController {
         String cognome = cognomeField.getText() == null ? "" : cognomeField.getText().trim();
         String username = usernameField.getText() == null ? "" : usernameField.getText().trim();
         String password = passwordField.getText() == null ? "" : passwordField.getText();
+        String confermaPassword = confermaPasswordField.getText() == null ? "" : confermaPasswordField.getText();
+
+        if (!password.equals(confermaPassword)) {
+            showError("Le due password inserite non coincidono.");
+            return;
+        }
         LocalDate dataNascita = dataNascitaPicker.getValue();
         String domicilio = domicilioField.getText() == null ? "" : domicilioField.getText().trim();
         String ruolo = ruoloComboBox.getValue();

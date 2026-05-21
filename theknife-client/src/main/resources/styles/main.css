@@ -710,3 +710,81 @@
     -fx-opacity: 0;
     -fx-padding: 0;
 }
+
+/* ==========================================================================
+   Overlay Scrollbar e Selezione Card Ristorante
+   ========================================================================== */
+
+/* ScrollPane moderno e overlay scrollbar minimali */
+.modern-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.modern-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.modern-scroll .scroll-bar:vertical {
+    -fx-pref-width: 8;
+    -fx-background-color: transparent;
+    -fx-opacity: 0.0;
+}
+
+/* Diventa semitrasparente all'hover del mouse sullo ScrollPane */
+.modern-scroll:hover .scroll-bar:vertical,
+.modern-scroll .scroll-bar:vertical:hover {
+    -fx-opacity: 0.6;
+}
+
+/* Incrementa visibilità se hover diretto sulla scrollbar */
+.modern-scroll .scroll-bar:vertical:hover {
+    -fx-opacity: 0.9;
+}
+
+.modern-scroll .scroll-bar:horizontal {
+    -fx-pref-height: 8;
+    -fx-background-color: transparent;
+    -fx-opacity: 0.0;
+}
+
+.modern-scroll:hover .scroll-bar:horizontal,
+.modern-scroll .scroll-bar:horizontal:hover {
+    -fx-opacity: 0.6;
+}
+
+.modern-scroll .scroll-bar .track {
+    -fx-background-color: transparent;
+}
+
+.modern-scroll .scroll-bar .thumb {
+    -fx-background-color: linear-gradient(to bottom, -fx-light-green, -fx-accent-green);
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-background-insets: 1;
+}
+
+.modern-scroll .scroll-bar .thumb:hover {
+    -fx-background-color: linear-gradient(to bottom, derive(-fx-light-green, 10%), -fx-primary-green);
+}
+
+.modern-scroll .scroll-bar .increment-button,
+.modern-scroll .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.modern-scroll .scroll-bar .increment-arrow,
+.modern-scroll .scroll-bar .decrement-arrow {
+    -fx-background-color: transparent;
+    -fx-opacity: 0;
+    -fx-padding: 0;
+}
+
+/* Stile per evidenziare la card del ristorante selezionato */
+.restaurant-card.selected-card {
+    -fx-background-color: linear-gradient(to bottom, #f0f7f0, #e6efe6);
+    -fx-border-color: -fx-accent-green;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, rgba(45, 90, 45, 0.2), 16, 0, 0, 4);
+}
