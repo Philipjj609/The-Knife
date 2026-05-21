@@ -29,22 +29,21 @@
                 
                 <!-- Filtri di ricerca avanzati -->
                 <VBox spacing="10">
-                    <!-- Prima riga di filtri -->
-                    <HBox spacing="10" alignment="CENTER">
+                    <!-- Prima riga di filtri (FlowPane per wrapping automatico) -->
+                    <FlowPane hgap="10" vgap="10" alignment="CENTER" prefWrapLength="700">
                         <MultiSelectComboBox fx:id="cuisineComboBox" promptText="Cucina" itemNamePlural="cucine" prefWidth="140"/>
                         <MultiSelectComboBox fx:id="serviceComboBox" promptText="Servizio" itemNamePlural="servizi" prefWidth="140"/>
                         <MultiSelectComboBox fx:id="cittaComboBox" promptText="Città" itemNamePlural="città" prefWidth="140"/>
                         <MultiSelectComboBox fx:id="nazioneComboBox" promptText="Nazione" itemNamePlural="nazioni" prefWidth="140"/>
-                        <MultiSelectComboBox fx:id="priceRangeComboBox" promptText="Prezzo" itemNamePlural="prezzi" prefWidth="100"/>
-                        <MultiSelectComboBox fx:id="starsComboBox" promptText="Stelle Michelin" itemNamePlural="stelle" prefWidth="120"/>
-                    </HBox>
+                        <MultiSelectComboBox fx:id="priceRangeComboBox" promptText="Prezzo" itemNamePlural="prezzi" prefWidth="130" minWidth="120"/>
+                        <MultiSelectComboBox fx:id="starsComboBox" promptText="Stelle Michelin" itemNamePlural="stelle" prefWidth="160" minWidth="150"/>
+                    </FlowPane>
      
                     <!-- Seconda riga di filtri -->
                     <HBox spacing="12" alignment="CENTER">
                         <CheckBox fx:id="deliveryCheckBox" text="Delivery disponibile"/>
                         <CheckBox fx:id="onlineBookingCheckBox" text="Prenotazione online"/>
                         <CheckBox fx:id="greenStarCheckBox" text="Green Star"/>
-                        <Button fx:id="searchButton" text="Cerca" styleClass="button,primary" onAction="#handleSearch"/>
                         <Button fx:id="resetButton" text="Reset" styleClass="button,outline" onAction="#handleReset"/>
                         <Button text="↻ Aggiorna" styleClass="button,outline" onAction="#handleAggiorna"/>
                     </HBox>

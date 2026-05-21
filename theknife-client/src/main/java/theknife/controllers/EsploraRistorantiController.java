@@ -278,14 +278,6 @@ public class EsploraRistorantiController implements Initializable {
     }
 
     /**
-     * Gestisce l'evento di ricerca al click sul bottone Cerca.
-     */
-    @FXML
-    private void handleSearch() {
-        applyFilters();
-    }
-
-    /**
      * Popola dinamicamente il contenitore VBox dei ristoranti con paginazione locale
      * per evitare lag di rendering con liste estese.
      */
@@ -364,12 +356,17 @@ public class EsploraRistorantiController implements Initializable {
         }
         if (ristorante.isGreenStar()) {
             Label green = new Label("🌱 Green Star");
-            green.getStyleClass().addAll("badge", "success");
+            green.getStyleClass().addAll("badge", "badge-success");
             badges.getChildren().add(green);
         }
+        if (ristorante.isDelivery()) {
+            Label delivery = new Label("🛵 Delivery");
+            delivery.getStyleClass().addAll("badge", "badge-warning");
+            badges.getChildren().add(delivery);
+        }
         if (ristorante.isPrenotazioneOnline()) {
-            Label booking = new Label("Prenotazione online");
-            booking.getStyleClass().addAll("badge", "info");
+            Label booking = new Label("📅 Prenotazione online");
+            booking.getStyleClass().addAll("badge", "badge-info");
             badges.getChildren().add(booking);
         }
 
