@@ -270,6 +270,21 @@ public class DettaglioRistoranteController implements Initializable {
 
         card.getChildren().addAll(header, titolo, commento);
 
+        // Se l'utente correntemente loggato coincide con l'autore della recensione, mostra i bottoni di modifica/eliminazione
+        if (currentUser != null && currentUser.equalsIgnoreCase(recensione.getUsernameCliente())) {
+            HBox azioni = new HBox(8);
+            Button modificaBtn = new Button("✏ Modifica");
+            modificaBtn.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 11; -fx-padding: 4 10;");
+            modificaBtn.setOnAction(e -> apriModificaRecensione(recensione));
+
+            Button eliminaBtn = new Button("🗑 Elimina");
+            eliminaBtn.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 11; -fx-padding: 4 10;");
+            eliminaBtn.setOnAction(e -> confermaEliminaRecensione(recensione));
+
+            azioni.getChildren().addAll(modificaBtn, eliminaBtn);
+            card.getChildren().add(azioni);
+        }
+
         if (recensione.getRisposta() != null) {
             VBox rispostaBox = new VBox(5);
             rispostaBox.setStyle("-fx-background-color: #f8f9fa; -fx-padding: 8; -fx-border-radius: 5;");
@@ -287,6 +302,59 @@ public class DettaglioRistoranteController implements Initializable {
         }
 
         return card;
+    }
+
+    /**
+     * Richiede asincronamente i dati completi del ristorante associato alla recensione dal server,
+     * quindi apre in modo asincrono (su JavaFX Thread) la schermata per la modifica della recensione.
+     *
+     * @param recensione la recensione {@link Recensione} da modificare
+     */
+    private void apriModificaRecensione(Recensione recensione) {
+        new Thread(() -> Main.getClient().getRistorante(recensione.getRistoranteId()).ifPresent(ristorante ->
+            javafx.application.Platform.runLater(() -> {
+                try {
+                    AppNavigator.show("/views/aggiungiRecensione.fxml", (AggiungiRecensioneController controller) -> {
+                        controller.setRistorante(ristorante);
+                        controller.setCurrentUser(currentUser);
+                        controller.setRecensioneEsistente(recensione);
+                        controller.setParentController(this);
+                        if (dashboardClienteParentController != null) {
+                            controller.setParentController(dashboardClienteParentController);
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            })
+        )).start();
+    }
+
+    /**
+     * Mostra una finestra di dialogo di conferma per procedere all'eliminazione di una recensione.
+     * Se confermato, avvia un thread in background che notifica il server tramite la Facade di rete
+     * e aggiorna la schermata principale al termine del processo.
+     *
+     * @param recensione la recensione {@link Recensione} da eliminare
+     */
+    private void confermaEliminaRecensione(Recensione recensione) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Elimina Recensione");
+        confirm.setHeaderText("Elimina la tua recensione?");
+        confirm.setContentText("Questa azione non può essere annullata.");
+        confirm.showAndWait().ifPresent(btn -> {
+            if (btn == ButtonType.OK) {
+                new Thread(() -> {
+                    Main.getClient().eliminaRecensione(recensione.getId(), currentUser);
+                    javafx.application.Platform.runLater(() -> {
+                        loadRecensioni();
+                        if (dashboardClienteParentController != null) {
+                            dashboardClienteParentController.refreshData();
+                        }
+                    });
+                }).start();
+            }
+        });
     }
 
     /**
