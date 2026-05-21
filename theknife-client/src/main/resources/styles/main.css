@@ -58,18 +58,31 @@
     -fx-text-fill: rgba(255, 255, 255, 0.8);
 }
 
-/* Logo styling - Distinctive font for "The Knife" */
-.logo-text {
-    -fx-font-size: 32px;
+/* Logo / Brand styling — unified class for "TheKnife" branding.
+   Apply .brand-title to every Text node that spells out the brand name
+   so that "The" and "Knife" are rendered with identical font, size,
+   weight, style and colour across all pages. */
+.brand-title {
+    -fx-font-size: 28px;
     -fx-font-weight: bold;
-    -fx-font-family: "Playfair Display", "Georgia", "Times New Roman", serif;
+    -fx-font-family: "Segoe UI", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+    -fx-text-fill: -fx-light-text;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 2, 0, 1, 1);
+}
+
+/* Keep the old selectors around as aliases so nothing breaks if
+   referenced elsewhere; they now map to the same look. */
+.logo-text {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Segoe UI", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
     -fx-text-fill: -fx-light-text;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 2, 0, 1, 1);
 }
 
 .logo-accent {
-    -fx-text-fill: #90c695;
-    -fx-font-style: italic;
+    /* intentionally identical to .logo-text / .brand-title — no colour
+       or style overrides so "The" and "Knife" look the same. */
 }
 
 /* Modern card styling */
@@ -703,6 +716,13 @@
     -fx-border-width: 1;
     -fx-padding: 20;
     -fx-effect: dropshadow(gaussian, rgba(45, 90, 45, 0.10), 18, 0, 0, 5);
+}
+
+/* Filter row: allow filter combo-boxes to wrap when the window is narrow
+   instead of being clipped / cut off. */
+.filter-row {
+    -fx-wrap-text: true;
+    -fx-alignment: center-left;
 }
 
 .section-titlebar {

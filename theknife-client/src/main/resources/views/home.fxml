@@ -18,9 +18,8 @@
                         <Image url="@../images/icon.png"/>
                     </image>
                 </ImageView>
-                <HBox spacing="4" alignment="CENTER_LEFT">
-                    <Text text="The" styleClass="logo-text"/>
-                    <Text text="Knife" styleClass="logo-text logo-accent"/>
+                <HBox spacing="0" alignment="CENTER_LEFT">
+                    <Text text="TheKnife" styleClass="brand-title"/>
                 </HBox>
             </HBox>
 
